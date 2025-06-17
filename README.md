@@ -1,8 +1,8 @@
 # Obase框架
 Obase是一款存储抽象层框架中间件,分别在dotNet和Java两种语言下提供了相同的功能,旨在为开发者提供一个统一的存储抽象层,使得开发者可以更专注于业务逻辑的实现,而不必过多关注底层存储的细节.
 以下为开源仓库地址:
-- [Obase4DotNet](https://github.com/lechengruangong/Obase4DotNet)
-- [Obase4DotNet](https://github.com/lechengruangong/Obase4Java)
+- [Obase4DotNet](https://github.com/lechengruangong/Obase4DotNet) Obase框架在dotNet平台的实现
+- [Obase4Java](https://github.com/lechengruangong/Obase4Java) Obase框架在Java平台的实现
 
 # Obase文档
 本项目为Obase的相关文档,目录结构如下:
