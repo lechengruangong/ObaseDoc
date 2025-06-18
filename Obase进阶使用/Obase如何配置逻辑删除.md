@@ -19,9 +19,8 @@
 
 ```
 //此处省略了一些配置结构化类型的代码 鉴定已经将类Domain配置为实体型
- //创建逻辑删除扩展
- var logicDeletionExt =
-     logicDeletion.HasExtension<LogicDeletionExtensionConfiguration<Domain>>();
+//创建逻辑删除扩展
+var logicDeletionExt = logicDeletion.HasExtension<LogicDeletionExtensionConfiguration<Domain>>();
 //当类中有定义逻辑删除字段时 指定为逻辑删除标记
 logicDeletionExt.HasDeletionMark(p => p.Deleted);
 //当类中没有定义逻辑删除字段时 需要指定逻辑删除映射字段
@@ -32,9 +31,9 @@ logicDeletionExt.HasDeletionField("Deleted");
 
 当然,对于Sql数据源,这两种情况都需要在映射表内存在逻辑删除的字段.
 
-第6行就是类内有定义逻辑删除字段的情况,此种情况需要指定哪个属性是逻辑删除字段.
+第5行就是类内有定义逻辑删除字段的情况,此种情况需要指定哪个属性是逻辑删除字段.
 
-第8行时类内没有定义逻辑删除字段的情况,此时仅需要配置数据源中哪个字段是逻辑删除即可.
+第7行时类内没有定义逻辑删除字段的情况,此时仅需要配置数据源中哪个字段是逻辑删除即可.
 
 这两行配置根据需要选择其中一个即可.
 
@@ -65,3 +64,5 @@ context.CreateSet<Domain>().RecoveryLogically(p=>p.Id > 50);
 ```
 
 ## java
+
+java版待重写
