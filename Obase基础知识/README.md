@@ -6,5 +6,6 @@
 5.  [Obase的配置建造器有哪些方法(dotNet版)](./Obase的配置建造器有哪些方法(dotNet版).md)
 6.  [Obase的配置有哪些默认值(dotNet版)](./Obase的配置有哪些默认值(dotNet版).md)
 7.  [Obase的依赖注入方法有哪些(dotNet版)](./Obase的依赖注入方法有哪些(dotNet版).md)
+8.  [Obase的总体配置思路](./Obase的总体配置思路.md)
 
 一些内容较多的文档区分了不同的语言版本而一些内容较少的文档则没有区分,区分了语言版本的文档会在标题中标明.
