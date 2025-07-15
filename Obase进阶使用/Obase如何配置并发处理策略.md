@@ -94,7 +94,7 @@ Accumulate = 2
 
 大多数情况下,是需要进行合并,要使用Accumulate属性合并策略,不过需要注意的是Accumulate策略只能用在数值类型的属性上.
 
-综上,如果要将一个实体类型的合并策略设置为版本合并,且将Value属性作为版本键和使用累加属性合并策略的例子如下:
+综上,如果要将一个实体类型的合并策略设置为版本合并,版本键VersionKey,对Value属性使用累加属性合并策略的例子如下:
 ```
  //配置实体型
  var accumulateCombineConfig = modelBuilder.Entity<AccumulateCombineKeyValue>();
