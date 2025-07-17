@@ -58,7 +58,7 @@ context.CreateSet<Domain>().RemoveLogically(entity);
 //逻辑标记恢复对象
 context.CreateSet<Domain>().RecoveryLogically(entity);
 //直接逻辑删除符合条件的对象
-context.CreateSet<Domain>().RemoveLogically(p=>p.Id > 50);
+context.CreateSet<Domain>().DeleteLogically(p=>p.Id > 50);
 //直接逻辑恢复符合条件的对象
 context.CreateSet<Domain>().RecoveryLogically(p=>p.Id > 50);
 ```
