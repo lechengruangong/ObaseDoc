@@ -21,6 +21,8 @@
    //在保存时 会由数据源抛出异常 此时这三个对象的修改都处于同一事务块内 所以这三个的修改都不会保存
    context.SaveChanges();
    ```
+   
+   在自动事务中,连接和事务控制都由Obase负责.
 2. 手动事务
 
    Obase的手动事务,指的是调用Obase的手动事务方法自己控制事务.
@@ -65,15 +67,16 @@
    }
    ```
 
+   在手动事务中,连接由Obase负责,事务控制由调用方负责.
 3. 已有连接事务(6.4.1+可用)
    
-   Obase的已有连接事务,指的是由第三方提供连接来构造上下文配置提供者并由第三方来管理连接的事务的模式.
+   Obase的已有连接事务,指的是由调用方提供连接来构造上下文配置提供者并由调用方来管理连接的事务的模式.
 
-   此种事务模式通常用于与旧系统的事务进行对接,如旧系统中已存在了一个业务场景,原有逻辑为有一个事务先执行A语句再执行B语句最后一起提交,此时新的C部分由Obase来负责,需要将旧的逻辑改为先执行A再执行新逻辑C最后执行B再提交.
+   此种事务模式通常用于与旧系统的事务进行对接,比如旧系统中已存在了一个业务场景,原有逻辑为有一个事务先执行A语句再执行B语句最后一起提交,此时新的C部分由Obase来负责,需要将旧的逻辑改为先执行A再执行新逻辑C最后执行B再提交.
 
-   此时可以使用已有连接事务来处理,令Obase也使用旧系统提供的连接来处理事务.
+   此时可以使用已有连接事务来处理此问题,Obase提供了ADO.NET层的兼容方案,令Obase也使用旧系统提供的连接来处理事务.
 
-   以下代码为旧系统的事务示例:
+   以下代码为旧系统的事务示例,此处使用的是ADO.NET的事务基础代码作为示例,实际使用时可能有所包装,但只要仍使用ADO.NET模型就可以兼容:
 
    ```
    //假设此时已经有了一个连接 且是打开的
@@ -106,7 +109,7 @@
        connection.Dispose();
    }
    ```
-   此时引入Obase并且像保持之前的事务处理逻辑,需要使用已有连接事务,首先需要定义一个新的上下文配置提供者(此处以MySql为例):
+   此时引入Obase并且想要保留之前的事务处理逻辑,那么就可以使用已有连接事务来做兼容,首先需要定义一个新的上下文配置提供者(此处以MySql为例):
    ```
    /// <summary>
    ///     使用已存在的MySql连接上下文配置
@@ -132,7 +135,7 @@
        }
    }
    ```
-   这个上下文配置提供者继承的配置提供器是SqlContextConfigurator,构造函数需要传入一个特定的SQL执行器来接收已有的连接作为参数,这样就可以使用之前的事务代码来控制事务了,对应的上下文如下:
+   这个上下文配置提供者继承的配置提供器是SqlContextConfigurator,对于已有连接事务构造函数需要传入一个特定的ExistingConnectionSqlExecutor执行器来接收已有的连接作为参数,那么对应的上下文如下:
    ```
    /// <summary>
    ///     使用已存在的MySql连接上下文
@@ -144,12 +147,13 @@
       /// </summary>
       /// <param name="providerFactory">用于创建数据提供程序类实例的工厂</param>
       /// <param name="connection">连接</param>
+      /// <param name="transaction">当前连接中已执行命令的事务,没有开启事务时不需要此参数</param>
       public MySqlExistingConnectionContext(DbProviderFactory providerFactory, DbConnection connection,DbTransaction transaction = null) : base(new MySqlExistingConnectionContextConfiger(new ExistingConnectionSqlExecutor(providerFactory, connection, EDataSource.MySql, transaction)))
       {
       }
    }
    ```
-   这种使用已有连接的ExistingConnectionSqlExecutor需要这样几个参数:数据提供器工厂,数据源连接,数据源类型和数据源连接已开启的事务.
+   ExistingConnectionSqlExecutor执行器需要这样几个参数:数据提供器工厂,数据源连接,数据源类型和数据源连接已开启的事务.
 
    使用这些参数构造的ExistingConnectionSqlExecutor会将已有的连接和事务作为Obase的Sql执行者使用,这样就可以复用原有的事务处理了.
 
@@ -193,6 +197,10 @@
    }
    ```
    实际上就是在原有的逻辑A和B之间使用现有的连接和事务构造上下文,之后再增加Obase的逻辑即可.
+
+   在已有连接事务中,连接和事务控制都由调用方负责.
+
+   当然,如果你需要特定的事务处理逻辑,你可以自己实现一个ISqlExecutor的接口实现,之后传入你继承SqlContextConfigurator的提供器构造函数即可.
 ## java
 
 java版待重写
