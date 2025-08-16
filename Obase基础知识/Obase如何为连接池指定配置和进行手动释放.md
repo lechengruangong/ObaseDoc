@@ -75,7 +75,7 @@ obuilder.Build();
 
 此处的CreateBuilder类型参数即为要注入的上下文类型,之后即可以在首次调用Obase后观察到类似如下的输出:
 
-![image.png](image/knowledge/ac075914-85de-425a-9ea5-81189f12a333.png)
+![image.png](image/ac075914-85de-425a-9ea5-81189f12a333.png)
 
 红框里的名称即为配置文件中的名称.
 
