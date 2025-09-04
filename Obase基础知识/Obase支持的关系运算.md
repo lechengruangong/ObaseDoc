@@ -130,9 +130,9 @@ Include<T, TProperty>(Expression<Func<T, TProperty>> path);
 Include<T>(string path);
 ```
 
-第一个重载参数可以表示为set<A>.Include(p=>p.B.Cs.Select(q=>q.D),即表示查询A时加载B,C集合和D.
+第一个重载参数可以表示为set.Include(p=>p.B.Cs.Select(q=>q.D),即表示查询A时加载B,C集合和D.
 
-第二个重载参数可以表示为set<A>.Include("B.Cs.D").
+第二个重载参数可以表示为set.Include("B.Cs.D").
 
 - Last运算,获取对象集中符合条件的最后一个对象,不存在对象时会抛出异常.
 
@@ -464,9 +464,9 @@ include(final SerializedFunction<T, R> includeExpression);
 include<T>(string path);
 ```
 
-第一个重载参数可以表示为set<A>.Include(p=>p.B.Cs.Select(q=>q.D),即表示查询A时加载B,C集合和D.
+第一个重载参数可以表示为set.Include(p=>p.B.Cs.Select(q=>q.D),即表示查询A时加载B,C集合和D.
 
-第二个重载参数可以表示为set<A>.Include("B.Cs.D").
+第二个重载参数可以表示为set.Include("B.Cs.D").
 
 - limit运算,指示查询时提取多少个对象.
 
