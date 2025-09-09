@@ -3,7 +3,7 @@ Obase的对象模型配置中,关联端配置有两个较为特殊的配置,分�
 这两个配置的配置方法位于关联端配置上,在关联型上使用AssociationEnd<>方法获得关联端配置后,在关联端配置上调用IsAggregated(bool isAggregated)就可以指定关联端是否聚合于关联,默认值是false;
 调用HasDefaultAsNew(bool defaultAsNew)就可以指定关联端是否作为新对象附加至上下文,默认值为false.
 
-其中,关联端是否聚合于关联影响Obase保存旧对象时的行为,默认情况下(即关联端是否聚合于关联设置为false)Obase在解除关联时,只会将关联的映射置空,而将关联端是否聚合于关联设置为true时,会在解除关联时将次关联端对象删除.
+其中,关联端是否聚合于关联影响Obase保存旧对象时的行为,默认情况下(即关联端是否聚合于关联设置为false)Obase在解除关联时,只会将关联的映射置空,而将关联端是否聚合于关联设置为true时,会在解除关联时将此关联端对象删除.
 
 关联端是否作为新对象附加则会影响Obase新对象时的行为,默认情况下(即关联端是否作为新对象附加设置为false)时,在没有将关联端对象Attach至上下文时,是不会将此对象保存至数据源的,而将关联端是否作为新对象附加设置为true时,会将关联端对象默认作为新对象Attach至上下文保存至数据源.
 
@@ -170,7 +170,7 @@ Console.WriteLine($"新的工单明细ID: {string.Join(", ", newDetailIds)}");
        /// <summary>
        ///     添加VIP卡
        /// </summary>
-       /// <exception cref="InvalidOperationException"></exception>
+       /// <exception cref="InvalidOperationException">每个代理商最多只能有3张VIP卡</exception>
        public void AddVipCard()
        {
            VipCards ??= new List<VipCard>();
@@ -178,7 +178,7 @@ Console.WriteLine($"新的工单明细ID: {string.Join(", ", newDetailIds)}");
            {
                throw new InvalidOperationException("每个代理商最多只能有3张VIP卡");
            }
-           ((List<VipCard>)VipCards).Add(new VipCard());
+           ((List<VipCard>)VipCards).Add(new VipCard() { Code = Code + "VIP" + VipCards.Count});
        }
 
        /// <summary>
