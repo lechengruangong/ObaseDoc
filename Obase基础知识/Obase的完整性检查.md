@@ -2,7 +2,7 @@
 
 顾名思义,实体型检查和关联型检查就是对实体型和关联型分别生效的检查,而对象类型通用检查是同时对实体型和关联生效的检查,如果完整性检查没有通过,会抛出特定类型的异常IntegrityCheckFailException.
 
-在IntegrityCheckFailException包含一个Dictionary<string, List<string>>类型的错误消息字典ErrorMessageDictionary,在此字典中可以查看到当前检查失败的消息.
+IntegrityCheckFailException包含一个Dictionary<string, List<string>>类型的错误消息字典ErrorMessageDictionary,在此字典中可以查看到当前检查失败的消息.
 
 ErrorMessageDictionary的键是类型名称,值是错误消息列表,类型名称包含以下三种:
 1. 实体型,就是类型的名称.
