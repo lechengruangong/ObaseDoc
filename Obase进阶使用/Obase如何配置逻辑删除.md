@@ -63,6 +63,8 @@ context.CreateSet<Domain>().DeleteLogically(p=>p.Id > 50);
 context.CreateSet<Domain>().RecoveryLogically(p=>p.Id > 50);
 ```
 
+中的注意的是,逻辑删除只生效于查询基点,即在A类上配置类逻辑删除,使用CreateSet^A时会将逻辑删除的A对象过滤掉.但在B中引用了A,查询B时使用Include方法一并查询A时,B引用的A不会处理逻辑删除.
+
 ## java
 
 java版待重写
