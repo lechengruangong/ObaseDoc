@@ -23,15 +23,16 @@ Obase的结构映射是用于数据迁移的工具,会根据当前配置的对�
 | String       | varchar   | TEXT       | nvarchar      | varchar          |
 | TimeSpan     | time      | TEXT       | time          | time             |
 
-以下为Obase进行结构映射时建立表的默认的字段长度,可以在属性的配置上调用HasMaxLength方法来设定长度.
-由于映射为string的类型和decimal类型需要长度,所以表内只有这两种类型:
+以下为Obase进行结构映射时建立表的默认的字段长度和精度,可以在属性的配置上调用HasMaxLength方法来设定长度,使用HasPrecision方法来设置精度.
 
-| Obase基元类型 | MySql数据长度 | Sqlite数据长度 | SqlServer数据长度 | PostgreSQL数据长度 |
-|:----------|:----------|:-----------|:--------------|:---------------|
-| decimal   | (65,4)    | 不适用        | (38,4)        | (65,4)         |
-| String    | 40        | 不适用        | 40            | 40             |
+由于映射为string的类型才需要长度,decimal类型需要精度,所以表内只有这两种类型:
 
-在属性配置上使用HasMaxLength方法设定的长度会改变表中String的长度,使用HasPrecision会该表Decimal类型中第二个数值的长度,最大为30.
+| Obase基元类型 | MySql数据长度/精度 | Sqlite数据长度/精度 | SqlServer数据长度/精度 | PostgreSQL数据长度/精度 |
+|:----------|:-------------|:--------------|:-----------------|:------------------|
+| decimal   | (65,0)       | 不适用           | (38,0)           | (65,0)            |
+| String    | 40           | 不适用           | 40               | 40                |
+
+在属性配置上使用HasMaxLength方法设定的长度对应表中String类型的长度,使用HasPrecision对应表Decimal类型中第二个数值的长度,即十进制数中小数部分的位数,在0-28之间.
 
 如果属性的映射字段类型时字符串类型,使用HasMaxLength方法设定的长度设置超过255(SqlServer为500)时,会被升级为Text字段用于保存长文本.
 
