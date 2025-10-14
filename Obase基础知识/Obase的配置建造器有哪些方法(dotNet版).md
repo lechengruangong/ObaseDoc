@@ -454,6 +454,20 @@ public AttributeConfiguration<TStructural> ToField(string field);
 
 此方法用于设置映射字段.
 
+```
+ public AttributeConfiguration<TStructural> UseSerializer(ITextSerializer serializer, Type valueType);
+ public AttributeConfiguration<TStructural> UseSerializer<TValue>(ITextSerializer serializer);
+ public AttributeConfiguration<TStructural> UseSerializer(TextSerializer serializer, Type valueType)
+ public AttributeConfiguration<TStructural> UseSerializer<TValue>(TextSerializer serializer)
+```
+这组方法于6.4.5中添加,用于设置属性的序列化器.
+
+设置了序列化的属性会在保存时先进行序列化再进行存储,在构造对象时则先进行反序列化再设置值.
+
+前两个方法是使用自定义的的序列化方案对当前属性进行处理,需要实现接口定义的相关方法,第一个参数即实现类,第二个参数或类型参数是此属性的原始类型.
+
+后两个方法是使用预制的序列化方案基类对当前属性进行处理,需要实现从字符串转换为对象的方法和对象转换为字符串的方法,第一个参数即实现类,第二个参数或类型参数是此属性的原始类型.
+
 ### 关联端配置
 
 关联型上对于参与关联各端的引用称为关联端,关联端配置是从关联型配置的AssociationEnd方法得到的.
