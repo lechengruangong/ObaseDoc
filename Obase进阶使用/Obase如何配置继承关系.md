@@ -106,9 +106,9 @@ myBikeEnd2.HasMapping("Code", "Code");
 mybikeAssBucket.AssociationEnd<BikeBucket>().HasMapping("Code", "BucketCode");
 mybikeAssBucket.ToTable("Bike");
 ```
-对于通常情况下,不再需要自行实现具体类型判别器了,接口仍然保留,如果有特殊的需求也可以自己实现,以上的例子中使用的是默认的判别器.
+对于通常情况下,不再需要自行实现具体类型判别器了,接口仍然保留,如果有特殊的需求也可以自己实现,以上的例子中使用的是默认的判别器,所以原来的接口实现类都不再需要了.
 
-以下为原来的内容.
+**以下为原来的内容**
 
 设想如下的场景,Bike表示自行车,BikeWheel表示车轮,BikeLight表示车灯.
 
