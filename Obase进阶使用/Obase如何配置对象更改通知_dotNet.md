@@ -1,4 +1,4 @@
-有些时候我们需要在创建了新对象,修改某个对象或者删除了某个对象并保存之后,需要向其他的系统或者中间件发送通知来实现内部协作.
+有些时候我们需要在创建了新对象,修改某个对象或者删除了某个对象并保存之后向其他的系统或者中间件发送通知来实现内部协作.
 
 为了应对这个需求,Obase提供了对象变更通知的功能.
 
@@ -19,7 +19,7 @@ noticeEntityConfig.HasNotifyDeletion(true);
 noticeEntityConfig.HasNotifyUpdate(true);
 ```
 
-此处配置主要指定了以下几个配置,分别是是否在创建时通知,是否在删除时通知,是否在修改时通知和哪些字段要包含在通知中.
+这些配置方法主要指定了以下几个配置内容,分别是是否在创建时通知,是否在删除时通知,是否在修改时通知和哪些字段要包含在通知中.
 
 其中的创建时进行通知是在新对象在上下文中保存时发出通知,修改时进行通知是旧对象被修改后在上下文中保存或者使用就地修改方法(NewAttribute和IncreaseAttribute)时发出通知,删除时进行通知时在旧对象被删除后再上下文中保存或者使用就地删除方法(Delete)时发出通知.
 
@@ -122,7 +122,7 @@ public class ChangeNoticeSender : IChangeNoticeSender
 
 实际使用时,ChangeNoticeSender的Send内改为自己的具体逻辑即可.
 
-最后进行依赖注入,对于asp.net项目,可以和WebApplication的builder一起在启动文件里进行注入.代码如下:
+接下来进行依赖注入,对于asp.net项目,可以和WebApplication的builder一起在启动文件里进行注入.代码如下:
 
 ```C#
 var builder = WebApplication.CreateBuilder(args);
@@ -207,3 +207,24 @@ app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 app.Run();
 ```
 此处主要的修改为Obase依赖注入方法改为使用委托作为参数的注入方法,并在获取到WebApplication后从app.Services中获取具体服务作为构造ChangeNoticeSender的参数.
+
+最后只要和平常一样调用保存新对象的逻辑即可,唯一需要注意的是为上下文启用对象通知:
+
+```C#
+
+//此处省略从ASP.NET的依赖注入中获取context的代码
+//如果有需要 可以在对象上下文的构造函数里调用EnableChangeNotice方法 这样所有构造出来的上下文就都是启用了对象通知的
+
+//启用对象通知
+context.EnableChangeNotice();
+//新建对象
+var record = new AdvRecord()
+{
+    UserId = userId,
+    AdvId = advId,
+    ClickTime = DateTime.Now
+};
+//附加并保存对象
+context.Attach(record);
+context.SaveChanges();
+```
