@@ -75,7 +75,7 @@ obuilder.Build();
 
 此处的CreateBuilder类型参数即为要注入的上下文类型,之后即可以在首次调用Obase后观察到类似如下的输出:
 
-![image.png](image/ac075914-85de-425a-9ea5-81189f12a333.png)
+![image.png](../Obase基础知识/image/ac075914-85de-425a-9ea5-81189f12a333.png)
 
 红框里的名称即为配置文件中的名称.
 
@@ -113,7 +113,7 @@ result.PreHeat(context);
 
 启动时就可以观察到如下的输出:
 
-![image.png](image/070cdd48-ba50-4a73-8754-1d845d9c23ae.png)
+![image.png](../Obase基础知识/image/070cdd48-ba50-4a73-8754-1d845d9c23ae.png)
 
 ### Obase连接池手动释放
 
@@ -136,7 +136,7 @@ lifetime.ApplicationStopped.Register(() =>
 
 可以在程序关闭时观察到如下输出:
 
-![image.png](image/294685b0-78d7-40d1-8f68-643a1357567e.png)
+![image.png](../Obase基础知识/image/294685b0-78d7-40d1-8f68-643a1357567e.png)
 
 
 当然,Obase的连接池注册了 AppDomain.CurrentDomain.ProcessExit和Console.CancelKeyPress 这两个事件,所以就算不使用此方法也会在关闭时释放所有的连接,此时会观察到多次Has Destroyed的输出.

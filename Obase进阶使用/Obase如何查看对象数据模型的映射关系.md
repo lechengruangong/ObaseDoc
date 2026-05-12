@@ -20,4 +20,4 @@ Java版待重写
 ## 返回结果
 典型的返回结果节选如下:
 
-![image.png](image/d06b7f25-93a3-4505-8ef0-7e742ce1d3a6.png)
+![image.png](../Obase基础知识/image/d06b7f25-93a3-4505-8ef0-7e742ce1d3a6.png)
