@@ -1,5 +1,3 @@
-## dotNet
-
 在dotNet版本中,可以使用扩展方法和结构化类型方法来配置对象更改通知.
 
 ### 配置方法
@@ -107,10 +105,11 @@ public class ChangeNoticeSender : IChangeNoticeSender
 }
 ```
 
-这里面使用了ServiceLocator类的LoggerFactory属性来获取查询字符串,这里其实是因为.net的日志组件是依赖注入的,所以需要我们自己构造一个静态类的属性来获取当前的日志工厂.
+这里面使用了ServiceLocator类的LoggerFactory属性来获取日志组件,这里其实是因为.net的日志组件是依赖注入的,所以需要我们自己构造一个静态类的属性来获取当前的日志工厂.
 
 ServiceLocator的代码如下,其中的Instance即为依赖注入容器,是在项目的启动文件里赋值的,具体参考依赖注入部分的代码.
 
+实际使用时,ChangeNoticeSender的Send内改为自己的具体逻辑即可.
 
 ```
 /// <summary>
@@ -141,9 +140,7 @@ public static class ServiceLocator
  //在ASP.NET里注入数据上下文
  builder.Services.AddTransient<ObaseConfiguration>();
  builder.Services.AddTransient<DataContext>();
- //此处省略若干日志的配置
- //指定启动端口
- builder.WebHost.UseUrls("http://*:5000");
+ //此处省略若干其他的配置
 
  //为Obase注入消息发送器
  var oBuilder = ObaseDependencyInjection.CreateBuilder<DataContext>();
@@ -162,7 +159,3 @@ public static class ServiceLocator
 ```
 
 这里的第13行到第15行就是将IChangeNoticeSender注入Obase中的代码,注意创建依赖注入建造器时需要指定上下文的类型,且更改通知需要的注入类型是IChangeNoticeSender,不能只将实现类的类型注入.
-
-## Java
-
-JAVA版待重写.
