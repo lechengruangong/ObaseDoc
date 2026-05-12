@@ -1,4 +1,6 @@
-有些时候我们需要在创建了新对象,修改某个对象或者删除了某个对象并保存之后,向其他的系统或者中间件发送通知来实现内部协作.为了应对这个需求,Obase提供了对象变更通知的功能.
+有些时候我们需要在创建了新对象,修改某个对象或者删除了某个对象并保存之后,向其他的系统或者中间件发送通知来实现内部协作.
+
+为了应对这个需求,Obase提供了对象变更通知的功能.
 
 ## 配置方法
 对象更改通知是包含在Obase本体中的,因此不需要额外引用软件包,通常情况下,由于引用传递只需要引用对应的数据源提供器即可.
@@ -20,7 +22,7 @@ noticeEntityConfig.HasNotifyUpdate(true);
 
 此处配置主要指定了以下几个配置,分别是是否在创建时通知,是否在删除时通知,是否在修改时通知和哪些字段要包含在通知中.
 
-其中的创建时进行通知是在新对象在上下文中保存时发出通知,修改时进行通知是旧对象被修改后在上下文中保存或者使用就地修改方法(NewAttribute和IncreaseAttribute)时发出通知,删除时进行通知时在旧对象被删除后再上下文中保存或者使用就地删除方法(Delete)是发出通知.
+其中的创建时进行通知是在新对象在上下文中保存时发出通知,修改时进行通知是旧对象被修改后在上下文中保存或者使用就地修改方法(NewAttribute和IncreaseAttribute)时发出通知,删除时进行通知时在旧对象被删除后再上下文中保存或者使用就地删除方法(Delete)时发出通知.
 
 Obase使用依赖注入来实现对具体通知逻辑的解耦,所以在配置了要通知的时机和内容后,还要向Obase注入IChangeNoticeSender更改通知发送器的具体实现.
 
@@ -33,16 +35,16 @@ oBuilder.Build();
 
 此处的DataContext就是要注入的上下文类型,ChangeNoticeSender就是IChangeNoticeSender的具体实现类,并且需要保证这段依赖注入代码仅运行一次
 
-在配置了对象更改通知之后,如果要使用还需要在查询或保存对象前对上下文启用对象通知,以下代码中的context就是对象上下文:
+考虑到不一定是所有场景中都需要发送变更通知,需要对上下文启用对象通知才会进行通知,调用方法如下:
 
 ```C#
 //省略一些构造上下文的代码 此处假定上下文已经构造出来了
 context.EnableChangeNotice();
 ```
 
-启用更改通知后,此上下文对象会在保存时针对配置进行通知.如果需要某个上下文默认启用更改通知,可以在构造方法里调用此方法.
+如果需要某个上下文默认启用更改通知,可以在上下文的构造方法里调用此方法.
 
-此时在配置对应的对象新建,修改或者删除并保存时,就会调用ChangeNoticeSender发送修改通知,IChangeNoticeSender中方法Send的参数ChangeNotice就是具体的通知内容,根据不同的变更类型分别有两个具体的实现类ObjectChangeNotice和DirectlyChangingNotice.
+启用更改通知后在配置对应的对象新建,修改或者删除并保存时,就会调用ChangeNoticeSender发送修改通知,IChangeNoticeSender中方法Send的参数ChangeNotice就是具体的通知内容,根据不同的变更类型分别有两个具体的实现类ObjectChangeNotice和DirectlyChangingNotice.
 
 通知对象内部包含了对象变更行为,对象的属性及其取值,对象标识等信息,根据具体的需要取值处理即可.
 
@@ -54,13 +56,11 @@ context.EnableChangeNotice();
 
 这些记录被保存到数据库时,还要同时向一个其他系统的中间件发送消息用于统计.
 
-示例使用.net6版本的ASP.NET CORE进行,数据源为MySql,那么引用如下的包:
+示例使用.net9版本的ASP.NET CORE进行,数据源为MySql,那么引用如下的包(具体版本号换成你需要的):
 
 ```xml
 <PackageReference Include="Obase.Providers.MySql" Version="x.x.x" />
 ```
-
-### 定义实体
 
 首先,定义实体类,这里定义了一个广告记录类,表示用户点击广告时的广告记录.
 
@@ -123,10 +123,7 @@ public class ChangeNoticeSender : IChangeNoticeSender
 
 实际使用时,ChangeNoticeSender的Send内改为自己的具体逻辑即可.
 
-```
-
 最后进行依赖注入,对于asp.net项目,可以和WebApplication的builder一起在启动文件里进行注入.代码如下:
-
 
 ```C#
  var builder = WebApplication.CreateBuilder(args);
@@ -144,9 +141,6 @@ public class ChangeNoticeSender : IChangeNoticeSender
  oBuilder.Build();
 
  var app = builder.Build();
-
- //用一个静态类保存当前注入的服务
- ServiceLocator.Instance = app.Services;
 
  app.UseRouting();
  app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
