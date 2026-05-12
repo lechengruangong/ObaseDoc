@@ -7,7 +7,7 @@
 
 在模型配置中有以下几个方法用于配置对象变更通知,这些方法可以由实体型配置对象或者关联型配置对象调用,以下代码中所有的noticeEntityConfig就是要在变更后进行通知的实体型或者关联型配置对象:
 ```C#
-//配置要进行通知的属性发放 参数为属性的名称 当发生特定的行为时 这些属性的值会包含在通知消息内
+//配置要进行通知的属性方法 参数为属性的名称 当发生特定的行为时 这些属性的值会包含在通知消息内
 noticeEntityConfig.HasNoticeAttributes(new List<string> { "Description", "Background" });
 //无参的要进行通知的属性方法则表示通知所有的属性 注意此方法会覆盖有参的方法配置的属性
 noticeEntityConfig.HasNoticeAttributes();
@@ -23,6 +23,8 @@ noticeEntityConfig.HasNotifyUpdate(true);
 
 其中的创建时进行通知是在新对象在上下文中保存时发出通知,修改时进行通知是旧对象被修改后在上下文中保存或者使用就地修改方法(NewAttribute和IncreaseAttribute)时发出通知,删除时进行通知时在旧对象被删除后再上下文中保存或者使用就地删除方法(Delete)时发出通知.
 
+## 依赖注入
+
 Obase使用依赖注入来实现对具体通知逻辑的解耦,所以在配置了要通知的时机和内容后,还要向Obase注入IChangeNoticeSender更改通知发送器的具体实现.
 
 ```C#
@@ -33,6 +35,8 @@ oBuilder.Build();
 ```
 
 此处的DataContext就是要注入的上下文类型,ChangeNoticeSender则是IChangeNoticeSender的具体实现类,并且需要保证这段依赖注入代码仅运行一次
+
+## 启用通知
 
 考虑到不一定是所有场景中都需要发送变更通知,需要对上下文启用对象通知才会进行通知,调用方法如下:
 
@@ -49,13 +53,13 @@ context.EnableChangeNotice();
 
 接下来我们以一个具体的场景为例来介绍这个功能.
 
-## 示例
+## 具体示例
 
 考虑一个如下的场景,我们网站上某个页面有个广告,每当用户点击这个广告时,要记录下点击广告的用户ID,广告的ID和点击时间.
 
 这些记录被保存到数据库时,还要同时向一个其他系统的中间件发送消息用于统计.
 
-示例使用.net9版本的ASP.NET CORE进行,数据源为MySql,那么引用如下的包(具体版本号换成你需要的):
+示例使用.net9版本的ASP.NET进行,数据源为MySql,那么引用如下的包(具体版本号换成你需要的):
 
 ```xml
 <PackageReference Include="Obase.Providers.MySql" Version="x.x.x" />
@@ -72,12 +76,12 @@ public class AdvRecord
     /// <summary>
     ///     用户ID
     /// </summary>
-    public string? UserId { get; set; }
+    public string UserId { get; set; }
 
     /// <summary>
     ///     广告ID
     /// </summary>
-    public string? AdvId { get; set; }
+    public string AdvId { get; set; }
 
     /// <summary>
     ///     点击时间
@@ -113,6 +117,7 @@ public class ChangeNoticeSender : IChangeNoticeSender
         //此处收到的ChangeNotice是抽象类 有两个实现类 可以根据ChangeNotice的Type来进行区分
         //ObjectChange类型的对应是ObjectChangeNotice
         //DirectlyChanging类型对应的是DirectlyChangingNotice
+        //这里可以从notice里获取属性和属性值等信息
         //实际的逻辑可能是将消息处理后发往Hbase/Redis之类的第三方服务
         //此处仅在Console里显示一下
         Console.WriteLine(notice);
@@ -178,6 +183,7 @@ public class ChangeNoticeSender : IChangeNoticeSender
         //此处收到的ChangeNotice是抽象类 有两个实现类 可以根据ChangeNotice的Type来进行区分
         //ObjectChange类型的对应是ObjectChangeNotice
         //DirectlyChanging类型对应的是DirectlyChangingNotice
+        //这里可以从notice里获取属性和属性值等信息
         //此处用日志作为模拟
         _logger?.CreateLogger<ChangeNoticeSender>().LogWarning(JsonConvert.SerializeObject(notice));
     }
