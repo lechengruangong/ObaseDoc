@@ -1,16 +1,15 @@
-有些时候我们需要在创建了新对象,修改某个对象或者删除了某个对象并保存之后,向其他的系统或者中间件发送通知来实现内部协作.
+有些时候我们需要在创建了新对象,修改某个对象或者删除了某个对象并保存之后,需要向其他的系统或者中间件发送通知来实现内部协作.
 
 为了应对这个需求,Obase提供了对象变更通知的功能.
 
 ## 配置方法
 对象更改通知是包含在Obase本体中的,因此不需要额外引用软件包,通常情况下,由于引用传递只需要引用对应的数据源提供器即可.
 
-在模型配置中增加以下几处配置,以下代码中所有的noticeEntityConfig就是要在变更后进行通知的实体型配置对象:
+在模型配置中有以下几个方法用于配置对象变更通知,这些方法可以由实体型配置对象或者关联型配置对象调用,以下代码中所有的noticeEntityConfig就是要在变更后进行通知的实体型或者关联型配置对象:
 ```C#
-//配置更改通知
-//配置要进行通知的属性 这些属性即此实体型的属性 当发生特定的行为时 这些属性的值会包含在通知消息内
+//配置要进行通知的属性发放 参数为属性的名称 当发生特定的行为时 这些属性的值会包含在通知消息内
 noticeEntityConfig.HasNoticeAttributes(new List<string> { "Description", "Background" });
-//无参的方法则表示通知所有的属性 注意此方法会覆盖有参的方法
+//无参的要进行通知的属性方法则表示通知所有的属性 注意此方法会覆盖有参的方法配置的属性
 noticeEntityConfig.HasNoticeAttributes();
 //指示是否在对象被创建时进行通知
 noticeEntityConfig.HasNotifyCreation(true);
@@ -33,7 +32,7 @@ oBuilder.AddSingleton<IChangeNoticeSender, ChangeNoticeSender>();
 oBuilder.Build();
 ```
 
-此处的DataContext就是要注入的上下文类型,ChangeNoticeSender就是IChangeNoticeSender的具体实现类,并且需要保证这段依赖注入代码仅运行一次
+此处的DataContext就是要注入的上下文类型,ChangeNoticeSender则是IChangeNoticeSender的具体实现类,并且需要保证这段依赖注入代码仅运行一次
 
 考虑到不一定是所有场景中都需要发送变更通知,需要对上下文启用对象通知才会进行通知,调用方法如下:
 
@@ -44,7 +43,7 @@ context.EnableChangeNotice();
 
 如果需要某个上下文默认启用更改通知,可以在上下文的构造方法里调用此方法.
 
-启用更改通知后在配置对应的对象新建,修改或者删除并保存时,就会调用ChangeNoticeSender发送修改通知,IChangeNoticeSender中方法Send的参数ChangeNotice就是具体的通知内容,根据不同的变更类型分别有两个具体的实现类ObjectChangeNotice和DirectlyChangingNotice.
+启用更改通知后在配置对应的对象新建,修改或者删除并保存时,就会根据配置调用IChangeNoticeSender的具体实现发送修改通知,IChangeNoticeSender中方法Send的参数ChangeNotice就是具体的通知内容,根据不同的变更类型分别有两个具体的实现类ObjectChangeNotice和DirectlyChangingNotice.
 
 通知对象内部包含了对象变更行为,对象的属性及其取值,对象标识等信息,根据具体的需要取值处理即可.
 
@@ -92,6 +91,7 @@ public class AdvRecord
 //配置一个实体型
 var record = modelBuilder.Entity<AdvRecord>();
 record.HasKeyAttribute(p => p.UserId).HasKeyAttribute(p => p.AdvId).HasKeyIsSelfIncreased(false);
+record.ToTable(nameof(AdvRecord));
 //通知所有属性
 record.HasNoticeAttributes();
 //在创建时通知
@@ -110,7 +110,6 @@ public class ChangeNoticeSender : IChangeNoticeSender
     /// <param name="notice">变更通知</param>
     public void Send(ChangeNotice notice)
     {
-        
         //此处收到的ChangeNotice是抽象类 有两个实现类 可以根据ChangeNotice的Type来进行区分
         //ObjectChange类型的对应是ObjectChangeNotice
         //DirectlyChanging类型对应的是DirectlyChangingNotice
@@ -126,26 +125,85 @@ public class ChangeNoticeSender : IChangeNoticeSender
 最后进行依赖注入,对于asp.net项目,可以和WebApplication的builder一起在启动文件里进行注入.代码如下:
 
 ```C#
- var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
- builder.Services.AddControllers();
+builder.Services.AddControllers();
 
- //在ASP.NET里注入数据上下文
- builder.Services.AddTransient<ObaseConfiguration>();
- builder.Services.AddTransient<DataContext>();
- //此处省略若干其他的配置
+//在ASP.NET里注入数据上下文
+builder.Services.AddTransient<ObaseConfiguration>();
+builder.Services.AddTransient<DataContext>();
+//此处省略若干其他的配置
 
- //为Obase注入消息发送器
- var oBuilder = ObaseDependencyInjection.CreateBuilder<DataContext>();
- oBuilder.AddSingleton<IChangeNoticeSender, ChangeNoticeSender>();
- oBuilder.Build();
+//为Obase注入消息发送器
+var oBuilder = ObaseDependencyInjection.CreateBuilder<DataContext>();
+oBuilder.AddSingleton<IChangeNoticeSender, ChangeNoticeSender>();
+oBuilder.Build();
 
- var app = builder.Build();
+var app = builder.Build();
 
- app.UseRouting();
- app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+app.UseRouting();
+app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
- app.Run();
+app.Run();
 ```
 
 这里的第13行到第15行就是将IChangeNoticeSender注入Obase中的代码,注意创建依赖注入建造器时需要指定上下文的类型,且更改通知需要的注入类型是IChangeNoticeSender,不能只将实现类的类型注入.
+
+如果IChangeNoticeSender的具体实现需要用到由ASP.Net管理的某些服务,比如需要用日志服务记录一下,那么需要修改一下ChangeNoticeSender,在构造函数中注入日志工厂:
+
+```C#
+/// <summary>
+///     更改消息发送器
+/// </summary>
+public class ChangeNoticeSender : IChangeNoticeSender
+{
+    /// <summary>
+    ///     日志工厂
+    /// </summary>
+    private readonly ILoggerFactory _logger;
+
+    /// <summary>
+    ///     初始化更改消息发送器
+    /// </summary>
+    /// <param name="logger">日志工厂</param>
+    public ChangeNoticeSender(ILoggerFactory logger)
+    {
+        _logger = logger;
+    }
+
+    /// <summary>发送变更通知</summary>
+    /// <param name="notice">变更通知</param>
+    public void Send(ChangeNotice notice)
+    {
+        //此处收到的ChangeNotice是抽象类 有两个实现类 可以根据ChangeNotice的Type来进行区分
+        //ObjectChange类型的对应是ObjectChangeNotice
+        //DirectlyChanging类型对应的是DirectlyChangingNotice
+        //此处用日志作为模拟
+        _logger?.CreateLogger<ChangeNoticeSender>().LogWarning(JsonConvert.SerializeObject(notice));
+    }
+}
+```
+启动文件也要做如下的修改:
+```C#
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+
+//在ASP.NET里注入数据上下文
+builder.Services.AddTransient<ObaseConfiguration>();
+builder.Services.AddTransient<DataContext>();
+//此处省略若干其他的配置
+
+var app = builder.Build();
+
+//为Obase注入消息发送器
+var oBuilder = ObaseDependencyInjection.CreateBuilder<DataContext>();
+oBuilder.AddSingleton<IChangeNoticeSender, ChangeNoticeSender>(_ => new ChangeNoticeSender(app.Services.GetService<ILoggerFactory>()));
+oBuilder.Build();
+
+app.UseRouting();
+app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+
+app.Run();
+```
+此处主要的修改为Obase依赖注入方法改为使用委托作为参数的注入方法,并在获取到WebApplication后从app.Services中获取具体服务作为构造ChangeNoticeSender的参数.
