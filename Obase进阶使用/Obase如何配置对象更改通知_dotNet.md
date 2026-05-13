@@ -6,7 +6,7 @@
 对象更改通知是包含在Obase本体中的,因此不需要额外引用软件包,通常情况下,由于引用传递只需要引用对应的数据源提供器即可.
 
 在模型配置中有以下几个方法用于配置对象变更通知,这些方法可以由实体型配置对象或者关联型配置对象调用,以下代码中所有的noticeEntityConfig就是要在变更后进行通知的实体型或者关联型配置对象:
-```C#
+```
 //配置要进行通知的属性方法 参数为属性的名称 当发生特定的行为时 这些属性的值会包含在通知消息内
 noticeEntityConfig.HasNoticeAttributes(new List<string> { "Description", "Background" });
 //无参的要进行通知的属性方法则表示通知所有的属性 注意此方法会覆盖有参的方法配置的属性
@@ -27,7 +27,7 @@ noticeEntityConfig.HasNotifyUpdate(true);
 
 Obase使用依赖注入来实现对具体通知逻辑的解耦,所以在配置了要通知的时机和内容后,还要向Obase注入IChangeNoticeSender更改通知发送器的具体实现.
 
-```C#
+```
 //为Obase注入消息发送器
 var oBuilder = ObaseDependencyInjection.CreateBuilder<DataContext>();
 oBuilder.AddSingleton<IChangeNoticeSender, ChangeNoticeSender>();
@@ -40,7 +40,7 @@ oBuilder.Build();
 
 考虑到不一定是所有场景中都需要发送变更通知,需要对上下文启用对象通知才会进行通知,调用方法如下:
 
-```C#
+```
 //省略一些构造上下文的代码 此处假定上下文已经构造出来了
 context.EnableChangeNotice();
 ```
@@ -61,13 +61,13 @@ context.EnableChangeNotice();
 
 示例使用.net9版本的ASP.NET进行,数据源为MySql,那么引用如下的包(具体版本号换成你需要的):
 
-```xml
+```
 <PackageReference Include="Obase.Providers.MySql" Version="x.x.x" />
 ```
 
 首先,定义实体类,这里定义了一个广告记录类,表示用户点击广告时的广告记录.
 
-```C#
+```
 /// <summary>
 ///     广告记录
 /// </summary>
@@ -91,7 +91,7 @@ public class AdvRecord
 ```
 然后进行配置.
 
-```C#
+```
 //配置一个实体型
 var record = modelBuilder.Entity<AdvRecord>();
 record.HasKeyAttribute(p => p.UserId).HasKeyAttribute(p => p.AdvId).HasKeyIsSelfIncreased(false);
@@ -104,7 +104,7 @@ record.HasNotifyCreation(true);
 
 再定义一个更改消息发送器ChangeNoticeSender:
 
-```C#
+```
 /// <summary>
 ///     更改消息发送器
 /// </summary>
@@ -129,7 +129,7 @@ public class ChangeNoticeSender : IChangeNoticeSender
 
 接下来进行依赖注入,对于asp.net项目,可以和WebApplication的builder一起在启动文件里进行注入.代码如下:
 
-```C#
+```
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -156,7 +156,7 @@ app.Run();
 
 如果IChangeNoticeSender的具体实现需要用到由ASP.Net管理的某些服务,比如需要用日志服务记录一下,那么需要修改一下ChangeNoticeSender,在构造函数中注入日志工厂:
 
-```C#
+```
 /// <summary>
 ///     更改消息发送器
 /// </summary>
@@ -190,7 +190,7 @@ public class ChangeNoticeSender : IChangeNoticeSender
 }
 ```
 启动文件也要做如下的修改:
-```C#
+```
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -216,7 +216,7 @@ app.Run();
 
 最后只要和平常一样调用保存新对象的逻辑即可,唯一需要注意的是为上下文启用对象通知:
 
-```C#
+```
 
 //此处省略从ASP.NET的依赖注入中获取context的代码
 //如果有需要 可以在对象上下文的构造函数里调用EnableChangeNotice方法 这样所有构造出来的上下文就都是启用了对象通知的
