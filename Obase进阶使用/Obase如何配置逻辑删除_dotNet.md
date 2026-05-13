@@ -18,7 +18,7 @@
 HasExtension方法会返回LogicDeletionExtensionConfiguration<TEntity>的实例,LogicDeletionExtensionConfiguration有HasDeletionMark和HasDeletionField方法用于配置逻辑删除的标记属性和数据源字段,以下代码中的logicDeletion就是要在配置逻辑删除的实体型或者关联型配置对象:
 
 ```
-//此处的Domain就是要配置罗删除的类型
+//此处的Domain就是要配置逻辑删除的类型
 //创建逻辑删除扩展
 var logicDeletionExt = logicDeletion.HasExtension<LogicDeletionExtensionConfiguration<Domain>>();
 //当类中有定义逻辑删除属性时 指定某个属性为逻辑删除标记
@@ -95,7 +95,7 @@ public class VisitRecord
     /// <summary>
     ///     访问者ID
     /// </summary>
-    public int Visitor { get; set; }
+    public int VisitorId { get; set; }
 
     /// <summary>
     ///     访问时间
@@ -107,7 +107,7 @@ public class VisitRecord
 ```
 //配置一个实体型
 var visitRecord = modelBuilder.Entity<VisitRecord>();
-visitRecord.HasKeyAttribute(p => p.OwnerId).HasKeyAttribute(p => p.VistorId).HasKeyIsSelfIncreased(false);
+visitRecord.HasKeyAttribute(p => p.OwnerId).HasKeyAttribute(p => p.VisitorId).HasKeyIsSelfIncreased(false);
 visitRecord.ToTable(nameof(VisitRecord));
 //配置逻辑删除
 var logicDeletionExtension = visitRecord.HasExtension<LogicDeletionExtensionConfiguration<VisitRecord>>();
@@ -119,12 +119,12 @@ logicDeletionExtension.HasDeletionField("Deleted");
 
 ```
 //此处省略从ASP.NET的依赖注入中获取context的代码
-//如果有需要 可以在对象上下文的构造函数里调用EnableChangeNotice方法 这样所有构造出来的上下文就都是启用了对象通知的
+//如果有需要 可以在对象上下文的构造函数里调用EnableChangeNotice方法 这样所有构造出来的上下文就都是启用了逻辑删除的
 
 //启用逻辑删除
 context.EnableChangeNotice();
 //查询对象
-var record = _context.CreateSet<VisitRecord>().FirstOrDefault(p => p.OwnerId == 1 && p.Visitor == 2);
+var record = _context.CreateSet<VisitRecord>().FirstOrDefault(p => p.OwnerId == 1 && p.VisitorId == 2);
 //逻辑删除此对象
 context.CreateSet<VisitRecord>().RemoveLogically(record);
 context.SaveChanges();
