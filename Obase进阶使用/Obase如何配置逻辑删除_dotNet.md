@@ -13,7 +13,7 @@
 <PackageReference Include="Obase.Providers.MySql" Version="x.x.x" />
 ```
 
-在引用了逻辑删除插件之后,模型配置中增加了一种新的扩展:LogicDeletionExtensionConfiguration<TEntity>,使用HasExtension方法即可配置逻辑删除,此方法可以由实体型配置对象或者关联型配置对象调用.
+在引用了逻辑删除插件之后,模型配置中增加了一种新的扩展配置LogicDeletionExtensionConfiguration<TEntity>,使用HasExtension方法即可配置逻辑删除,此方法可以由实体型配置对象或者关联型配置对象调用.
 
 HasExtension方法会返回LogicDeletionExtensionConfiguration<TEntity>的实例,LogicDeletionExtensionConfiguration有HasDeletionMark和HasDeletionField方法用于配置逻辑删除的标记属性和数据源字段,以下代码中的logicDeletion就是要在配置逻辑删除的实体型或者关联型配置对象:
 
