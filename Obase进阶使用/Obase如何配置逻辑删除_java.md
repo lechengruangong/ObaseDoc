@@ -21,9 +21,9 @@
 </dependency>
 ```
 
-在引用了逻辑删除插件之后,模型配置中增加了一种新的扩展配置LogicDeletionExtensionConfiguration<TEntity>,使用HasExtension方法即可配置逻辑删除,此方法可以由实体型配置对象或者关联型配置对象调用.
+在引用了逻辑删除插件之后,模型配置中增加了一种新的扩展配置LogicDeletionExtensionConfiguration<TEntity>,使用hasExtension方法即可配置逻辑删除,此方法可以由实体型配置对象或者关联型配置对象调用.
 
-HasExtension方法会返回LogicDeletionExtensionConfiguration<TEntity>的实例,LogicDeletionExtensionConfiguration有HasDeletionMark和HasDeletionField方法用于配置逻辑删除的标记属性和数据源字段,以下代码中的logicDeletion就是要在配置逻辑删除的实体型或者关联型配置对象:
+HasExtension方法会返回LogicDeletionExtensionConfiguration<TEntity>的实例,LogicDeletionExtensionConfiguration有hasDeletionMark和hasDeletionField方法用于配置逻辑删除的标记属性和数据源字段,以下代码中的logicDeletion就是要在配置逻辑删除的实体型或者关联型配置对象:
 
 ```
 //此处的Domain就是要配置逻辑删除的类型
@@ -38,7 +38,7 @@ logicDeletionExt.hasDeletionField("Deleted");
 
 当然,对于Sql数据源,这两种情况都需要在映射表内存在逻辑删除的字段.
 
-第5行就是类内有定义逻辑删除属性的情况,此种情况需要指定哪个属性是逻辑删除属性,如果数据源的字段与属性名称相同,则只需要配置HasDeletionMark.
+第5行就是类内有定义逻辑删除属性的情况,此种情况需要指定哪个属性是逻辑删除属性,如果数据源的字段与属性名称相同,则只需要配置hasDeletionMark.
 
 第7行是类内没有定义逻辑删除字段或者数据源的字段与属性名称不一致的情况,此时需要配置数据源中哪个字段是逻辑删除的字段.
 
