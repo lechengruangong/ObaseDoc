@@ -36,7 +36,7 @@ oBuilder.Build();
 
 此处的DataContext就是要注入的上下文类型,ChangeNoticeSender则是IChangeNoticeSender的具体实现类,并且需要保证这段依赖注入代码仅运行一次
 
-## 启用通知
+## 启用变更通知
 
 考虑到不一定是所有场景中都需要发送变更通知,需要对上下文启用对象通知才会进行通知,调用方法如下:
 
