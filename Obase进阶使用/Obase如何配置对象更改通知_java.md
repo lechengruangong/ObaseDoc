@@ -191,7 +191,7 @@ oBuilder.build();
 ```
 这里的第1行到第3行就是将IChangeNoticeSender注入Obase中的代码,注意创建依赖注入建造器时需要指定上下文的类型,且更改通知需要的注入类型是IChangeNoticeSender,不能只将实现类的类型注入.
 
-如果IChangeNoticeSender的具体实现需要用到由SpringBoot管理的某些服务,比如需要用Redis存储,那么需要修改一下ChangeNoticeSender,在构造函数中注入日志工厂:
+如果IChangeNoticeSender的具体实现需要用到由SpringBoot管理的某些服务,比如需要用Redis存储,那么需要修改一下ChangeNoticeSender,在构造函数中注入Redis服务:
 
 ```
 /**
@@ -238,7 +238,7 @@ ServiceContainerBuilder oBuilder = ObaseDependencyInjection.createBuilder(DataCo
 oBuilder.addSingleton(IChangeNoticeSender.class, ChangeNoticeSender.class, p -> new ChangeNoticeSender(context.getBean(RedisService.class)));
 oBuilder.build();
 ```
-此处主要的修改为Obase依赖注入方法改为使用委托作为参数的注入方法,并在获取到WebApplication后从app.Services中获取具体服务作为构造ChangeNoticeSender的参数.
+此处主要的修改为Obase依赖注入方法改为使用委托作为参数的注入方法,并在获取到ConfigurableApplicationContext后从SpringBoot的IOC容器中获取具体服务作为构造ChangeNoticeSender的参数.
 
 最后只要和平常一样调用保存新对象的逻辑即可,唯一需要注意的是为上下文启用对象通知:
 ```
