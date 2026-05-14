@@ -7,6 +7,7 @@
 ### 调试相关
 1. [Obase如何进行调试(dotNet版)](./Obase如何进行调试_dotNet.md)和[Obase如何进行调试(java版)](./Obase如何进行调试_java.md).主要介绍了在引用了Obase的软件包之后要如何进行调试.
 2. [Obase如何查看对象数据模型的映射关系(dotNet版)](./Obase如何查看对象数据模型的映射关系_dotNet.md)和[Obase如何查看对象数据模型的映射关系(java版)](./Obase如何查看对象数据模型的映射关系_java.md).主要介绍了如何查看上下文使用的对象数据模型的映射关系.
+3. [Obase如何查看连接池信息(dotNet版)](./Obase如何查看连接池信息_dotNet.md)和[Obase如何查看连接池信息(java版)](./Obase如何查看连接池信息_java.md).主要介绍了如何查看当前应用程序域的连接池信息.
 
 ### 特定配置写法
 
