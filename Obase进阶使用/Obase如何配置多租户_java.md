@@ -41,7 +41,7 @@ multiTenantExt.hasLoadingGlobal(true);
 
 当然,对于Sql数据源,这两种情况都需要在映射表内存在多租户的字段.
 
-第5行就是类内有定义多租户属性的情况,此种情况需要指定哪个属性是多租户属性,如果数据源的字段与属性名称相同,则只需要配置HasTenantIdMark
+第5行就是类内有定义多租户属性的情况,此种情况需要指定哪个属性是多租户属性,如果数据源的字段与属性名称相同,则只需要配置hasTenantIdMark
 
 第7行是类内没有定义多租户字段或者数据源的字段与属性名称不一致的情况,此时需要配置数据源中哪个字段是多租户的字段.
 
@@ -206,7 +206,7 @@ oBuilder.build();
 ```
 这里的第2行到第4行就是将ITenantIdReader注入Obase中的代码,注意创建依赖注入建造器时需要指定上下文的类型,且多租户需要的注入类型是ITenantIdReader,不能只将实现类的类型注入.
 
-如果ITenantIdReader的具体实现需要用到由SpringBoot管理的某些服务,比如需要用RequestContextHolder获取某个固定的参数或者头信息,首先先定一个一个Bean来获取Http请求:
+如果ITenantIdReader的具体实现需要用到由SpringBoot管理的某些服务,比如需要用RequestContextHolder获取某个固定的参数或者头信息,那么先定义一个Bean来获取Http请求:
 ```
 /**
  * Http请求参数提取器
