@@ -31,7 +31,7 @@ HasExtension方法会返回LogicDeletionExtensionConfiguration<TEntity>的实例
 LogicDeletionExtensionConfiguration<Domain> logicDeletionExt = logicDeletion.hasExtension(LogicDeletionExtensionConfiguration.class);
 //当类中有定义逻辑删除属性时 指定某个属性为逻辑删除标记
 logicDeletionExt.hasDeletionMark(p -> p.getDeleted());
-//当类中没有定义逻辑删除字段时或者数据源的字段与属性名称不一致时 需要指定逻辑删除映射字段
+//当类中没有定义逻辑删除属性时或者数据源的字段与属性名称不一致时 需要指定逻辑删除映射字段
 logicDeletionExt.hasDeletionField("Deleted");
 ```
 此处可以分为两种配置,一种是类内有定义逻辑删除的属性,一种是没有定义逻辑删除的属性.
