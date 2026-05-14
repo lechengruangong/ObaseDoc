@@ -14,16 +14,16 @@
 ```
 在引用了多租户件之后,模型配置中增加了一种新的扩展配置MultiTenantExtensionConfiguration<TEntity>,使用HasExtension方法即可配置多租户,此方法可以由实体型配置对象或者关联型配置对象调用.
 
-HasExtension方法会返回MultiTenantExtensionConfiguration<TEntity>的实例,MultiTenantExtensionConfiguration有HasTenantIdMark和HasTenantIdField方法用于配置多租户的标记属性和数据源字段,以下代码中的logicDeletion就是要在配置逻辑删除的实体型或者关联型配置对象:
+HasExtension方法会返回MultiTenantExtensionConfiguration<TEntity>的实例,MultiTenantExtensionConfiguration有HasTenantIdMark和HasTenantIdField方法用于配置多租户的标记属性和数据源字段,以下代码中的multiTenant就是要在配置多的实体型或者关联型配置对象:
 
 ```
-//此处的Domain就是要配置逻辑删除的类型
+//此处的Domain就是要配置多租户的类型
 //创建多租户扩展
-var multiTenantExt = logicDeletion.HasExtension<MultiTenantExtensionConfiguration<Domain>>();
+var multiTenantExt = multiTenant.HasExtension<MultiTenantExtensionConfiguration<Domain>>();
 //当类中有定义多租户属性时 指定某个属性为多租户标记
-multiTenantExt.HasTenantIdMark(p => p.Deleted);
+multiTenantExt.HasTenantIdMark(p => p.TenantId);
 //当类中没有定义多租户字段时或者数据源的字段与属性名称不一致时 需要指定多租户映射字段
-multiTenantExt.HasTenantIdField("Deleted");
+multiTenantExt.HasTenantIdField("TenantId");
 //设置全局的多租户ID 如果系统中需要一些属于全局的 可以被每个租户都查询的 需要配置此项
 multiTenantExt.HasGlobalTenantId("00000000");
 //在配置了全局多租户ID后 如果需要每个租户都查询到全局的 需要配置此项为true
@@ -128,8 +128,8 @@ public class TenantIdReader : ITenantIdReader
     /// <returns></returns>
     public object GetTenantId()
     {
-        //用日期作为租户ID
-        return DateTime.Now.ToString("yyyyMMdd");
+        //比如一个固定的用户ID作为租户ID
+        return "USER123";
     }
 }
 ```
