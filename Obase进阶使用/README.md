@@ -5,7 +5,9 @@
 3. [Obase如何配置多租户(dotNet版)](./Obase如何配置多租户_dotNet.md)和[Obase如何配置多租户(java版)](./Obase如何配置多租户_java.md).主要介绍了多租户功能,此功能主要为了解决同一系统中有多个不同的使用者,他们的业务对象需要区分的场景.
 
 ### 调试相关
+1. [Obase如何进行调试(dotNet版)](./Obase如何进行调试_dotNet.md)和[Obase如何进行调试(java版)](./Obase如何进行调试_java.md).主要介绍了在引用了Obase的软件包之后要如何进行调试.
 
 ### 特定配置写法
 
 ### 调优和扩展
+1. [Obase如何设置预热器(dotNet版)]
