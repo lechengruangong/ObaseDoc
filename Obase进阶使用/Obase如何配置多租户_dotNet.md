@@ -161,7 +161,7 @@ app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 app.Run();
 ```
 
-这里的第13行到第15行就是将ITenantIdReader注入Obase中的代码,注意创建依赖注入建造器时需要指定上下文的类型,且多租户需要的注入类型是ITenantIdReader,不能只将实现类的类型注入.
+这里的第11行到第13行就是将ITenantIdReader注入Obase中的代码,注意创建依赖注入建造器时需要指定上下文的类型,且多租户需要的注入类型是ITenantIdReader,不能只将实现类的类型注入.
 
 如果ITenantIdReader的具体实现需要用到由ASP.Net管理的某些服务,比如需要用Http上下文获取某个固定的参数或者头信息,那么需要修改一下TenantIdReader,在构造函数中注入IHttpContextAccessor :
 

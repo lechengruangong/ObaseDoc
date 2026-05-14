@@ -189,7 +189,7 @@ ServiceContainerBuilder oBuilder = ObaseDependencyInjection.createBuilder(DataCo
 oBuilder.addSingleton(IChangeNoticeSender.class, ChangeNoticeSender.class);
 oBuilder.build();
 ```
-这里的第1行到第3行就是将IChangeNoticeSender注入Obase中的代码,注意创建依赖注入建造器时需要指定上下文的类型,且更改通知需要的注入类型是IChangeNoticeSender,不能只将实现类的类型注入.
+这里的第2行到第4行就是将IChangeNoticeSender注入Obase中的代码,注意创建依赖注入建造器时需要指定上下文的类型,且更改通知需要的注入类型是IChangeNoticeSender,不能只将实现类的类型注入.
 
 如果IChangeNoticeSender的具体实现需要用到由SpringBoot管理的某些服务,比如需要用Redis存储,那么需要修改一下ChangeNoticeSender,在构造函数中注入Redis服务:
 

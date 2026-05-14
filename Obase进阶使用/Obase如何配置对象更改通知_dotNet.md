@@ -152,7 +152,7 @@ app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 app.Run();
 ```
 
-这里的第13行到第15行就是将IChangeNoticeSender注入Obase中的代码,注意创建依赖注入建造器时需要指定上下文的类型,且更改通知需要的注入类型是IChangeNoticeSender,不能只将实现类的类型注入.
+这里的第11行到第13行就是将IChangeNoticeSender注入Obase中的代码,注意创建依赖注入建造器时需要指定上下文的类型,且更改通知需要的注入类型是IChangeNoticeSender,不能只将实现类的类型注入.
 
 如果IChangeNoticeSender的具体实现需要用到由ASP.Net管理的某些服务,比如需要用日志服务记录一下,那么需要修改一下ChangeNoticeSender,在构造函数中注入日志工厂:
 
