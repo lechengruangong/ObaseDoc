@@ -18,8 +18,8 @@ public class ObasePreHeater : SqlContextPreHeater
 
 ```
 //省略一些向ASP.NET依赖注入上下文的代码
-//获取注入ASP.NET的Obase
 var app = builder.Build();
+//获取ASP.NET容器管理的上下文
 var context = app.Services.GetService<DataContext>();
 //执行预热器逻辑
 result.PreHeat(context);
