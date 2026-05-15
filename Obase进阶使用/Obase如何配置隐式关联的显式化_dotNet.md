@@ -1,14 +1,12 @@
+一般的情况下,对于一个多对多的隐式关联,我们会使用一张独立的关联表来存储这个关系.
+
 Obase默认情况下隐式的多对多关联想要根据关联的一端属性筛选另外一端时,只能查询有筛选属性的一端对象使用Include加载另外一端来查询.
 
-如果希望直接查询另外一端的对象,就要进行特殊的配置.
+如果希望直接查询另外一端的对象,就要进行特殊的配置,将常用的查询字段从关联的端转移至关联型上以减少联表操作,此时就需要隐式关联的显式化.
 
-## dotNet
+考虑一个这样的例子,一个产品可以属于不同的分类,一个分类下有不同的产品,我们需要根据分类名称查询这个分类包含的产品.
 
-有如下类Product表示产品,Category表示分类,他们之间的关系是多对多.
-
-现在需要根据分类名称查询这个分类包含的产品.
-
-类定义如下:
+那么可以这样定义,类Product表示产品,Category表示分类,他们之间的关系是多对多,类定义如下:
 ```
 /// <summary>
 ///     产品
@@ -285,7 +283,3 @@ categoryEntity.AssociationReference<ProductCategory>("Products", true)
 var productCategories = context.CreateSet<ProductCategory>().Where(p => p.CategoryName == "产品分类B")
     .Include(p => p.Product).ToList();
 ```
-
-## Java
-
-Java版待重写
