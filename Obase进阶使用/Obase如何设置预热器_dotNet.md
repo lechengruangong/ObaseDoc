@@ -25,9 +25,9 @@ var context = app.Services.GetService<DataContext>();
 result.PreHeat(context);
 ```
 
-此处省略的一些依赖注入上下文的代码是在[Obase的上下文管理(dotNet版)](../Obase入门/Obase的上下文管理_dotNet.md)中介绍的将上下文以多例模式注入ASP.NET服务的代码.
+此处省略的向ASP.NET依赖注入上下文的代码是在[Obase的上下文管理(dotNet版)](../Obase入门/Obase的上下文管理_dotNet.md)中介绍的将上下文以多例模式注入ASP.NET服务的代码.
 
-当然,如果仍需要查看连接池或者预热器的输出,可以使用Obase的依赖注入框架注入日志工厂,那么预热器代码可以写作如下的逻辑:
+当然,如果仍需要查看连接池或者预热器的输出,可以使用Obase的依赖注入框架注入日志工厂,那么启动类的代码可以写作如下的逻辑:
 
 ```
 //省略一些向ASP.NET依赖注入上下文和日志工厂的代码
@@ -40,6 +40,7 @@ obuilder.AddSingleton<ILoggerFactory, LoggerFactory>(_ => LoggerFactory.Create(p
 obuilder.Build();
 //获取ASP.NET容器管理的上下文
 var context = app.Services.GetService<DataContext>();
+//构造预热器
 var result = new ObasePreHeater();
 //执行预热器逻辑
 result.PreHeat(context);

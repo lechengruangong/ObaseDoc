@@ -17,9 +17,8 @@ public class ObasePreHeater extends SqlContextPreHeater {
 
 ```
 //省略一些向SpringBoot依赖注入上下文工厂的的标注代码和类定义
-//获取注入SrpingBoot的上下文工厂来生产上下文
 ConfigurableApplicationContext applicationContext = SpringApplication.run(NoticeDemoApplication.class, args);
-//获取工厂
+//获取SpringBoot管理的上下文工厂
 DataContextFactory factory = applicationContext.getBean(DataContextFactory.class);
 //生产上下文
 DataContext dataContext = factory.generateContext();
@@ -28,6 +27,6 @@ ObasePreHeater preHeater = new ObasePreHeater();
 //预热
 preHeater.preHeat(dataContext);
 ```
-此处省略的一些依赖注入上下文工厂的的标注代码和类定义是在[Obase的上下文管理(java版)](../Obase入门/Obase的上下文管理_java.md)中介绍的上下文工厂注入SpringBoot的代码.
+此处省略的向SpringBoot依赖注入上下文工厂的的标注代码和类定义是在[Obase的上下文管理(java版)](../Obase入门/Obase的上下文管理_java.md)中介绍的上下文工厂注入SpringBoot的代码.
 
-预热器会默认使用日志输出预热结果,在日志中可以观察到类似于"XXX Has Initialized"的输出.
+预热器会默认使用slf4j日志输出预热结果,在日志中可以观察到类似于"XXX Has Initialized"的输出.
