@@ -7,7 +7,7 @@
 - "查询"管道,提供了如开始查询getIBeginQuery()事件,结束查询getIEndQuery事件,执行Sql语句前getIPreExecuteCommand()事件,执行Sql语句后getIPostExecuteCommand()事件等查询相关的事件.
 - "就地修改"管道,提供了如开始就地修改getIBeginDirectlyChanging()事件,结束就地修改getIEndDirectlyChanging()事件,执行Sql语句前getIPreExecuteCommand()事件,执行Sql语句后getIPostExecuteCommand()事件等就地修改相关的事件.
 
-这些事件方法返回的对象都可以用addListener方法为其订阅事件并在订阅事件的代码中对事件数据对象进行处理,addListener方法为接受EventListener<T extends EventObject>类型的参数,可以使用Lambda表达式来进行匿名实现.
+这些事件方法返回的对象都可以用addListener方法为其订阅事件并在订阅事件的代码中对事件数据对象进行处理,addListener方法为接受EventListener类型的参数,可以使用Lambda表达式来进行匿名实现.
 
 Obase提供了IMappingModule接口,实现此接口的方法即可为传入的四条管道注册事件处理器来处理事件,此外还在上下文上提供了registerModule用于向某个上下文注册映射模块.
 
