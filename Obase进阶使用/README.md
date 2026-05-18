@@ -15,4 +15,5 @@
 3. [Obase如何配置隐式关联的显式化(dotNet版)](./Obase如何配置隐式关联的显式化_dotNet.md)和[Obase如何配置隐式关联的显式化(java版)](./Obase如何配置隐式关联的显式化_java.md).主要介绍了将隐式关联配置为使用显式关联型的隐式关联的示例.比如一个多对多的隐式关联A和B之间的关联,要根据A的某个属性筛选B的情况.
 
 ### 调优和扩展
-1. [Obase如何设置预热器(dotNet版)](./Obase如何设置预热器_dotNet.md)和[Obase如何设置预热器(java版)](./Obase如何设置预热器_java.md).主要介绍了如何将懒加载的上下文模型和连接池转移至启动时加载以提升性能.
+1. [Obase如何配置预热器(dotNet版)](./Obase如何配置预热器_dotNet.md)和[Obase如何配置预热器(java版)](./Obase如何配置预热器_java.md).主要介绍了如何将懒加载的上下文模型和连接池转移至启动时加载以提升性能.
+2. [Obase如何配置连接池(dotNet版)](./Obase如何配置连接池_dotNet.md)和[Obase如何配置连接池(java版)](./Obase如何配置连接池_java.md).主要介绍了如何配置Obase所使用的连接池来满足特定的调优需求.
