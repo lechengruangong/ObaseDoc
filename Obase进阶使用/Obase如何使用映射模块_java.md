@@ -2,12 +2,14 @@
 
 这四条管道分别是:
 
-- “保存”管道,提供了如开始保存BeginSaving事件,开始保存映射单元BeginSavingUnit事件,执行Sql语句前PreExecuteCommand事件,执行Sql语句后PostExecuteCommand事件等保存相关的事件.
-- "删除"管道,提供了如开始删除BeginDeleting事件,开始一组BeginDeletingGroup删除事件,执行Sql语句前PreExecuteCommand事件,执行Sql语句后PostExecuteCommand事件等删除相关的事件.
-- "查询"管道,提供了如开始查询BeginQuery事件,结束查询EndQuery事件,执行Sql语句前PreExecuteCommand事件,执行Sql语句后PostExecuteCommand事件等查询相关的事件.
-- "就地修改"管道,提供了如开始就地修改BeginDirectlyChanging事件,结束就地修改EndDirectlyChanging事件,执行Sql语句前PreExecuteCommand事件,执行Sql语句后PostExecuteCommand事件等就地修改相关的事件.
+- “保存”管道,提供了如开始保存getIBeginSaving()事件,开始保存映射单元getIBeginSavingUnit()事件,执行Sql语句前getIPreExecuteCommand()事件,执行Sql语句后getIPostExecuteCommand()事件等保存相关的事件.
+- "删除"管道,提供了如开始删除getIBeginDeleting()事件,开始一组BeginDeletingGroup()删除事件,执行Sql语句前PreExecuteCommand()事件,执行Sql语句后PostExecuteCommand()事件等删除相关的事件.
+- "查询"管道,提供了如开始查询getIBeginQuery()事件,结束查询getIEndQuery事件,执行Sql语句前getIPreExecuteCommand()事件,执行Sql语句后getIPostExecuteCommand()事件等查询相关的事件.
+- "就地修改"管道,提供了如开始就地修改getIBeginDirectlyChanging()事件,结束就地修改getIEndDirectlyChanging()事件,执行Sql语句前getIPreExecuteCommand()事件,执行Sql语句后getIPostExecuteCommand()事件等就地修改相关的事件.
 
-Obase提供了IMappingModule接口,实现此接口的方法即可为传入的四条管道注册事件处理器来处理事件,此外还在上下文上提供了RegisterModule用于向某个上下文注册映射模块.
+这些事件方法返回的对象都可以用addListener方法为其订阅事件并在订阅事件的代码中对事件数据对象进行处理,addListener方法为接受EventListener<T extends EventObject>类型的参数,可以使用Lambda表达式来进行匿名实现.
+
+Obase提供了IMappingModule接口,实现此接口的方法即可为传入的四条管道注册事件处理器来处理事件,此外还在上下文上提供了registerModule用于向某个上下文注册映射模块.
 
 详细的内容可以查看源代码,接下来使用两个例子来讲解如何使用这些扩展管道.
 
@@ -56,7 +58,7 @@ public class QueryTestModule implements IMappingModule{
     }
 }
 ```
-这里注册了"查询"管道的执行Sql语句前PreExecuteCommand事件,并且在处理程序中用SqlParameterizedView的静态方法来获取SqlParameterizedView对象,此对象上有方法getSqlString()和getSimpleViewString()来分别获取Sql语句和非参数化的Sql语句.
+这里注册了"查询"管道的执行Sql语句前getIPreExecuteCommand()事件,并且在处理程序中用SqlParameterizedView的静态方法来获取SqlParameterizedView对象,此对象上有方法getSqlString()和getSimpleViewString()来分别获取Sql语句和非参数化的Sql语句.
 
 然后在调用上下文的registerModule来注册这个模块的实例即可实现在某个上下文查询时显示查询的Sql语句.
 
@@ -96,7 +98,7 @@ public class DisableDeleteModule implements IMappingModule{
 }
 ```
 
-这里注册了"保存"管道的执行Sql语句前PreExecuteCommand事件,在语句类型为删除时抛出异常.
+这里注册了"保存"管道的执行Sql语句前getIPreExecuteCommand()事件,在语句类型为删除时抛出异常.
 
 然后在调用上下文的registerModule来注册这个模块的实例即可实现在某个上下文尝试删除时抛出异常.
 
