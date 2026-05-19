@@ -68,7 +68,7 @@ public AttributeConfiguration<TStructural, TConfiguration> Attribute<TResult>(Ex
 
 4. 使用表达式和指定映射类型的配置方法,会根据表达式所指向的属性访问器配置名称,指定的类型配置取值器,设值器和映射字段.
 
-这里的映射类型指的是Obase基元类型,详见[Obase基元类型](./Obase基元类型与数据库类型映射.md)
+这里的映射类型指的是Obase基元类型,详见[Obase基元类型](./Obase的基元类型与数据库类型映射.md)
 
 *一般情况下使用较多的是第一个配置方法,因为大多数的属性都可以会被反射建模自动侦测并配置,只有在需要自定义取值器设值器映射属性的时候才会使用这些配置方法.*
 
