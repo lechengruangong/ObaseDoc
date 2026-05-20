@@ -6,9 +6,41 @@ Obase的依赖注入管理的服务分为两种,一种是单例,一种是多例.
 
 由于Obase的依赖注入一开始就是设计来为上下文服务的,所以注册服务时需要先根据上下文的类型创建配置建造器,再调用配置建造器的方法来注册服务,获取服务时也需要提供上下文类型才能获取服务.
 
-接下来以一个示例来作为演示:
+## 依赖注入方法
 
-## 示例
+依赖注入是包含在Obase本体中的,因此不需要额外引用软件包,通常情况下,由于引用传递只需要引用对应的数据源提供器即可.
+
+依赖注入主要使用的有以下几个方法:
+```
+//创建某个对象上下文的依赖注入建造器
+var builder = ObaseDependencyInjection.CreateBuilder<SampleContext>();
+//注册一个单例的服务
+builder.AddSingleton<ServiceA>();
+//注册一个多例的服务
+builder.AddTransient<ServiceB>();
+//建造依赖注入容器
+builder.Build();
+```
+
+需要注意的是这些代码应当只被调用一次,重复调用Build方法会抛出异常.
+
+Obase的依赖注入还有一些其他方法,可以参考[Obase的依赖注入Api](../Obase基础知识/Obase的依赖注入Api_dotNet.md)这篇文档.
+
+## 依赖注入的使用
+
+在Obase.Core.Common命名空间下的Utils类提供了两个依赖注入相关的方法GetDependencyInjectionService和GetDependencyInjectionServiceOrNull,这两个方法的区别是GetDependencyInjectionService在遇到无法找到服务时会抛出异常,GetDependencyInjectionServiceOrNull则只会返回空.
+
+```
+//ServiceA ServiceB 已注册 但Program未注册 所以获取Program返回null
+var serviceA = Utils.GetDependencyInjectionService<ServiceA>(typeof(SampleContext));
+var serviceB = Utils.GetDependencyInjectionService<ServiceB>(typeof(SampleContext));
+
+var program = Utils.GetDependencyInjectionServiceOrNull<Program>(typeof(SampleContext));
+```
+
+这里获取到的服务会根据注册时是单例还是多例的有不同的行为.
+
+## 具体示例
 
 假设我们有三个服务,都需要注册为多例的,其中服务A可以直接无参构造,服务B则需要依赖于服务A构造,服务C则需要一个DateTime参数来构造.
 
@@ -80,15 +112,8 @@ ObaseDependencyInjection.CreateBuilder<SampleContext>()
 
 此处需要注意的是ServiceC的注册代码,委托有一个参数是当前的服务容器,你可以通过此参数的GetService方法获取已在当前容器注册的服务实例,不过此处没有使用到这个参数.
 
-在Obase.Core.Common命名空间下的Utils类提供了两个依赖注入相关的方法GetDependencyInjectionService和GetDependencyInjectionServiceOrNull,这两个方法的区别是GetDependencyInjectionService在遇到无法找到服务时会抛出异常,GetDependencyInjectionServiceOrNull则只会返回空.
-
+最后,要使用哪个服务使用Utils获取即可:
 ```
-//ServiceA ServiceB ServiceC已注册 但Program未注册 所以获取Program返回null
+//获取ServiceA
 var serviceA = Utils.GetDependencyInjectionService<ServiceA>(typeof(SampleContext));
-var serviceB = Utils.GetDependencyInjectionService<ServiceB>(typeof(SampleContext));
-var serviceC = Utils.GetDependencyInjectionService<ServiceC>(typeof(SampleContext));
-
-var program = Utils.GetDependencyInjectionServiceOrNull<Program>(typeof(SampleContext));
 ```
-
-Obase的依赖注入还有一些其他方法,可以参考[Obase的依赖注入Api](../Obase基础知识/Obase的依赖注入Api_dotNet.md)这篇文档.

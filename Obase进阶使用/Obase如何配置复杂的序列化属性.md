@@ -1,4 +1,4 @@
-在文章[Obase如何配置属性的序列化器](./Obase如何配置属性的序列化器.md)中,我们介绍了如何配置属性的序列化器,解决了在持久化/反持久化过程中有些属性需要进行序列化的问题.
+在文章[Obase如何配置属性的序列化器](./Obase如何配置属性简单序列化_dotNet.md)中,我们介绍了如何配置属性的序列化器,解决了在持久化/反持久化过程中有些属性需要进行序列化的问题.
 
 但仅对属性配置序列化器时,如果遇到较为复杂的情况(如某些对象属性要特殊存储,对象间存在互相引用等)时,就需要定义一个继承自TextSerializer的特定序列化器,并且在实现的方法中针对不同的类型书写具体的序列化方案.
 
@@ -243,9 +243,9 @@ serviceEntity.Attribute(p => p.Components, typeof(string)).HasMaxcharNumber(1000
      .UseSerializer(new JsonSerializer(), typeof(List<Component>)).UseSerializationModel(true);
 
 ```
-这里的配置和之前文章[Obase如何配置属性的序列化器](./Obase如何配置属性的序列化器.md)中配置类似,只是新增了UseSerializationModel这个配置. JsonSerializer的定义也是在文章[Obase如何配置属性的序列化器](./Obase如何配置属性的序列化器.md)中给出.
+这里的配置和之前文章[Obase如何配置属性的序列化器](./Obase如何配置属性简单序列化_dotNet.md)中配置类似,只是新增了UseSerializationModel这个配置. JsonSerializer的定义也是在文章[Obase如何配置属性的序列化器](./Obase如何配置属性简单序列化_dotNet.md)中给出.
 
-当然,如果没有为某个属性启用UseSerializationModel(true),依然是使用之前文章[Obase如何配置属性的序列化器](./Obase如何配置属性的序列化器.md)中的逻辑,直接将原始对象传入由用户定义的序列化器中,启用则是将特定的DTO对象传入.
+当然,如果没有为某个属性启用UseSerializationModel(true),依然是使用之前文章[Obase如何配置属性的序列化器](./Obase如何配置属性简单序列化_dotNet.md)中的逻辑,直接将原始对象传入由用户定义的序列化器中,启用则是将特定的DTO对象传入.
 
 附加,保存和查询部分和之前的均相同,此处不再赘述.
 
