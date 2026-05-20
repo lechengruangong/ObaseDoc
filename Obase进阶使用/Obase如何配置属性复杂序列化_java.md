@@ -421,4 +421,4 @@ serviceEntity.attribute("Components", String.class).hasValueGetter((Service p) -
 ```
 这里的配置和之前文章[Obase如何配置属性的序列化器](./Obase如何配置属性简单序列化_java.md)中配置类似,只是新增了useSerializationModel这个配置. JsonSerializer的定义也是在文章[Obase如何配置属性的序列化器](./Obase如何配置属性简单序列化_java.md)中给出的.
 
-当然,如果没有为某个属性启用UseSerializationModel(true),依然是使用之前文章[Obase如何配置属性的序列化器](./Obase如何配置属性简单序列化_java.md)中的逻辑,直接将原始对象传入由用户定义的序列化器中,启用则是将特定的DTO对象传入.
+当然,如果没有为某个属性启用useSerializationModel(true),依然是使用之前文章[Obase如何配置属性的序列化器](./Obase如何配置属性简单序列化_java.md)中的逻辑,直接将原始对象传入由用户定义的序列化器中,启用则是将特定的DTO对象传入.
