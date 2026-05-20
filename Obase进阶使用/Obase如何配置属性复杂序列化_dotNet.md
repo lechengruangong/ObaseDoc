@@ -6,9 +6,42 @@
 
 SOdm使用特定的数据传输对象(Data Transfer Object,以后简称为DTO)来存储要序列化的对象,同时为要序列化的对象定义属性,构造函数,引用三种配置来指导如何序列化和反序列化.为了解决循环引用的问题,SOdm会在序列化过程中为每个对象分配唯一的临时ID,并存储在DTO中的引用字段里,同时在反序列化时用具体对象替换.
 
-下面来看一下如何进行配置.
+## 持久化模型配置
 
-## dotNet
+持久化模型主要的配置方法为模型建造器上的SerializationEntity方法,此方法会返回序列化实体配置,此序列化实体配置上有以下方法:
+```
+//配置序列化实体的属性方法
+entityConfiguration.Attribute(p => p.Role);
+//配置序列化实体的构造器方法
+entityConfiguration.HasConstructor(constructor).HasParameter(p => p.Role, typeof(string), true);
+//配置序列化实体的引用方法
+entityConfiguration.Reference(p => p.Ref);
+//忽略某个属性
+entityConfiguration.Ignore("Attr");
+```
+这里的配置需要注意的是,一个序列化对象的配置分为三种配置:属性,引用和构造函数.
+
+其中属性是一定需要存储于DTO中的,引用则是一定不需要存储于DTO中的(只会存储序列化过程中分配的唯一临时ID),而构造函数的参数则是可由配置者自行配置是否需要存储于DTO的.
+
+对于需要存储于DTO的属性或者构造函数参数,则只支持将Obase基元类型进行存储;不需要存储的构造函数参数,则是构造对象时用来注入某些外部对象用的.
+
+和Odm相似,对于大部分的属性和引用Obase都可以自动侦测并进行配置,实际上需要配置的只有反序列化的构造函数其他的大多可以交给Obase进行自动配置.
+
+如果有某些属性不需要被序列化,可以使用Ignore方法进行忽略.
+
+如果在序列化过程中,碰到没有配置的对象会跳过此对象,在反序列化时自然也就没有相应的对象被构造了.
+
+此外,在属性配置上还需要配置使用序列化模型,方法如下:
+```
+//启用序列化模型
+attrConfiguration.UseSerializationModel(true);
+```
+
+## 实现序列化器
+
+此处内容与文章[Obase如何配置属性的序列化器](./Obase如何配置属性简单序列化_dotNet.md)中相同.
+
+## 具体示例
 
 假设我们有一个Service服务类,上面引用了Identity身份和Component组件类,这两个都需要序列化为Json字符串进行存储.
 
@@ -181,7 +214,6 @@ public class Component
     }
 }
 ```
-
 那么我们需要做如下的配置:
 ```
 //配置序列化模型Identity
@@ -204,27 +236,14 @@ idConstructor.HasParameter(p => p.Id, typeof(Guid), true)
     .HasParameter(_ => DateTime.Now, typeof(DateTime), false);
 //Identity没有引用 无需配置
 //忽略版本
-idEntityConfiguration.Ignore(p => p.SubVersion);
+idEntityConfiguration.Ignore(p => p.Version);
 
 //配置序列化模型Component
 modelBuilder.SerializationEntity<Component>();
 //Component的属性 无需配置 自动侦测
 //Component有无参的反序列化构造函数 无需配置 自动侦测
 //Component有引用 无需配置 自动侦测
-
 ```
-这里的配置需要注意的是,一个序列化对象的配置分为三种配置:属性,引用和构造函数.
-
-其中属性是一定需要存储于DTO中的,引用则是一定不需要存储于DTO中的(只会存储序列化过程中分配的唯一临时ID),而构造函数的参数则是可由配置者自行配置是否需要存储于DTO的.
-
-对于需要存储于DTO的属性或者构造函数参数,则只支持将Obase基元类型进行存储;不需要存储的构造函数参数,则是构造对象时用来注入某些外部对象用的.
-
-和Odm相似,对于大部分的属性和引用Obase都可以自动侦测并进行配置,实际上需要配置的只有反序列化的构造函数其他的大多可以交给Obase进行自动配置,就像Component的配置一样.
-
-如果有某些属性不需要被序列化,可以使用Ignore方法进行忽略.
-
-如果在序列化过程中,碰到没有配置的对象会跳过此对象,在反序列化时自然也就没有相应的对象被构造了.
-
 最后,需要为Service进行配置,并在相应的属性配置上启用复杂的序列化,代码如下:
 ```
 //注册服务为实体型
@@ -243,10 +262,6 @@ serviceEntity.Attribute(p => p.Components, typeof(string)).HasMaxcharNumber(1000
      .UseSerializer(new JsonSerializer(), typeof(List<Component>)).UseSerializationModel(true);
 
 ```
-这里的配置和之前文章[Obase如何配置属性的序列化器](./Obase如何配置属性简单序列化_dotNet.md)中配置类似,只是新增了UseSerializationModel这个配置. JsonSerializer的定义也是在文章[Obase如何配置属性的序列化器](./Obase如何配置属性简单序列化_dotNet.md)中给出.
+这里的配置和之前文章[Obase如何配置属性的序列化器](./Obase如何配置属性简单序列化_dotNet.md)中配置类似,只是新增了UseSerializationModel这个配置. JsonSerializer的定义也是在文章[Obase如何配置属性的序列化器](./Obase如何配置属性简单序列化_dotNet.md)中给出的.
 
 当然,如果没有为某个属性启用UseSerializationModel(true),依然是使用之前文章[Obase如何配置属性的序列化器](./Obase如何配置属性简单序列化_dotNet.md)中的逻辑,直接将原始对象传入由用户定义的序列化器中,启用则是将特定的DTO对象传入.
-
-附加,保存和查询部分和之前的均相同,此处不再赘述.
-
-## java
