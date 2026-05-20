@@ -1,16 +1,32 @@
-在6.4.5中,Obase为属性配置增加了序列化器相关的配置方法,用于处理某些属性实际上是序列化后进行存储的场景.
+序列化是一种常见的数据持久化的手段,我们在定义类时也往往有一些属性虽然定义为某个类型但不需要进行独立存储只需要存储在字段里的情形.
+
+为应对此需求,Obase为属性配置增加了序列化器相关的配置方法,用于处理某些属性实际上是序列化后进行存储的场景.
 
 配置了序列化器的属性会在取值后进行序列化,在设值前进行反序列化,序列化器的相关行为由接口ISerializer和ITextSerializer指定,Obase同时提供了抽象基类TextSerializer用于处理一般情况下的序列化,用户只需要实现TextSerializer提供的两个对象与字符串转换的方法即可.
 
 当然,如果需要精细的控制序列化中流的行为,也可以实现ITextSerializer来自定义序列化器.
 
-接下来以具体的场景介绍如何配置序列化器.
+## 属性序列化配置方法
+
+序列化器的配置方法为属性配置上的UseSerializer方法,有四个重载,其中两个参数为TextSerializer,两个参数为ITextSerializer,对于使用Json存储这种通常的场景,我们使用TextSerializer参数的配置方法即可.
+
+```
+//比较常用的配置序列器方法
+attrConfig.UseSerializer<string[]>(new JsonSerializer())
+```
+注意泛型参数,此处的类型应当为属性的定义类型.
+
+## 实现序列化器
+
+通常实现抽象类TextSerializer即可,在DoDeserialize方法中进行反序列化,在DoSerialize方法中进行序列化.
+
+如果有特定的需求,也可以实现ITextSerializer接口,此接口相较TextSerializer多了两个针对流的处理方法需要实现.
+
+## 具体示例
 
 假设我们有一个Goods类,内有一个属性GoodsPhotos表示商品的图片集合,类型是字符串数组.
 
 我们想要将此GoodsPhotos属性存储于数据库内的单个字段中,用Json进行存储,那么就可以为这个属性配置序列化器.
-
-序列化器的配置方法为属性配置上的UseSerializer方法,有四个重载,其中两个参数为TextSerializer,两个参数为ITextSerializer,对于使用Json存储这种通常的场景,我们使用TextSerializer参数的配置方法即可.
 
 ```
 /// <summary>
@@ -134,4 +150,3 @@ public class CommaSplitSerializer : ITextSerializer
     }
 }
 ```
-
