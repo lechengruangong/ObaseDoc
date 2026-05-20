@@ -1,116 +1,16 @@
-Obase默认情况下不会处理类之间的继承关系,只是将他们作为不同的类型加以处理,
+继承是面向对象的重要的重要特性,在实际使用中我们通常会在以下两种场景里使用继承:
+1. 复用父类的属性和方法
+2. 表示从一般到特殊的派生关系
 
-当需要父类与子类都存储于同一张表内且需要分页处理的场景时,就要进行特殊的配置.
+对于第一种情况,这些类和派生类之间并没有逻辑关系,也往往不需要存储于同一张表内一起查询,此时只要按照普通的配置逻辑,按照不同的类配置即可.
 
-## dotNet
+对于第二种情况,此时这些类和派生类表示的同一个类型中抽象和具体的关系,那么就往往要存储于同一张表内,且需要在查询父类时同时查询到子类的对象.
 
-**6.5.0更新**
+对于如何区分这两种情况,这里提出一个判断标准:
 
-注意:在6.5.0版本中,配置具体类型判别器的方法进行了更新,加入了没有配置具体类型判别器时使用默认的具体类型判别器的逻辑,故这个例子的配置部分可以简化为如下的样子:
-```
-//定义一个自行车实体配置
-var bikeEntity = modelBuilder.Entity<Bike>();
-bikeEntity.HasKeyAttribute(p => p.Code).HasKeyIsSelfIncreased(false);
-//此处需要配置类型判别器和根据哪个数据源字段的值来判断
-//如果此处的具体类型判别器没有特殊逻辑 可以只传入判别字段名 使用Obase内置的判别器
-bikeEntity.HasConcreteTypeDiscriminator("Type");
-//Bike的Type字段是1 这里的值需要根据具体的类型进行调整 
-//如果此基础类型是抽象的 此处可以配置一个如-1一类的值抽象的类型不会被创建 所以配置一个特殊值即可
-bikeEntity.HasConcreteTypeSign(1);
+**如果继承关系中的基类没有引用其他类或被其他类引用则不需要配置继承关系,否则都需要配置继承关系.**
 
-//定义车灯实体配置
-var bikeLightEntity = modelBuilder.Entity<BikeLight>();
-bikeLightEntity.HasKeyAttribute(p => p.Code).HasKeyIsSelfIncreased(false);
-
-//定义车轮实体配置
-var bikeWheelEntity = modelBuilder.Entity<BikeWheel>();
-bikeWheelEntity.HasKeyAttribute(p => p.Code).HasKeyIsSelfIncreased(false);
-
-//定义车旗实体配置
-var bikeFlagEntity = modelBuilder.Entity<BikeFlag>();
-bikeFlagEntity.HasKeyAttribute(p => p.Code).HasKeyIsSelfIncreased(false);
-
-//定义车筐实体配置
-var bikeBucketEntity = modelBuilder.Entity<BikeBucket>();
-bikeBucketEntity.HasKeyAttribute(p => p.Code).HasKeyIsSelfIncreased(false);
-
-//定义一个特定的我的自行车A
-var myBikeAEntity = modelBuilder.Entity<MyBikeA>();
-myBikeAEntity.HasKeyAttribute(p => p.Code).HasKeyIsSelfIncreased(false);
-//设置继承关系
-myBikeAEntity.DeriveFrom<Bike>();
-//MyBikeA的Type字段是2 这里的值需要根据具体的类型进行调整
-myBikeAEntity.HasConcreteTypeSign(2);
-//设置A和C的具体类型区分器 没有特殊逻辑 使用Obase内置的判别器
-myBikeAEntity.HasConcreteTypeDiscriminator("Type");
-//此处与父类一起保存于Bike
-myBikeAEntity.ToTable("Bike");
-
-//定义一个特定的我的自行车B
-var myBikeBEntity = modelBuilder.Entity<MyBikeB>();
-myBikeBEntity.HasKeyAttribute(p => p.Code).HasKeyIsSelfIncreased(false);
-//设置继承关系
-myBikeBEntity.DeriveFrom<Bike>();
-//MyBikeB的Type字段是3 这里的值需要根据具体的类型进行调整
-myBikeBEntity.HasConcreteTypeSign(3);
-//此处与父类一起保存于Bike
-myBikeBEntity.ToTable("Bike");
-
-//定义一个特定的我的自行车C
-var myBikeCEntity = modelBuilder.Entity<MyBikeC>();
-myBikeCEntity.HasKeyAttribute(p => p.Code).HasKeyIsSelfIncreased(false);
-//设置继承关系
-myBikeCEntity.DeriveFrom<MyBikeA>();
-//MyBikeB的Type字段是4 这里的值需要根据具体的类型进行调整
-myBikeCEntity.HasConcreteTypeSign(4);
-//此处与父类一起保存于Bike
-myBikeCEntity.ToTable("Bike");
-
-//定义车灯的关联
-var bikeAssLight = modelBuilder.Association();
-//关联端 关联映射
-var bikeEnd1 = bikeAssLight.AssociationEnd<Bike>();
-//启用延迟加载
-bikeEnd1.AssociationReference(p => p.Light).HasEnableLazyLoading(true);
-bikeEnd1.HasMapping("Code", "Code");
-bikeAssLight.AssociationEnd<BikeLight>().HasMapping("Code", "LightCode");
-bikeAssLight.ToTable("Bike");
-
-//定义车轮的关联
-var bikeAssWheel = modelBuilder.Association();
-//关联端 关联映射
-var bikeEnd2 = bikeAssWheel.AssociationEnd<Bike>();
-//启用延迟加载
-bikeEnd2.AssociationReference(p => p.Wheels).HasEnableLazyLoading(true);
-bikeEnd2.HasMapping("Code", "BikeCode");
-bikeAssWheel.AssociationEnd<BikeWheel>().HasMapping("Code", "Code");
-bikeAssWheel.ToTable("BikeWheel");
-
-//定义车旗的关联
-var mybikeAssFlag = modelBuilder.Association();
-//关联端 关联映射
-var myBikeEnd1 = mybikeAssFlag.AssociationEnd<MyBikeA>();
-myBikeEnd1.AssociationReference(p => p.Flag).HasEnableLazyLoading(true);
-//启用延迟加载
-myBikeEnd1.HasMapping("Code", "Code");
-mybikeAssFlag.AssociationEnd<BikeFlag>().HasMapping("Code", "FlagCode");
-mybikeAssFlag.ToTable("Bike");
-
-//定义车筐的关联
-var mybikeAssBucket = modelBuilder.Association();
-//关联端 关联映射
-var myBikeEnd2 = mybikeAssBucket.AssociationEnd<MyBikeB>();
-myBikeEnd2.AssociationReference(p => p.Bucket).HasEnableLazyLoading(true);
-//启用延迟加载
-myBikeEnd2.HasMapping("Code", "Code");
-mybikeAssBucket.AssociationEnd<BikeBucket>().HasMapping("Code", "BucketCode");
-mybikeAssBucket.ToTable("Bike");
-```
-对于通常情况下,不再需要自行实现具体类型判别器了,接口仍然保留,如果有特殊的需求也可以自己实现,以上的例子中使用的是默认的判别器,所以原来的接口实现类都不再需要了.
-
-**以下为原来的内容**
-
-设想如下的场景,Bike表示自行车,BikeWheel表示车轮,BikeLight表示车灯.
+考虑一个例子,Bike表示自行车,BikeWheel表示车轮,BikeLight表示车灯.
 
 而后有一个特殊的MyBikeA继承Bike,有一个额外的旗子BikeFlag.一个特殊的MyBikeB继承Bike,有一个额外的车筐BikeBucket. 一个特殊的MyBIkeC继承MyBikeA,是可以共享的.
 
@@ -431,9 +331,18 @@ public class MyBikeC : MyBikeA
     }
 }
 ```
-配置时要为父类和子类配置判别类型标识和具体类型判别器.
+
+这些类都存储于Bike表中,使用Type作为区分每个类型的字段.
 
 **目前需要注意的是,子类的所独有的字段不能设置为非空的,因为在插入其他子类时会将这些字段设为空.**
+
+Obase使用具体类型区分器和具体类型标记这两个概念来处理继承关系,区分器需要实现IConcreteTypeDiscriminator接口,在接口实现中处理区分字段(这里就是Type)的哪个值对应哪个子类;具体类型标记则是一个元组,表示这个类对应哪个字段的哪个值.
+
+由于在6.5版本中对继承配置进行了优化,所以接下来的内容区分为6.4和6.5.
+
+## 6.4版本配置
+
+配置时要为父类配置具体类型判别器,父类和子类配置判别类型标识,子类配置派生自哪个类.
 
 ```
 //定义一个自行车实体配置
@@ -537,7 +446,6 @@ myBikeEnd2.AssociationReference(p => p.Bucket).HasEnableLazyLoading(true);
 myBikeEnd2.HasMapping("Code", "Code");
 mybikeAssBucket.AssociationEnd<BikeBucket>().HasMapping("Code", "BucketCode");
 mybikeAssBucket.ToTable("Bike");
-
 ```
 具体类型选择器代码如下
 ```
@@ -609,12 +517,110 @@ public class MyBikeConcreteTypeDiscriminator : IConcreteTypeDiscriminator
     }
 }
 ```
-值得注意的是,有些时候虽然存在继承关系,但并不需要进行继承配置,比如只是复用一些属性.这里提供一个继承关系配置的判断标准:
 
-**如果继承关系中的基类没有引用其他类或被其他类引用则不需要配置急关系,否则都需要配置继承关系.**
+主要的配置思路为使用DeriveFrom方法来配置当前类派生自那个类,使用HasConcreteTypeSign方法来配置这个类在表里对应哪个字段的哪个值,对有子类的类使用HasConcreteTypeDiscriminator方法配置具体类型区分器,以及实现IConcreteTypeDiscriminator接口.
 
-设想一个这样的场景,A引用了B,但实际上使用的是B的子类B1,所以就没有配置B为实体型也没有配置B1继承自B,那么在使用A.Include("B")这样的查询时,就会出现"包含路径不合法,类型B没有注册."的错误.
+## 6.5版本配置
 
-## Java
+在6.5.0版本中,配置具体类型判别器的方法进行了优化,加入了没有配置具体类型判别器时使用默认的具体类型判别器的逻辑,故这个例子的配置部分可以简化为如下的样子:
 
-Java版待重写
+```
+//定义一个自行车实体配置
+var bikeEntity = modelBuilder.Entity<Bike>();
+bikeEntity.HasKeyAttribute(p => p.Code).HasKeyIsSelfIncreased(false);
+//此处需要配置类型判别器和根据哪个数据源字段的值来判断
+//如果此处的具体类型判别器没有特殊逻辑 可以只传入判别字段名 使用Obase内置的判别器
+bikeEntity.HasConcreteTypeDiscriminator("Type");
+//Bike的Type字段是1 这里的值需要根据具体的类型进行调整 
+//如果此基础类型是抽象的 此处可以配置一个如-1一类的值抽象的类型不会被创建 所以配置一个特殊值即可
+bikeEntity.HasConcreteTypeSign(1);
+
+//定义车灯实体配置
+var bikeLightEntity = modelBuilder.Entity<BikeLight>();
+bikeLightEntity.HasKeyAttribute(p => p.Code).HasKeyIsSelfIncreased(false);
+
+//定义车轮实体配置
+var bikeWheelEntity = modelBuilder.Entity<BikeWheel>();
+bikeWheelEntity.HasKeyAttribute(p => p.Code).HasKeyIsSelfIncreased(false);
+
+//定义车旗实体配置
+var bikeFlagEntity = modelBuilder.Entity<BikeFlag>();
+bikeFlagEntity.HasKeyAttribute(p => p.Code).HasKeyIsSelfIncreased(false);
+
+//定义车筐实体配置
+var bikeBucketEntity = modelBuilder.Entity<BikeBucket>();
+bikeBucketEntity.HasKeyAttribute(p => p.Code).HasKeyIsSelfIncreased(false);
+
+//定义一个特定的我的自行车A
+var myBikeAEntity = modelBuilder.Entity<MyBikeA>();
+myBikeAEntity.HasKeyAttribute(p => p.Code).HasKeyIsSelfIncreased(false);
+//设置继承关系
+myBikeAEntity.DeriveFrom<Bike>();
+//MyBikeA的Type字段是2 这里的值需要根据具体的类型进行调整
+myBikeAEntity.HasConcreteTypeSign(2);
+//设置A和C的具体类型区分器 没有特殊逻辑 使用Obase内置的判别器
+myBikeAEntity.HasConcreteTypeDiscriminator("Type");
+//此处与父类一起保存于Bike
+myBikeAEntity.ToTable("Bike");
+
+//定义一个特定的我的自行车B
+var myBikeBEntity = modelBuilder.Entity<MyBikeB>();
+myBikeBEntity.HasKeyAttribute(p => p.Code).HasKeyIsSelfIncreased(false);
+//设置继承关系
+myBikeBEntity.DeriveFrom<Bike>();
+//MyBikeB的Type字段是3 这里的值需要根据具体的类型进行调整
+myBikeBEntity.HasConcreteTypeSign(3);
+//此处与父类一起保存于Bike
+myBikeBEntity.ToTable("Bike");
+
+//定义一个特定的我的自行车C
+var myBikeCEntity = modelBuilder.Entity<MyBikeC>();
+myBikeCEntity.HasKeyAttribute(p => p.Code).HasKeyIsSelfIncreased(false);
+//设置继承关系
+myBikeCEntity.DeriveFrom<MyBikeA>();
+//MyBikeB的Type字段是4 这里的值需要根据具体的类型进行调整
+myBikeCEntity.HasConcreteTypeSign(4);
+//此处与父类一起保存于Bike
+myBikeCEntity.ToTable("Bike");
+
+//定义车灯的关联
+var bikeAssLight = modelBuilder.Association();
+//关联端 关联映射
+var bikeEnd1 = bikeAssLight.AssociationEnd<Bike>();
+//启用延迟加载
+bikeEnd1.AssociationReference(p => p.Light).HasEnableLazyLoading(true);
+bikeEnd1.HasMapping("Code", "Code");
+bikeAssLight.AssociationEnd<BikeLight>().HasMapping("Code", "LightCode");
+bikeAssLight.ToTable("Bike");
+
+//定义车轮的关联
+var bikeAssWheel = modelBuilder.Association();
+//关联端 关联映射
+var bikeEnd2 = bikeAssWheel.AssociationEnd<Bike>();
+//启用延迟加载
+bikeEnd2.AssociationReference(p => p.Wheels).HasEnableLazyLoading(true);
+bikeEnd2.HasMapping("Code", "BikeCode");
+bikeAssWheel.AssociationEnd<BikeWheel>().HasMapping("Code", "Code");
+bikeAssWheel.ToTable("BikeWheel");
+
+//定义车旗的关联
+var mybikeAssFlag = modelBuilder.Association();
+//关联端 关联映射
+var myBikeEnd1 = mybikeAssFlag.AssociationEnd<MyBikeA>();
+myBikeEnd1.AssociationReference(p => p.Flag).HasEnableLazyLoading(true);
+//启用延迟加载
+myBikeEnd1.HasMapping("Code", "Code");
+mybikeAssFlag.AssociationEnd<BikeFlag>().HasMapping("Code", "FlagCode");
+mybikeAssFlag.ToTable("Bike");
+
+//定义车筐的关联
+var mybikeAssBucket = modelBuilder.Association();
+//关联端 关联映射
+var myBikeEnd2 = mybikeAssBucket.AssociationEnd<MyBikeB>();
+myBikeEnd2.AssociationReference(p => p.Bucket).HasEnableLazyLoading(true);
+//启用延迟加载
+myBikeEnd2.HasMapping("Code", "Code");
+mybikeAssBucket.AssociationEnd<BikeBucket>().HasMapping("Code", "BucketCode");
+mybikeAssBucket.ToTable("Bike");
+```
+对于通常情况下,不再需要自行实现具体类型判别器了,接口仍然保留,如果有特殊的需求也可以自己实现,以上的例子中使用的是默认的判别器,所以原来的接口实现类都不再需要了.
