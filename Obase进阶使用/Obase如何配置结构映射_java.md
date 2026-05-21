@@ -55,7 +55,7 @@ attrConfig.hasNullable(true);
 
 对于BigDecimal类型,使用hasPrecision可以指定字段的精度,设置的值对应字段中小数部分的位数,应当在0-28之间.
 
-下表为默认情况下,十进制数类型的字段精度:
+下表为默认情况下,十进制数类型(BigDecimal)的字段精度:
 
 | MySql数据精度 | Sqlite数据精度 | SqlServer数据精度 | PostgreSQL数据精度 |
 |:----------|:-----------|:--------------|:---------------|
