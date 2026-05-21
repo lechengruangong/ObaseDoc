@@ -6,7 +6,7 @@
 
 - 手动事务,指的是调用Obase的手动事务方法自己控制事务.
 
-  Obase的手动事务方法遵循JDBC的try-Begin-Commit-Catch-RollBack-Finally-Release模式.
+  Obase的手动事务方法遵循JDBC的try-setAutoCommit(false)-commit-catch-rollBack-finally-close模式.
 
 - 已有连接事务,指的是由调用方提供连接来构造上下文配置提供者并由调用方来管理连接的事务的模式.
 
@@ -20,17 +20,17 @@ Obase的事务由上下文负责管理,提供了以下几个方法:
 
 - 自动事务不需要调用任何方法.
 - 手动事务使用以下方法,代码中的context即对象上下文:
-```
-//手动开启事务
-context.beginTransaction();
-//提交修改
-context.commit();
-//回滚事务
-context.rollbackTransaction();
-//释放资源
-context.release();
-```
-- 已有连接事务不使用额外的方法控制事务,仅使用ADO.NET的事务方法即可,但需要继承SqlContextConfigurator类实现使用已存在的连接上下文配置.
+    ```
+    //手动开启事务
+    context.beginTransaction();
+    //提交修改
+    context.commit();
+    //回滚事务
+    context.rollbackTransaction();
+    //释放资源
+    context.release();
+    ```
+- 已有连接事务不使用额外的方法控制事务,仅使用JDBC的事务方法即可,但需要继承SqlContextConfigurator类实现使用已存在的连接上下文配置.
 
 ## 具体示例
 
@@ -49,6 +49,7 @@ context.release();
    ```
    
    在自动事务中,连接和事务控制都由Obase负责.
+
 2.  以下代码为手动事务的示例:
    ```
    //构造一个上下文
@@ -88,6 +89,7 @@ context.release();
    ```
 
    在手动事务中,连接由Obase负责,事务控制由调用方负责.
+
 3. 以下代码为旧系统的事务示例,此处使用的是JDBC的事务基础代码作为示例,实际使用时可能有所包装,但只要仍使用JDBC模型就可以兼容:
 
    ```
