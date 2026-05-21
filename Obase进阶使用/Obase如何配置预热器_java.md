@@ -27,6 +27,6 @@ ObasePreHeater preHeater = new ObasePreHeater();
 //预热
 preHeater.preHeat(dataContext);
 ```
-此处省略的向SpringBoot依赖注入上下文工厂的的标注代码和类定义是在[Obase的上下文管理(java版)](../Obase入门/Obase的上下文管理_java.md)中介绍的上下文工厂注入SpringBoot的代码.
+此处省略的向SpringBoot依赖注入上下文工厂的的标注代码和类定义是在[Obase如何定义和管理对象上下文(java版)](../Obase入门/Obase如何定义和管理对象上下文_java.md)中介绍的上下文工厂注入SpringBoot的代码.
 
 预热器会默认使用slf4j日志输出预热结果,在日志中可以观察到类似于"XXX Has Initialized"的输出.

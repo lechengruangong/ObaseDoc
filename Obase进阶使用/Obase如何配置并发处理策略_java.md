@@ -35,11 +35,11 @@
 
 ```
 //配置并发处理策略
-entityConfig.HasConcurrentConflictHandlingStrategy(EConcurrentConflictHandlingStrategy.Combine);
+entityConfig.hasConcurrentConflictHandlingStrategy(EConcurrentConflictHandlingStrategy.Combine);
 //配置版本键 最简单的方式就是将会出现并发冲突的属性作为版本键
-entityConfig.HasVersionAttribute(p => p.Amount);
+entityConfig.hasVersionAttribute(p -> p.getAmount());
 //如果之前并发处理策略是版本合并策略 还需要设置会出现并发冲突的属性的版本合并策略
-attrConfig.HasCombinationHandler(EAttributeCombinationHandlingStrategy.Accumulate)
+attrConfig.hasCombinationHandler(EAttributeCombinationHandlingStrategy.Accumulate)
 ```
 
 这里的配置就是配置具体的对象并发冲突合并策略,如果已经预见到不会发生版本冲突,就不需要配置版本键;如果对象并发冲突合并策略不是版本合并,就不需要配置并发冲突的属性的版本合并策略.
@@ -50,42 +50,112 @@ attrConfig.HasCombinationHandler(EAttributeCombinationHandlingStrategy.Accumulat
 
 首先,定义团购类和团购报名类:
 ```
-/// <summary>
-///     团购
-/// </summary>
-public class TeamBuy
-{
-    /// <summary>
-    ///     团购ID
-    /// </summary>
-    public int TeamBuyId { get; set; }
+/**
+ * 团购
+ */
+public class TeamBuy {
+    /**
+     * 团购ID
+     */
+    private int teamBuyId;
 
-    /// <summary>
-    ///     已经报名的人数
-    /// </summary>
-    public int Signed { get; set; }
+    /**
+     * 已经报名的人数
+     */
+    private int signed;
 
-    /// <summary>
-    ///     团购报名列表
-    /// </summary>
-    public List<TeamBySignUp> SignUpList { get; set; }
+    /**
+     * 团购报名列表
+     */
+    private List<TeamBySignUp> signUpList;
+
+    /**
+     * 团购ID
+     */
+    public int getTeamBuyId() {
+        return teamBuyId;
+    }
+    
+    /**
+     * 团购ID
+     */
+    public void setTeamBuyId(int teamBuyId) {
+        this.teamBuyId = teamBuyId;
+    }
+
+    /**
+     * 已经报名的人数
+     */
+    public int getSigned() {
+        return signed;
+    }
+
+    /**
+     * 已经报名的人数
+     */
+    public void setSigned(int signed) {
+        this.signed = signed;
+    }
+
+    /**
+     * 团购报名列表
+     */
+    public List<TeamBySignUp> getSignUpList() {
+        return signUpList;
+    }
+
+    /**
+     * 团购报名列表
+     */
+    public void setSignUpList(List<TeamBySignUp> signUpList) {
+        this.signUpList = signUpList;
+    }
 }
 
-/// <summary>
-///     团购报名
-/// </summary>
-public class TeamBySignUp
-{
-    /// <summary>
-    ///     团购ID
-    /// </summary>
-    public int TeamBuyId { get; set; }
+/**
+ * 团购报名
+ */
+public class TeamBySignUp {
+    /**
+     * 团购ID
+     */
+    private int teamBuyId;
 
-    /// <summary>
-    ///     报名人数
-    /// </summary>
-    public int SignUpNum { get; set; }
+    /**
+     * 报名人数
+     */
+    private int signUpNum;
+
+
+    /**
+    * 团购ID
+     */
+    public int getTeamBuyId() {
+        return teamBuyId;
+    }
+
+    /**
+     * 团购ID
+     */
+    public void setTeamBuyId(int teamBuyId) {
+        this.teamBuyId = teamBuyId;
+    }
+
+    /**
+     * 报名人数
+     */
+    public int getSignUpNum() {
+        return signUpNum;
+    }
+
+    /**
+     * 报名人数
+     */
+    public void setSignUpNum(int signUpNum) {
+        this.signUpNum = signUpNum;
+    }
 }
+
 ```
 
 根据分析,团购的已报名人数属性会出现并发冲突,那么就需要将已报名人数配置为版本键,合并策略是版本合并,已报名人数的合并策略是累加.
@@ -94,15 +164,15 @@ public class TeamBySignUp
 
 ```
 //团购实体型
-var teamBuyConfiguration = modelBuilder.Entity<TeamBuy>();
+EntityTypeConfiguration<TeamBuy> teamBuyConfiguration = modelBuilder.entity(TeamBuy.class);
 //配置团购中的并发策略为版本合并策略
-teamBuyConfiguration.HasConcurrentConflictHandlingStrategy(EConcurrentConflictHandlingStrategy.Combine);
+teamBuyConfiguration.hasConcurrentConflictHandlingStrategy(EConcurrentConflictHandlingStrategy.Combine);
 //Signed会因为并发导致出现错误 故将Signed设置为版本键
-teamBuyConfiguration.HasVersionAttribute(p => p.Signed);
+teamBuyConfiguration.hasVersionAttribute(p -> p.getSigned());
 //为Signed设置版本合并策略为累加
-teamBuyConfiguration.Attribute(p => p.Signed)
+teamBuyConfiguration.attribute(p -> p.getSigned())
     //使用累加策略
-    .HasCombinationHandler(EAttributeCombinationHandlingStrategy.Accumulate);
+    .hasCombinationHandler(EAttributeCombinationHandlingStrategy.Accumulate);
 //省略掉团购报名配置 团购和团购报名之间关系的配置
 ```
 

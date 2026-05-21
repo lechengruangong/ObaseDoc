@@ -120,4 +120,4 @@ preHeater.preHeat(dataContext);
 ```
 否则预热器在预热连接池时,由于还没有注入配置,会导致使用默认的配置构造连接池.
 
-此处省略的向SpringBoot依赖注入上下文工厂的的标注代码和类定义是在[Obase的上下文管理(java版)](../Obase入门/Obase的上下文管理_java.md)中介绍的上下文工厂注入SpringBoot的代码.
+此处省略的向SpringBoot依赖注入上下文工厂的的标注代码和类定义是在[Obase如何定义和管理对象上下文(java版)](../Obase入门/Obase如何定义和管理对象上下文_java.md)中介绍的上下文工厂注入SpringBoot的代码.
