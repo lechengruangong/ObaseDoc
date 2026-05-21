@@ -9,6 +9,7 @@
 7. [Obase如何配置属性复杂序列化(dotNet版)](./Obase如何配置属性复杂序列化_dotNet.md)和[Obase如何配置属性复杂序列化(java版)](./Obase如何配置属性复杂序列化_java.md).主要介绍了属性的复杂序列化存储功能,此功能用于解决某个属性是比较复杂但相对独立的互相引用的对象想要直接以Json等格式存储于字段的问题.
 8. [Obase如何配置并发处理策略(dotNet版)](./Obase如何配置并发处理策略_dotNet.md)和[Obase如何配置并发处理策略(java版)](./Obase如何配置并发处理策略_java.md).主要介绍了并发处理策略的配置,此功能主要用于处理发生并发冲突时需要Obase进行自动处理的场景.
 9. [Obase如何进行事务处理(dotNet版)](./Obase如何进行事务处理_dotNet.md)和[Obase如何进行事务处理(java版)](./Obase如何进行事务处理_java.md).主要介绍了事务处理的方法,此功能提供了多个不同的事务处理模式来应对不同的事务需求.
+10. [Obase如何配置结构映射(dotNet版)](./Obase如何配置结构映射_dotNet.md)和[Obase如何配置结构映射(java版)](./Obase如何配置结构映射_java.md).主要介绍了结构映射的配置方法,此功能主要用于在新建或者修改了领域类时自动修改数据源的表结构.
 
 ### 调试相关
 1. [Obase如何进行调试(dotNet版)](./Obase如何进行调试_dotNet.md)和[Obase如何进行调试(java版)](./Obase如何进行调试_java.md).主要介绍了在引用了Obase的软件包之后要如何进行调试.
