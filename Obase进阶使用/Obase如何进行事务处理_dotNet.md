@@ -20,16 +20,16 @@ Obase的事务由上下文负责管理,提供了以下几个方法:
 
 - 自动事务不需要调用任何方法.
 - 手动事务使用以下方法,代码中的context即对象上下文:
-```
-//手动开启事务
-context.BeginTransaction();
-//提交修改
-context.Commit();
-//回滚事务
-context.RollbackTransaction();
-//释放资源
-context.Release();
-```
+    ```
+    //手动开启事务
+    context.BeginTransaction();
+    //提交修改
+    context.Commit();
+    //回滚事务
+    context.RollbackTransaction();
+    //释放资源
+    context.Release();
+    ```
 - 已有连接事务不使用额外的方法控制事务,仅使用ADO.NET的事务方法即可,但需要继承SqlContextConfigurator类实现使用已存在的连接上下文配置.
 
 ## 具体示例
@@ -49,7 +49,8 @@ context.Release();
    ```
    
    在自动事务中,连接和事务控制都由Obase负责.
-2.  以下代码为手动事务的示例:
+
+2. 以下代码为手动事务的示例:
    ```
    //构造一个上下文
    var context = new Context();
@@ -86,8 +87,8 @@ context.Release();
       context.Release();
    }
    ```
-
    在手动事务中,连接由Obase负责,事务控制由调用方负责.
+
 3. 以下代码为旧系统的事务示例,此处使用的是ADO.NET的事务基础代码作为示例,实际使用时可能有所包装,但只要仍使用ADO.NET模型就可以兼容:
 
    ```
