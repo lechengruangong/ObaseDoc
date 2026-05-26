@@ -1,6 +1,6 @@
 ## 软件包
 
-Obase的软件包发布于Nuget,包含以下软件包:
+Obase的软件包发布于Maven,包含以下软件包:
 
 - io.obase:core,Obase的核心,提供了对象存储的核心抽象.
 - io.obase:logic.deletion,Obase的逻辑删除扩展,提供了逻辑删除功能.
