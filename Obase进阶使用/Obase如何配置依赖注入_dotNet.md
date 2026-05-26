@@ -24,7 +24,7 @@ builder.Build();
 
 需要注意的是这些代码应当只被调用一次,重复调用Build方法会抛出异常.
 
-Obase的依赖注入还有一些其他方法,可以参考[Obase的依赖注入Api](../Obase基础知识/Obase的依赖注入Api_dotNet.md)这篇文档.
+Obase的依赖注入还有一些其他方法,可以参考[Obase的依赖注入Api](../Obase基础知识/Obase的依赖注入建造器Api_dotNet.md)这篇文档.
 
 ## 依赖注入的使用
 

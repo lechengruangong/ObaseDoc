@@ -26,3 +26,4 @@
 2. [Obase如何配置连接池(dotNet版)](./Obase如何配置连接池_dotNet.md)和[Obase如何配置连接池(java版)](./Obase如何配置连接池_java.md).主要介绍了如何配置Obase所使用的连接池来满足特定的调优需求.
 3. [Obase如何使用映射模块(dotNet版)](./Obase如何使用映射模块_dotNet.md)和[Obase如何使用映射模块(java版)](./Obase如何使用映射模块_java.md).主要介绍了如何使用映射模块来对Obase进行扩展,包含两个示例:查看执行的Sql和禁止执行删除语句.
 4. [Obase如何连接兼容的Sql数据源(dotNet版)](./Obase如何连接兼容的Sql数据源_dotNet.md)和[Obase如何连接兼容的Sql数据源(java版)](./Obase如何连接兼容的Sql数据源_java.md).主要介绍了如何使用不特定于某个数据源的Obase的上下文配置提供器来连接可以兼容某个特定Sql语法的数据源来对Obase进行扩展,比如连接达梦数据库.
+5. [Obase如何扩展建模管道(dotNet版)](./Obase如何扩展建模管道_dotNet.md)和[Obase如何扩展建模管道(java版)](./Obase如何扩展建模管道_java.md).主要介绍了如何使用建模管道来对Obase进行扩展,比如将所有的映射表增加特定前缀.

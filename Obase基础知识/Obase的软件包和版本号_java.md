@@ -2,16 +2,16 @@
 
 Obase的软件包发布于Nuget,包含以下软件包:
 
-- Obase.Core,Obase的核心,提供了对象存储的核心抽象.
-- Obase.LogicDeletion,Obase的逻辑删除扩展,提供了逻辑删除功能.
-- Obase.MultiTenant,Obase的多租户扩展,提供了多租户功能.
-- Obase.Odm.Annotation,Obase的标注建模扩展,提供了标注建模功能.
-- Obase.Providers.Sql,Obase的Sql数据源抽象,提供了多个Sql语法的兼容.
-- Obase.Providers.MySql,Obase的MySql数据源提供器,提供了基于官方驱动的MySql数据源支持.
-- Obase.Providers.Oracle,Obase的Oracle数据源提供器,提供了基于官方驱动的Oracle数据源支持.
-- Obase.Providers.Sqlite,Obase的Sqlite数据源提供器,提供了基于官方驱动的Sqlite数据源支持.
-- Obase.Providers.SqlServer,Obase的SqlServer数据源提供器,提供了基于官方驱动的SqlServer数据源支持.
-- Obase.Providers.PostgreSql,Obase的PostgreSql数据源提供器,提供了基于官方驱动的PostgreSql数据源支持.
+- io.obase:core,Obase的核心,提供了对象存储的核心抽象.
+- io.obase:logic.deletion,Obase的逻辑删除扩展,提供了逻辑删除功能.
+- io.obase:multi.tenant,Obase的多租户扩展,提供了多租户功能.
+- io.obase:odm.annotation,Obase的标注建模扩展,提供了标注建模功能.
+- io.obase:providers.sql,Obase的Sql数据源抽象,提供了多个Sql语法的兼容.
+- io.obase:providers.mysql,Obase的MySql数据源提供器,提供了基于官方驱动的MySql数据源支持.
+- io.obase:providers.oracle,Obase的Oracle数据源提供器,提供了基于官方驱动的Oracle数据源支持.
+- io.obase:providers.sqlite,Obase的Sqlite数据源提供器,提供了基于官方驱动的Sqlite数据源支持.
+- io.obase:providers.sqlserver,Obase的SqlServer数据源提供器,提供了基于官方驱动的SqlServer数据源支持.
+- io.obase:providers.postgresql,Obase的PostgreSql数据源提供器,提供了基于官方驱动的PostgreSql数据源支持.
 
 ## 版本号
 
