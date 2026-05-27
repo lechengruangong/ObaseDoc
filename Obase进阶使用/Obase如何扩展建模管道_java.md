@@ -77,7 +77,7 @@ public class PrefixComplementConfigurator implements IComplementConfigurator {
  */
 @Override
 protected void createModel(ModelBuilder modelBuilder) {
-
+    //向管道中注册新的节点
     modelBuilder.useComplementConfigurator(PrefixComplementConfigurator::new);
 
     //以下为模型配置代码

@@ -83,7 +83,7 @@ public class SampleContextConfiguration : MySqlContextConfigProvider
 
 这里其实还需要配置Code和Title这些属性,但这些属性是Obase的基元类型,只需要使用默认配置即可,故在此处未进行配置.
 
-在之后的[深入理解](./深入理解.md)这一篇中会对配置进行深入的介绍.
+在之后的[深入理解](./深入理解_dotNet.md)这一篇中会对配置进行深入的介绍.
 
 然后,就可以开始使用Obase来通过数据模型类操作数据库了.
 

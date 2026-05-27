@@ -1,6 +1,6 @@
 ## dotNet版
 
-在阅读了[快速开始](./快速开始.md)之后,我已经可以使用Obase对Article进行持久化操作了,但现在我又新增了一张表Category表示文章的分类,并且我定义了Category数据模型类
+在阅读了[快速开始](./快速开始_dotNet.md)之后,我已经可以使用Obase对Article进行持久化操作了,但现在我又新增了一张表Category表示文章的分类,并且我定义了Category数据模型类
 ```
 /// <summary>
 ///     文章分类
@@ -95,7 +95,7 @@ public class Article
 
 这个Article和Category之间关系是存储在Article表里的,所以Article的Mapping就是Article的主键Code在Article表里映射为Code字段,而Category的主键IdArticle表里映射为CategoryId字段.
 
-更多的Obase对象数据建模概念,请参考[深入理解](./深入理解.md)这篇文档.
+更多的Obase对象数据建模概念,请参考[深入理解](./深入理解_dotNet.md)这篇文档.
 
 在新增了这些配置之后,我们就可以开始了.
 
@@ -139,7 +139,7 @@ context.SaveChanges();
 ```
 这里的引用赋值实质上是建立了Category和Article之间的关系.
 
-Obase会根据配置的实体型和关联型来侦测对象和对象间的关系,如果想要更详细的了解Obase的配置,请阅读[深入理解](./深入理解.md).
+Obase会根据配置的实体型和关联型来侦测对象和对象间的关系,如果想要更详细的了解Obase的配置,请阅读[深入理解](./深入理解_dotNet.md).
 ### 关联查询
 以下介绍几种关联查询的方法.
 
@@ -173,7 +173,7 @@ var category = context.CreateSet<Article>().Where(p => p.Code == "A0002").Select
 //查询分类ID为1的分类下所有文章
 var articles = context.CreateSet<Category>().Where(p => p.Id == 1).SelectMany(p => p.Articles).ToList();
 ```
-更多的查询操作可以参考[Obase支持的关系运算](Obase的关系运算映射.md).
+更多的查询操作可以参考[Obase支持的关系运算](Obase如何进行查询_dotNet.md).
 ### 解除关联
 我们在之前一并保存里建立的关系自然是可以解除的:
 ```
