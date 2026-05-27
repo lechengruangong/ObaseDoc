@@ -70,7 +70,7 @@ public AttributeConfiguration<TStructural, TConfiguration> Attribute<TResult>(Ex
 
 这里的映射类型指的是Obase基元类型,详见[Obase基元类型](./Obase的基元类型与默认数据库类型映射_dotNet.md)
 
-*一般情况下使用较多的是第一个配置方法,因为大多数的属性都可以会被反射建模自动侦测并配置,只有在需要自定义取值器设值器映射属性的时候才会使用这些配置方法.*
+*一般情况下使用较多的是后两个配置方法,因为大多数的属性都可以会被反射建模自动侦测并配置,只有在需要自定义取值器设值器映射属性的时候才会使用这些配置方法.*
 
 - **构造函数配置方法**
 
@@ -586,9 +586,115 @@ public SerializationEntityConfiguration<TEntity> SerializationEntity<TEntity>() 
 ```
 public SerializationAttributeConfiguration<T> Attribute(string name, Type valueType);
 public SerializationAttributeConfiguration<T> Attribute(string name);
+public SerializationAttributeConfiguration<T> Attribute<TResult>(Expression<Func<T, TResult>> expression)
 ```
 
-### 序列化元素配置方法
+这组方法都会返回一个序列化属性配置,每次调用时返回的均**是同一个对象.**
+
+这些方法分别是:
+
+1. 手动配置序列化属性方法,指定序列化属性的名称和类型配置属性,此方法仅会创建配置而不会配置取值器,设值器.
+2. 指定名称配制方法,指定属性的名称配置属性.会自动侦测属性的类型配置取值器,设值器.
+3. 使用表达式配置方法,会根据表达式所指向的属性访问器配置名称,属性的类型,配置取值器,设值器.
+
+*一般情况下使用较多的是第三个配置方法,因为大多数的属性都可以会被反射建模自动侦测并配置,只有在需要自定义取值器设值器映射属性的时候才会使用这些配置方法.*
+
+```
+public SerializationConstructorConfiguration<T> HasConstructor(ConstructorInfo constructor);
+```
+
+此方法会返回一个序列化构造函数配置,每次调用时返回的**是一个新对象.**
+
+此方法需要类的构造函数作为参数.
+
+```
+public SerializationReferenceConfiguration<T> Reference(string name, bool isMultiple);
+public SerializationReferenceConfiguration<T> Reference(string name);
+public SerializationReferenceConfiguration<T> Reference<TResult>(Expression<Func<T, TResult>> expression);
+```
+这组方法都会返回一个序列化引用配置,每次调用时返回的均**是同一个对象.**
+
+这些方法分别是:
+
+1. 手动配置序列化引用方法,指定序列化引用的名称和是否为多值的,此方法仅会创建配置而不会配置取值器,设值器.
+2. 指定名称配制方法,指定引用的名称配置引用.会自动侦测引用的类型配置取值器,设值器.
+3. 使用表达式配置方法,会根据表达式所指向的属性访问器配置名称,引用的否为多值,配置取值器,设值器.
+
+```
+public SerializationEntityConfiguration<T> Ignore(string name);
+public SerializationEntityConfiguration<T> Ignore<TResult>(Expression<Func<T, TResult>> expression);
+```
+
+这组方法用于指定不处理哪些属性,每次调用都会返回当前的序列化实体配置.
+
+### 序列化属性配置方法
+
+```
+public SerializationTypeElementConfiguration<TStructural> HasValueGetter(FieldInfo field);
+public SerializationTypeElementConfiguration<TStructural> HasValueGetter<TProperty>(Func<TStructural, TProperty> getValue);
+public SerializationTypeElementConfiguration<TStructural> HasValueGetter(IValueGetter getter);
+```
+
+这组方法用于配置序列化属性的取值器,分别为:
+
+1. 使用字段配置的取值器方法.
+2. 使用委托配置的取值器方法.
+3. 使用取值器接口实现配置的取值器方法.
+
+```
+public SerializationTypeElementConfiguration<TStructural> HasValueSetter(FieldInfo field);
+public SerializationTypeElementConfiguration<TStructural> HasValueSetter<TValue>(Action<TStructural, TValue> setValue, EValueSettingMode mode);
+public SerializationTypeElementConfiguration<TStructural> HasValueSetter(IValueSetter valueSetter);
+```
+
+这组方法用于配置序列化属性的设值器,分别为:
+
+1. 使用字段配置的设值器方法.
+2. 使用委托和设值模式配置的设值器方法.
+3. 使用设值器接口实现配置的设值器方法.
+
+### 序列化构造函数配置方法
+
+```
+public SerializationConstructorConfiguration<TStructural> HasParameter(FieldInfo field, Type valueType,bool needStorage);
+public SerializationConstructorConfiguration<TStructural> HasParameter<TProperty>(Func<TStructural, TProperty> getValue, Type valueType, bool needStorage);
+public SerializationConstructorConfiguration<TStructural> HasParameter(IValueGetter valueGetter, Type valueType,bool needStorage);
+```
+这组方法用于配置序列化构造函数的参数,每次调用会配置一个参数,调用时要与使用的构造函数参数一一对应.
+
+这些方法分别是:
+
+1. 使用参数对应的取值字段,存储的类型,是否需要存储来配置序列化构造器参数方法.
+2. 使用参数的取值委托,存储的类型,是否需要存储来配置序列化构造器参数方法.
+3. 使用取值器的实现,存储的类型,是否需要存储来配置序列化构造器参数方法.
+
+这些方法的参数中,第二个参数为取得的值类型,如果设置needStorage为true,则在序列化时会检查取值器取得的值是否是此类型的.第三个参数是是否需要存储,如果是true,则取值器会在序列化时被调用将取得的值进行存储,此时传入的取值器的参数为当前要序列化的对象;如果是false 则取值器会在反序列化被调用,取得的值用于构造函数,此时传入的取值器的参数为null.
+
+### 序列化引用配置方法
+
+```
+public SerializationTypeElementConfiguration<TStructural> HasValueGetter(FieldInfo field);
+public SerializationTypeElementConfiguration<TStructural> HasValueGetter<TProperty>(Func<TStructural, TProperty> getValue);
+public SerializationTypeElementConfiguration<TStructural> HasValueGetter(IValueGetter getter);
+```
+
+这组方法用于配置序列化属性的取值器,分别为:
+
+1. 使用字段配置的取值器方法.
+2. 使用委托配置的取值器方法.
+3. 使用取值器接口实现配置的取值器方法.
+
+```
+public SerializationTypeElementConfiguration<TStructural> HasValueSetter(FieldInfo field);
+public SerializationTypeElementConfiguration<TStructural> HasValueSetter<TValue>(Action<TStructural, TValue> setValue, EValueSettingMode mode);
+public SerializationTypeElementConfiguration<TStructural> HasValueSetter(IValueSetter valueSetter);
+```
+
+这组方法用于配置序列化属性的设值器,分别为:
+
+1. 使用字段配置的设值器方法.
+2. 使用委托和设值模式配置的设值器方法.
+3. 使用设值器接口实现配置的设值器方法.
 
 ## 其他配置
 
