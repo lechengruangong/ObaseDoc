@@ -186,13 +186,13 @@ Obase将并发冲突分为三种:重复创建,版本冲突,更新幻影.
 
 此方法用于配置发生这三种并发冲突时如何处理,参数值和相应的处理方式如下:
 
-1. eConcurrentConflictHandlingStrategy.Ignore:忽略策略,当发生并发时,不做任何处理.
+1. EConcurrentConflictHandlingStrategy.Ignore:忽略策略,当发生并发时,不做任何处理.
 
-2. eConcurrentConflictHandlingStrategy.ThrowException:抛出异常策略,当发生并发异常,会抛出特定的异常.默认的处理策略即为抛出异常 故使用此种策略时可以不配置
+2. EConcurrentConflictHandlingStrategy.ThrowException:抛出异常策略,当发生并发异常,会抛出特定的异常.默认的处理策略即为抛出异常 故使用此种策略时可以不配置
 
-3. eConcurrentConflictHandlingStrategy.Overwrite:强制覆盖策略 当发生并发时 用当前对象覆盖原有对象
+3. EConcurrentConflictHandlingStrategy.Overwrite:强制覆盖策略 当发生并发时 用当前对象覆盖原有对象
 
-4. eConcurrentConflictHandlingStrategy.Combine:版本合并策略 当发生异常时 将当前对象与旧对象的属性进行合并.如何进行合并详见类型元素配置中的属性配置.
+4. EConcurrentConflictHandlingStrategy.Combine:版本合并策略 当发生异常时 将当前对象与旧对象的属性进行合并.如何进行合并详见类型元素配置中的属性配置.
 
 
 ```
@@ -403,11 +403,11 @@ public AttributeConfiguration<TStructural> HasCombinationHandler(EAttributeCombi
 
 此方法用于在该结构化类型配置为eConcurrentConflictHandlingStrategy.Combine版本合并策略时,此属性的合并方式,共有三种:
 
-1. eAttributeCombinationHandlingStrategy.Ignore:忽略 即使用旧对象(即原有对象)的值
+1. EAttributeCombinationHandlingStrategy.Ignore:忽略 即使用旧对象(即原有对象)的值
 
-2. eAttributeCombinationHandlingStrategy.Overwrite:覆盖 即使用新对象(即当前)的值 此种策略为默认的策略 可以不配置
+2. EAttributeCombinationHandlingStrategy.Overwrite:覆盖 即使用新对象(即当前)的值 此种策略为默认的策略 可以不配置
 
-3. eAttributeCombinationHandlingStrategy.Accumulate:累加 即将当前版本中属性值的增量累加到对方版本 只支持数值型的属性
+3. EAttributeCombinationHandlingStrategy.Accumulate:累加 即将当前版本中属性值的增量累加到对方版本 只支持数值型的属性
 
 
 ```
