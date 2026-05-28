@@ -173,7 +173,7 @@ var category = context.CreateSet<Article>().Where(p => p.Code == "A0002").Select
 //查询分类ID为1的分类下所有文章
 var articles = context.CreateSet<Category>().Where(p => p.Id == 1).SelectMany(p => p.Articles).ToList();
 ```
-更多的查询操作可以参考[Obase支持的关系运算](Obase如何进行查询_dotNet.md).
+更多的查询操作可以参考[Obase如何进行查询](Obase如何进行查询_dotNet.md).
 ### 解除关联
 我们在之前一并保存里建立的关系自然是可以解除的:
 ```
