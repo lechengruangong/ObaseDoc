@@ -1,6 +1,6 @@
 ## 全面考虑的思路
 
-以下所有内容中的,检查是否符合推断中的推断都指的是[Obase的配置有哪些默认值(dotNet版)](./Obase的配置有哪些默认值(dotNet版).md)里的推断.
+以下所有内容中的,检查是否符合推断中的推断都指的是[Obase的对象数据模型默认值(dotNet版)](../Obase基础知识/Obase的对象数据模型默认值_dotNet.md)里的推断.
 
 1. **注册程序集**.在重写的配置方法中,将领域模型的Assembly调用modelBuilder.RegisterType方法注册.这样做可以将整个领域模型中符合推断的类型都注册为Obase的对象模型类型,之后碰到配置的类型如果符合推断就无需再次进行配置了.
 
@@ -121,7 +121,7 @@ public class Student
 }
 
 /// <summary>
-///     教师ID
+///     教师
 /// </summary>
 public class Teacher
 {
@@ -215,7 +215,9 @@ public struct Address
 ```
 //配置班级
 var classEntity = modelBuilder.Entity<Class>();
+//班级主键
 classEntity.HasKeyAttribute(p => p.Id).HasKeyIsSelfIncreased(true);
+//班级存储在哪张表
 classEntity.ToTable("Class");
 ```
 然后考虑学生,学生需要定义为实体型,学生的主键是ID,自增的,最后学生仔数据库存储到Student表.
