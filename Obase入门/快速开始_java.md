@@ -142,11 +142,12 @@ public class SampleContextConfiguration extends MySqlContextConfigProvider {
 ```
 
 上下文的构造函数需要提供一个ContextConfigProvider类型的参数,此处使用的是继承MySqlContextConfigProvider的SampleContextConfiguration.
-在上下文配置提供者SampleContextConfiguration中,需要重写一个属性访问器ConnectionString和方法CreateModel(ModelBuilder modelBuilder).
+
+在上下文配置提供者SampleContextConfiguration中,需要重写一个JDBC相关的三个方法和方法createModel(ModelBuilder modelBuilder).
 
 属性访问器ConnectionString只需要返回所使用的数据库连接字符串即可.
 
-方法CreateModel(ModelBuilder modelBuilder)则需要配置Article的映射关系,首先将Article类注册为Entity,然后设置Article的主键和主键是否自增,最后配置Article在数据库所存储的表.
+方法createModel(ModelBuilder modelBuilder)则需要配置Article的映射关系,首先将Article类注册为Entity,然后设置Article的主键和主键是否自增,最后配置Article在数据库所存储的表.
 
 这里其实还需要配置Code和Title这些属性,但这些属性是Obase的基元类型,只需要使用默认配置即可,故在此处未进行配置.
 
@@ -156,7 +157,7 @@ public class SampleContextConfiguration extends MySqlContextConfigProvider {
 
 ### 新增对象
 
-新增对象只需要构造一个Article对象,然后使用上下文Attach这个对象,之后使用上下文SaveChanges即可.
+新增对象只需要构造一个Article对象,然后使用上下文attach这个对象,之后使用上下文saveChanges即可.
 ```
 //构造上下文对象
 SampleContext context = new SampleContext();
@@ -189,7 +190,7 @@ List<Article> articles = context.createSet(Article.class).filter(p -> p.getCode(
 
 ### 修改对象
 
-修改对象首先需要查询出对象,然后修改对象的属性,之后使用上下文SaveChanges即可.
+修改对象首先需要查询出对象,然后修改对象的属性,之后使用上下文saveChanges即可.
 
 ```
 //查询对象
@@ -200,11 +201,11 @@ article.setTitle("新标题");
 context.saveChanges();
 ```
 
-Obase会把侦测SaveChanges调用之前未保存的改动持久化至数据源内.
+Obase会把侦测saveChanges调用之前未保存的改动持久化至数据源内.
 
 ### 删除对象
 
-删除对象首先需要查询出对象,然后调用上下文的Remove方法,之后使用上下文SaveChanges即可.
+删除对象首先需要查询出对象,然后调用上下文的Remove方法,之后使用上下文saveChanges即可.
 
 ```
 //查询对象

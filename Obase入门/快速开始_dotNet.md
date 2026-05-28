@@ -75,6 +75,7 @@ public class SampleContextConfiguration : MySqlContextConfigProvider
 ```
 
 上下文的构造函数需要提供一个ContextConfigProvider类型的参数,此处使用的是继承MySqlContextConfigProvider的SampleContextConfiguration.
+
 在上下文配置提供者SampleContextConfiguration中,需要重写一个属性访问器ConnectionString和方法CreateModel(ModelBuilder modelBuilder).
 
 属性访问器ConnectionString只需要返回所使用的数据库连接字符串即可.
