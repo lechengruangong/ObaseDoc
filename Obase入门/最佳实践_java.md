@@ -275,7 +275,7 @@ List<Article> articles = context.createSet(Category.class).include(p -> p.getArt
 ```
 Include的参数可以进行延展,比如再定义一个User对象并且在Article上定义Creator的关联引用,想要在查询分类时同时加载关联的Article和User,
 
-就可以写作Include("Articles.Creator";
+就可以写作Include("Articles.Creator");
 
 Obase还可以对关联对象使用投影,分组等操作,比如查询某个文章所属的分类可以使用这样的查询:
 
