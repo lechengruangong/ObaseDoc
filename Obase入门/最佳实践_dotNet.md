@@ -1,6 +1,4 @@
-## dotNet版
-
-在阅读了[快速开始](./快速开始_dotNet.md)之后,我已经可以使用Obase对Article进行持久化操作了,但现在我又新增了一张表Category表示文章的分类,并且我定义了Category数据模型类
+在阅读了[快速开始](./快速开始_dotNet.md)之后,我已经可以使用Obase对Article进行持久化操作了,但现在我又新增了一张表Category表示文章的分类,并且我定义了Category数据模型类:
 ```
 /// <summary>
 ///     文章分类
@@ -23,7 +21,8 @@ public class Category
     public List<Article> Articles { get; set; }
 }
 ```
-,为了表示某个文章属于某个文章分类,我还修改了Article数据模型类
+为了表示某个文章属于某个文章分类,我还修改了Article数据模型类
+
 ```
 /// <summary>
 ///     博客文章
@@ -51,9 +50,11 @@ public class Article
     public Category Category { get; set; }
 }
 ```
+
 和Article表和数据模型类,新增了CategoryId来表示文章所属的分类ID和Category对象,现在我要怎么使用这两个类来操作数据库?
 
 ### 修改配置
+
 首先,我们要修改一下原有的配置代码,原有的代码仅有Article的配置,显然我们需要增加Category的配置.
 
 此外,我们还需要配置Article和Category之间的关系,关系配置是Obase引入的全新概念,引入了关系之后Obase可以更准确的追踪对象之间的关系变更,以实现更多的和关系相关的功能.
@@ -100,7 +101,9 @@ public class Article
 在新增了这些配置之后,我们就可以开始了.
 
 ### 一并保存
+
 我们这次要新建一个分类,叫做默认分类并且在此分类下新增我们的第一篇文章,那么就可以写作如下代码:
+
 ```
 //新增分类和文章
 var category = new Category
@@ -121,6 +124,7 @@ context.Attach(article);
 context.SaveChanges();
 ```
 当然,我们在之后添加文章时可能使用的是已有的分类,那么就可以写作如下的代码:
+
 ```
 //先查询出之前的默认分类
 var category = context.CreateSet<Category>().First(p => p.Name == "默认分类");
@@ -137,10 +141,13 @@ context.Attach(article);
 //保存至数据库
 context.SaveChanges();
 ```
+
 这里的引用赋值实质上是建立了Category和Article之间的关系.
 
 Obase会根据配置的实体型和关联型来侦测对象和对象间的关系,如果想要更详细的了解Obase的配置,请阅读[深入理解](./深入理解_dotNet.md).
+
 ### 关联查询
+
 以下介绍几种关联查询的方法.
 
 由于我们在文章上定义了分类的ID,所以我们可以很轻易的写出根据分类ID查询文章的查询:
@@ -161,21 +168,28 @@ var article = context.CreateSet<Article>().Include(p => p.Category).FirstOrDefau
 var articles = context.CreateSet<Category>().Include(p => p.Articles).Where(p => p.Id == 1).ToList();
 ```
 Include的参数可以进行延展,比如再定义一个User对象并且在Article上定义Creator的关联引用,想要在查询分类时同时加载关联的Article和User,
+
 就可以写作Include(p=>p.Articles.Select(q => q.Creator);
 
 Obase还可以对关联对象使用投影,分组等操作,比如查询某个文章所属的分类可以使用这样的查询:
+
 ```
 //查询Code为A0002的Article关联的Category
 var category = context.CreateSet<Article>().Where(p => p.Code == "A0002").Select(p => p.Category).First();
 ```
+
 自然可以从Category投影至Article,比如查询某个分类下所有的文章就可以使用平展投影:
+
 ```
 //查询分类ID为1的分类下所有文章
 var articles = context.CreateSet<Category>().Where(p => p.Id == 1).SelectMany(p => p.Articles).ToList();
 ```
 更多的查询操作可以参考[Obase如何进行查询](Obase如何进行查询_dotNet.md).
+
 ### 解除关联
+
 我们在之前一并保存里建立的关系自然是可以解除的:
+
 ```
 //查询出Article
 var article = context.CreateSet<Article>().Include(p => p.Category).FirstOrDefault(p => p.Code == "A0001");
