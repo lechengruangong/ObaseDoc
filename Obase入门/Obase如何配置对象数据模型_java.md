@@ -1,6 +1,6 @@
 ## 全面考虑的思路
 
-以下所有内容中的,检查是否符合推断中的推断都指的是[Obase的对象数据模型默认值(dotNet版)](../Obase基础知识/Obase的对象数据模型默认值_dotNet.md)里的推断.
+以下所有内容中的,检查是否符合推断中的推断都指的是[Obase的对象数据模型默认值](../Obase基础知识/Obase的对象数据模型默认值_java.md)里的推断.
 
 1. **注册程序集**.在重写的配置方法中,将领域模型的Assembly调用modelBuilder.RegisterType方法注册.这样做可以将整个领域模型中符合推断的类型都注册为Obase的对象模型类型,之后碰到配置的类型如果符合推断就无需再次进行配置了.
 
@@ -43,9 +43,9 @@ Obase的配置实质上只关心这些内容:
 所以只要配置这些基础的配置就可以构建对象数据模型了,那么就有如下的简明配置思路.
 
 1. 将要配置的对象系统中所有的由Obase管理存储的类型分类为实体型(表示一个实体,有主键的类型)和显式关联型(表示实体之间的关系,且有属于关系的属性)这两个类别.
-2. 将所有的实体型都调用modelBuilder的Entity<>()注册为实体型,并且配置主键和映射表,代码类似于以下三行```var cfg = modelBuilder.Entity<XXX>(); cfg.HasKeyAttribute(p => p.XXX); cfg.ToTable("XXX");```.
-3. 将所有的显式关联型都调用modelBuilder的Association<>()注册为显式关联型,并配置关联型的关联端及端映射和关联的映射表,代码类似于以下四行```var cdg = modelBulder.Association<XXX>();cfg.AssociationEnd(p=>p.XXX).HasMapping("XXX","XXX");cfg.AssociationEnd(p=>p.YYY).HasMapping("YYY","YYY");cfg.ToTable("XXX"); ```一个关联至少有两个实体型参与,所以此处至少需要两个关联端.
-4. 检查所有的实体型,这些实体型除了基元类型的属性以外,是否还引用了其他的实体型,如果有这些实体型的引用代表存在隐含的关联,需要将这些隐含的关联注册为隐式关联型,并配置关联型的关联端及端映射和关联的映射表,代码类似于以下四行```var cfg = modelBuilder.Association();cfg.AssociationEnd<XXX>().HasMapping("XXX","XXX"); cfg.AssociationEnd<YYY>().HasMapping("YYY","YYY");cfg.ToTable("XXX");```一个关联至少有两个实体型参与,所以此处至少需要两个关联端.
+2. 将所有的实体型都调用modelBuilder的Entity<>()注册为实体型,并且配置主键和映射表,代码类似于以下三行```EntityTypeConfiguration<XXX> cfg = modelBuilder.entity(XXX.Class); cfg.hasKeyAttribute(p -> p.getXXX(); cfg.ToTable("XXX");```.
+3. 将所有的显式关联型都调用modelBuilder的Association<>()注册为显式关联型,并配置关联型的关联端及端映射和关联的映射表,代码类似于以下四行```AssociationEndConfigurationGeneric<XXX> cdg = modelBulder.association(XXX.class);cfg.associationEnd(p->p.getXXX().hasMapping("XXX","XXX");cfg.associationEnd(p->p.getYYY().hasMapping("YYY","YYY");cfg.toTable("XXX"); ```一个关联至少有两个实体型参与,所以此处至少需要两个关联端.
+4. 检查所有的实体型,这些实体型除了基元类型的属性以外,是否还引用了其他的实体型,如果有这些实体型的引用代表存在隐含的关联,需要将这些隐含的关联注册为隐式关联型,并配置关联型的关联端及端映射和关联的映射表,代码类似于以下四行```AssociationConfiguratorBuilder cfg = modelBuilder.association();cfg.associationEnd(XXX.class).hasMapping("XXX","XXX"); cfg.associationEnd(YYY.class).hasMapping("YYY","YYY");cfg.toTable("XXX");```一个关联至少有两个实体型参与,所以此处至少需要两个关联端.
 5. 反复使用以上的代码,将所有的实体型和关联型都注册,需要注意的是如果A和B有隐式关联,只需要注册一次即可除非A和B存在多个不同的关系.
 6. 检查所有的实体型和关联型上的普通属性和构造器,这些属性和构造器是否需要特殊的处理,如果需要为其配置相应的取值器设值器映射等配置.检查所有的实体型上的其他实体型或关联型的引用属性,这些属性是否需要特殊的处理,如果需要为其配置相应的取值器设值器等配置.
 7. 最后,如果有需要特殊配置的,如继承配置,对象更改通知,两个类之间有多个关系之类的,参照Obase的进阶使用中相关的内容进行配置即可.
