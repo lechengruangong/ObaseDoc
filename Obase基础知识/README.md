@@ -1,25 +1,9 @@
 本文件夹内为Obase的基础知识,包含以下文档:
-1.  [Obase版本号说明](./Obase版本号说明.md)
-2.  [Obase基元类型与数据库类型映射](./Obase基元类型与数据库类型映射.md)
-3.  [Obase支持的关系运算](./Obase支持的关系运算.md)
-4.  [Obase的配置提供器有哪些可以重写的方法和属性](./Obase的配置提供器有哪些可以重写的方法和属性.md)
-5.  [Obase的配置建造器有哪些方法(dotNet版)](./Obase的配置建造器有哪些方法(dotNet版).md)
-6.  [Obase的配置有哪些默认值(dotNet版)](./Obase的配置有哪些默认值(dotNet版).md)
-7.  [Obase的依赖注入方法有哪些(dotNet版)](./Obase的依赖注入方法有哪些(dotNet版).md)
-8.  [Obase的总体配置思路](./Obase的总体配置思路.md)
-9.  [Obase如何查看对象数据模型的映射关系](./Obase如何查看对象数据模型的映射关系.md)
-10. [Obase如何查看执行的Sql](./Obase如何查看执行的Sql.md)
-11. [Obase如何为连接池指定配置和进行手动释放](./Obase如何为连接池指定配置和进行手动释放.md)
-12. [Obase的事务处理](./Obase的事务处理.md)
-13. [Obase如何查看连接池信息](./Obase如何查看连接池信息.md)
-14. [Obase如何进行依赖注入](./Obase如何进行依赖注入.md)
-15. [Obase的上下文管理](./Obase的上下文管理.md)
-16. [Obase的引用元素延迟加载](./Obase的引用元素延迟加载.md)
-17. [Obase的结构映射](./Obase的结构映射.md)
-18. [Obase连接兼容的Sql数据源](./Obase连接兼容的Sql数据源.md)
-19. [Obase的建模过程](./Obase的建模过程.md)
-20. [Obase对象数据模型配置示例](./Obase对象数据模型配置示例.md)
-21. [Obase的完整性检查](./Obase的完整性检查.md)
-22. [Obase的联合主键](./Obase的联合主键.md)
-
-一些内容较多的文档区分了不同的语言版本而一些内容较少的文档则没有区分,区分了语言版本的文档会在标题中标明.
+1. [Obase的软件包和版本号(dotNet版)](./Obase的软件包和版本号_dotNet.md)和[Obase的软件包和版本号(java版)](./Obase的软件包和版本号_java.md).主要介绍了Obase包含的软件包和版本号规则.
+2. [Obase的基元类型与默认数据库类型映射(dotNet版)](./Obase的基元类型与默认数据库类型映射_dotNet.md)和[Obase的基元类型与默认数据库类型映射(java版)](./Obase的基元类型与默认数据库类型映射_java.md).主要介绍了在Obase中那些类型是基元类型以及这些类型在数据源中默认使用什么类型的字段存储.
+3. [Obase的对象数据模型基础配置概念(dotNet版)](./Obase的对象数据模型基础配置概念_dotNet.md)和[Obase的对象数据模型基础配置概念(java版)](./Obase的对象数据模型基础配置概念_java.md).主要介绍了Obase的对象数据模型中提出的概念.
+4. [Obase的对象数据模型建模过程(dotNet版)](./Obase的对象数据模型建模过程_dotNet.md)和[Obase的对象数据模型建模过程(java版)](./Obase的对象数据模型建模过程_java.md).主要介绍了Obase的对象数据模型的建模过程.
+5. [Obase的对象数据模型默认值(dotNet版)](./Obase的对象数据模型默认值_dotNet.md)和[Obase的对象数据模型默认值(java版)](./Obase的对象数据模型默认值_java.md).主要介绍了Obase的对象数据模型的默认值.
+6. [Obase的对象数据模型完整性检查与错误速查(dotNet版)](./Obase的对象数据模型完整性检查与错误速查_dotNet.md)和[Obase的对象数据模型完整性检查与错误速查(java版)](./Obase的对象数据模型完整性检查与错误速查_java.md).主要介绍了Obase的对象数据模型的完整性检查和错误速查表.
+7. [Obase的依赖注入建造器Api(dotNet版)](./Obase的依赖注入建造器Api_dotNet.md)和[Obase的依赖注入建造器Api(java版)](./Obase的依赖注入建造器Api_java.md).主要介绍了Obase的依赖注入建造器的Api.
+8. [Obase的对象数据模型配置建造器Api(dotNet版)](./Obase的对象数据模型配置建造器Api_dotNet.md)和[Obase的对象数据模型配置建造器Api(java版)](./Obase的对象数据模型配置建造器Api_java.md).主要介绍了Obase的对象数据模型建造器的Api.

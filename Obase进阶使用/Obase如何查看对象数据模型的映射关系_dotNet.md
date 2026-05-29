@@ -1,0 +1,19 @@
+对于配置好的对象数据模型,我们往往不能直观的从配置代码中得到具体的内容,这些结构化的数据可以从上下文的Model访问器获取但其中的信息需要提取后才能阅读.
+
+Obase内包含一个工具类ObjectDataModelViewer,提供了GetSimpleObjectDataModelMappingView和GetFullObjectDataModelMappingView方法用于查看对象数据模型的映射关系.
+
+其中GetSimpleObjectDataModelMappingView方法仅返回实体型本身和实体型上的关联引用的映射关系,GetFullObjectDataModelMappingView则额外包含了属性的映射关系.
+方法返回StringBuilder,可以自行处理.
+
+使用方法如下:
+
+```
+//获取完整的信息
+var full = ObjectDataModelViewer.GetFullObjectDataModelMappingView(context);
+//获取简单的信息
+var simple = ObjectDataModelViewer.GetSimpleObjectDataModelMappingView(context);
+```
+
+获取完整的信息返回的结果中包含当前模型中每个实体型的映射信息,如实体的继承关系,主键的映射字段,实体的映射表等;实体关联引用的映射信息,如关联引用的关联型,关联型的映射表,关联型各个关联端的主键映射字段等;实体属性的映射信息,如属性的映射类型,属性的映射字段等.
+
+获取简单的信息返回的结果中包含当前模型中每个实体型的映射信息和实体关联引用的映射信息,内容与完整信息中的相同,不包含属性的映射信息.

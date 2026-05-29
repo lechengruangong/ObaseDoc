@@ -1,0 +1,55 @@
+Obase提供了一个小型的依赖注入容器,用于在基础设施层来获取由应用层提供的服务实现.
+
+依赖注入方法定义于ServiceContainerBuilder服务容器建造器类中,要获得服务容器建造器可以使用ObaseDependencyInjection的静态方法或者自行构造.
+
+**以下内容中的单例指的是服务的实例只会被创建一次,此后使用的都是同一个服务实例.多例指的是服务的实例每次被获取时都创建一个新的实例.**
+
+```
+public static <TContext extends ObjectContext> ServiceContainerBuilder createBuilder(Class<TContext> contextType)
+```
+
+这个方法用于获取一个特定于某种上下文的服务容器建造器.
+
+服务容器建造器有以下方法可用:
+
+
+```
+public <TService> ServiceContainerBuilder addSingleton(Class<TService> serviceType)
+public <TService, TServiceImplement extends TService> ServiceContainerBuilder addSingleton(Class<TService> serviceType, Class<TServiceImplement> implementType) 
+public <TService> ServiceContainerBuilder addSingleton(Class<TService> serviceType, ServiceFactory<TService> factory) 
+public <TService, TServiceImplement extends TService> ServiceContainerBuilder addSingleton(Class<TService> serviceType, Class<TServiceImplement> implementType, ServiceFactory<TService> factory) 
+```
+
+这些方法分别为:
+
+- 添加一个单例的服务定义,此服务的创建方式为根据反射获取到的第一个公开或非公开构造函数创建.此服务的注册类型和构造类型均为参数类型.
+
+- 添加一个单例的服务定义,此服务的创建方式为根据反射获取到的第一个公开或非公开构造函数创建.此服务的注册类型为第一个参数的类型和构造类型为第二个参数类型.
+
+- 添加一个单例的服务定义,此服务的创建方式为根据的委托构造.此服务的注册类型和构造类型均为第一个参数类型.
+
+- 添加一个单例的服务定义,此服务的创建方式为根据的委托构造.此服务的注册类型为第一个参数的类型和构造类型为第二个参数类型.
+
+
+```
+public <TService> ServiceContainerBuilder addTransients(Class<TService> serviceType)
+public <TService, TServiceImplement extends TService> ServiceContainerBuilder addTransients(Class<TService> serviceType, Class<TServiceImplement> implementType)
+public <TService> ServiceContainerBuilder addTransients(Class<TService> serviceType, ServiceFactory<TService> factory)
+public <TService, TServiceImplement extends TService> ServiceContainerBuilder addTransients(Class<TService> serviceType, Class<TServiceImplement> implementType, ServiceFactory<TService> factory)
+```
+
+这些方法分别为:
+
+- 添加一个多例的服务定义,此服务的创建方式为根据反射获取到的第一个公开或非公开构造函数创建.此服务的注册类型和构造类型均为参数类型.
+
+- 添加一个多例的服务定义,此服务的创建方式为根据反射获取到的第一个公开或非公开构造函数创建.此服务的注册类型为第一个参数的类型和构造类型为第二个参数类型.
+
+- 添加一个多例的服务定义,此服务的创建方式为根据的委托构造.此服务的注册类型和构造类型均为第一个参数类型.
+
+- 添加一个多例的服务定义,此服务的创建方式为根据的委托构造.此服务的注册类型为第一个参数的类型和构造类型为第二个参数类型.
+
+```
+public ServiceContainer build();
+```
+
+此方法用于根据服务容器建造器重注册的服务建造特定于某种上下文的服务容器,注意此方法应在应用程序域中仅调用一次.
