@@ -1,5 +1,9 @@
 Obase支持多种对象查询操作,这些查询方法在Sql数据源中被映射为特定的关系运算,用户在查询时可以组合这些查询操作来实现查询需求.
 
+以下内容中的SerializedPredicate<T>,SerializedFunction<T, R>等类似的参数均为Functional Interface,可以使用Lambda表达式来作为参数.
+
+关于这些Lambda表达的使用, 可以参考Lambda表达式的限制一节的内容.
+
 ## 查询运算
 
 接下来介绍这些查询操作和对应的关系运算.
@@ -555,3 +559,64 @@ List<JavaBean> list = context.CreateSet(JavaBean.class).filter(PredicateCombiner
 那么获得的结果就是intNumber=1 且 string="1号字符串"的对象.
 
 当然,对于较为简单的情况,你可以直接在拼合条件时增加括号来指定优先级.
+
+## Lambda表达式的限制
+
+Obase使用的Lambda表达式主要有两个限制,分别是值要使用本地变量和查询类型必须为Obase注册的类型.
+
+值要使用本地变量指的是在使用具体的某个值作为表达式的一部分时,存储这个值的变量必须为当前域的本地变量,代码如下:
+
+```
+String keyWord = dto.getKeyWord();
+set.filter(p->p.getName() == keyWord);
+```
+
+这里的dto为假定的数据传输对象,我们想要根据Name和dto的KeyWord相等作为筛选条件,这里就需要先将dto的KeyWord存储于本地变量keyWord中.
+
+如果直接将dto.getKeyWord()加入表达式,就会触发查询类型必须为Obase注册的类型的限制.
+
+查询类型必须为Obase注册的类型指的是如果将没在Obase注册的类型传入表达式时,会抛出一个类似于如下的异常:
+
+```
+org.jinq.rebased.org.objectweb.asm.tree.analysis.AnalyzerException: Unknown method org/example/Examlpe:getCode()Ljava/lang/String; encountered
+    at ch.epfl.labos.iu.orm.queryll2.symbolic.BasicSymbolicInterpreter.naryOperation(BasicSymbolicInterpreter.java:367)
+    at org.jinq.rebased.org.objectweb.asm.tree.analysis.Frame.executeInvokeInsn(Frame.java:684)
+    at org.jinq.rebased.org.objectweb.asm.tree.analysis.Frame.execute(Frame.java:609)
+    at ch.epfl.labos.iu.orm.queryll2.path.CodePath.calculateReturnValueAndConditions(CodePath.java:148)
+    at ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer.analyzeMethod(TransformationClassAnalyzer.java:505)
+    at ch.epfl.labos.iu.orm.queryll2.path.TransformationClassAnalyzer.analyzeLambdaMethod(TransformationClassAnalyzer.java:471)
+```
+
+这个异常可以按照如下的顺序进行排查:
+
+按照以下步骤进行排查
+
+1. 检查异常中的 org/example/Examlpe:getCode()Ljava/lang/String 这一部分,此部分为方法签名的JNI表示形式,冒号前部分即为类名,检查此类型是否为在Obase中注册的类型.
+    - 是注册类型,进入步骤2.
+    - 不是注册类型,不要直接将非Obase模型类型传入表达式中,如果是Dto对象,需要先将其中包含的数据取出放置于本地变量中才能正确解析.
+
+2. 检查抛出异常的代码行之前是否有正确的调用配置类的构造函数,建模过程是在配置类基类的构造函数内完成的,只有执行完配置类的构造函数才能在解析器中注册.
+    - 有正确的执行配置类构造函数,检查此异常中的 org/example/Examlpe:getCode()Ljava/lang/String 冒号后半部分的方法签名,是不是定义了其他类似的内省方法导致此方法被内省机制识别为非Getter/Setter.如为一个boolean字段同时定义了get开头的和is开头的方法.
+    - 没有正确执行,无论是PredicateCombiner还是ObjectSet的方法执行前都需要正确的完成建模过程,在调用之前先执行配置类的构造函数.
+
+3. 特别的,在SpringBoot环境下需要特别进行如下检查:
+    - 当前上下文是否是使用依赖注入获取的?如果是,继续检查.不是,同步骤2检查构造函数是否正确执行.
+    - 依赖注入获取的上下文在没有被访问前并没有被真正构造,需要访问一次才会走构造函数,所以需要在调用前访问一次才能正确完成建模.
+
+不过既然注册至解析器方法是Obase控制的,为什么不在把所有传入的表达式内的类型都在解析器里注册?这样不就不会报这个异常了吗?
+
+这些限制主要有以下两个考量:
+
+1. 将非Obase对象数据模型类型注册至解析器中会制造大量无意义的冗余数据.
+
+2. 表达式解析中使用了反序列化的方式来处理,为了防止触发反序列化漏洞,解析器只允许被注册的类型才能进行解析,Obase作为解析器的调用方当然也只能允许指定的类型才能传入表达式进行解析,目前这个指定类型就是当前数据模型中的类型.如果允许任意类型都进入解析器中进行解析,反序列化的漏洞触发相当于交给了输入方,这是非常危险的.而现在的只允许对象数据模型的类型进行解析,可以由配置者进行甄别,以防止触发反序列化漏洞.
+
+并且传入Dto对象也被注册的话,就会获得错误的解析结果,而不将传入的对象注册则会抛出此异常,防止了解析错误.例如如下的表达式
+
+```
+set.filter(p->p.getName() == dto.getKeyWord());
+```
+
+实际上想要表达的是查找A的Name与Dto中KeyWord的值相等的对象,但如果Dto对象也被注册,就会解析为A.Name == Dto.KeyWord,这显然是错误的.
+
+当然,你可以使用条件拼合器来直接拼接条件里的值,条件拼合器里是直接获取值作为表达式的一部分而不是将传入参数作为表达式的一部分,所以不会触发这两个限制.
