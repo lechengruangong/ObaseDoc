@@ -105,6 +105,12 @@ public class Identity
     ///     角色
     /// </summary>
     private string _role;
+    
+     /// <summary>
+     ///     次序
+     /// </summary>
+     private long _seq;
+
 
     /// <summary>
     ///     初始化某种身份
@@ -118,6 +124,7 @@ public class Identity
         _createTime = createTime;
         _role = role;
         _queryTime = DateTime.Now;
+        _seq = _createTime.DayOfYear;
     }
 
     /// <summary>
@@ -126,13 +133,14 @@ public class Identity
     /// <param name="id">身份标识</param>
     /// <param name="createTime">创建时间</param>
     /// <param name="role">角色</param>
-    /// <param name="queryTime">查询时间</param>
-    protected internal Identity(Guid id, DateTime createTime, string role, DateTime queryTime)
+    /// <param name="seq">次序</param>
+    protected internal Identity(Guid id, DateTime createTime, string role, DateTime queryTime, long seq))
     {
         _id = id;
         _createTime = createTime;
         _role = role;
         _queryTime = queryTime;
+        _seq = seq;
     }
 
     /// <summary>
@@ -175,6 +183,15 @@ public class Identity
     ///     版本
     /// </summary>
     public int Version { get; set; }
+
+    /// <summary>
+    ///     次序
+    /// </summary>
+    public long Seq
+    {
+        get => _seq;
+        set => _seq = value;
+    }
 
     /// <summary>
     ///     返回字符串
@@ -235,7 +252,9 @@ idConstructor.HasParameter(p => p.Id, typeof(Guid), true)
     //配置第三个参数 需要存储 从Role里取出Role属性的值存储
     .HasParameter(p => p.Role, typeof(string), true)
     //配置第四个参数 不需要存储 直接传入当前时间 注意这个委托的参数会传空
-    .HasParameter(_ => DateTime.Now, typeof(DateTime), false);
+    .HasParameter(_ => DateTime.Now, typeof(DateTime), false)
+    //配置第五个参数 需要存储 在存储时进行了转换 long->string 那么就需要再转换回来
+    .HasParameter(p => JsonConvert.SerializeObject(p.Seq), typeof(string), true, json => JsonConvert.DeserializeObject<long>(json?.ToString() ?? ""));
 //Identity没有引用 无需配置
 //忽略版本
 idEntityConfiguration.Ignore(p => p.Version);

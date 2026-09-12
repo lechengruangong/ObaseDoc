@@ -157,6 +157,10 @@ public class Identity {
      */
     private int version;
 
+    /**
+     * 次序
+     */
+    private long seq;
 
     /**
      * 初始化某种身份
@@ -170,6 +174,7 @@ public class Identity {
         this.createTime = createTime;
         this.role = role;
         this.queryTime = LocalDateTime.now();
+        this.seq = createTime.getDayOfYear();
     }
 
     /**
@@ -179,12 +184,14 @@ public class Identity {
      * @param createTime 创建时间
      * @param role       角色
      * @param queryTime  查询时间
+     * @param seq        次序
      */
-    protected Identity(UUID id, LocalDateTime createTime, String role, LocalDateTime queryTime) {
+    protected Identity(UUID id, LocalDateTime createTime, String role, LocalDateTime queryTime, long seq) {
         this.id = id;
         this.createTime = createTime;
         this.role = role;
         this.queryTime = queryTime;
+        this.seq = seq;
     }
 
     /**
@@ -275,6 +282,24 @@ public class Identity {
      */
     public void setVersion(int version) {
         this.version = version;
+    }
+    
+     /**
+     * 次序
+     *
+     * @return 次序
+     */
+    public long getSeq() {
+        return this.seq;
+    }
+
+    /**
+     * 次序
+     *
+     * @param seq 次序
+     */
+    public void setSeq(long seq) {
+        this.seq = seq;
     }
 
     /**
@@ -389,7 +414,10 @@ idConstructor.hasParameter((Identity p) -> p.getId(), UUID.class, true)
         //配置第三个参数 需要存储 从Role里取出Role属性的值存储
         .hasParameter((Identity p) -> p.getRole(), String.class, true)
         //配置第四个参数 不需要存储 直接传入当前时间 注意这个委托的参数会传空
-        .hasParameter((Identity p) -> LocalDateTime.now(), LocalDateTime.class, false);
+        .hasParameter((Identity p) -> LocalDateTime.now(), LocalDateTime.class, false)
+        //配置第五个参数 需要存储 在存储时进行了转换 long->string  那么就需要再转换回来
+        .hasParameter((Identity p) -> JSON.toJSON(p.getSeq()), String.class, true,
+                json -> json == null ? null : JSON.parseObject(json.toString(), Long.class));
 
 //Identity没有引用 无需配置
 //忽略版本和次版本
