@@ -162,4 +162,4 @@ public class InvalidClassValidator : OdmValidator
 
 - 验证器建造模型时不会执行结构映射,所以不会在数据源中建表,需要在数据源中建表时请参考[Obase如何配置结构映射](./Obase如何配置结构映射_dotNet.md).
 - Validate方法只会捕获完整性检查未通过的异常IntegrityCheckFailException,如果注册代码中存在其他问题(例如配置的类型无法反射构造等),这些异常会直接抛出.
-- 不要在验证器的CreateModel方法中调用HasIntegrityCheck(false)关闭完整性检查,验证器内部已经为此模型建造器启用了完整性检查,如果在注册代码中关闭,验证将失去意义.
+- 验证器会在执行完CreateModel方法之后再强制开启完整性检查,所以即使注册代码中(例如与上下文配置提供器共用的注册代码)调用了HasIntegrityCheck(false)关闭了完整性检查,验证时依然会执行完整性检查.

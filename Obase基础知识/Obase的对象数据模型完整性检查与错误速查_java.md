@@ -55,4 +55,4 @@ ErrorMessageDictionary的键是类型的全名,值是错误消息列表,类型�
 
 表中未列出的错误信息也可以根据错误信息本身的描述找到需要检查的配置,此外这些错误信息也可以使用[Obase如何验证对象数据模型](../Obase进阶使用/Obase如何验证对象数据模型_java.md)中介绍的ODM验证器直接查看,验证器会将错误信息按类型分组后输出.
 
-在大多数情况下,完整性检查都是帮助我们进行模型校验不可或缺的一步,但如果你确定自己的配置没有任何问题但是和完整性检查相违背,可以在配置提供器createModel(ModelBuilder modelBuilder)的参数modelBuilder上调用hasIntegrityCheck(false)来关闭完整性检查.
+在大多数情况下,完整性检查都是帮助我们进行模型校验不可或缺的一步,但如果你确定自己的配置没有任何问题但是和完整性检查相违背,可以在配置提供器createModel(ModelBuilder modelBuilder)的参数modelBuilder上调用hasIntegrityCheck(false)来关闭完整性检查.不过需要注意的是,如果使用[Obase如何验证对象数据模型](../Obase进阶使用/Obase如何验证对象数据模型_java.md)中介绍的ODM验证器验证模型,验证器会在执行完注册代码之后再强制开启完整性检查,所以在注册代码中关闭完整性检查不会影响验证器的验证.
