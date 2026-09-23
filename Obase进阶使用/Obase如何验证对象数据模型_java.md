@@ -2,6 +2,8 @@
 
 为此,Obase提供了一个抽象类OdmValidator,继承此抽象类并实现createModel方法注册模型之后,调用validate方法即可直接建造一次对象数据模型并对其进行完整性检查,整个过程不会构造上下文,也不会连接或者访问数据源.
 
+验证器自6.5.4可用.
+
 ## 定义验证器
 
 OdmValidator位于io.obase.core.odm包,其中包含validate方法和抽象方法createModel(ModelBuilder modelBuilder),validate方法的返回值为ValidationResult,此返回值的内容见后文.
