@@ -44,6 +44,25 @@ public AssociationTypeConfiguration<TAssociation> Association<TAssociation>() wh
 public ComplexTypeConfiguration<TComplex> Complex<TComplex>();
 ```
 
+除了上述泛型方法,ModelBuilder还提供了按类型对象(Type)注册的三个非泛型方法,用于无法在编译期写出泛型参数的场景(例如对类型集合做循环注册),返回的分别是实体型配置接口、关联型配置接口和结构化类型配置接口:
+
+```
+public IEntityTypeConfigurator Entity(Type entityType);
+public IAssociationTypeConfigurator Association(Type assoType);
+public IStructuralTypeConfigurator Complex(Type complexType);
+```
+
+这三个非泛型方法与对应的泛型方法共享同一个配置项,即对同一个类型先调用泛型方法再调用非泛型方法,得到的配置项是同一个.
+
+此外ModelBuilder上还有几个查配置与默认值的方法,一般在扩展性机制(建模管道,映射模块等)中使用:
+
+```
+public StructuralTypeConfiguration FindConfiguration(Type type);          //从模型查找类型配置项,未找到返回null
+public AssociationConfiguratorBuilder FindImplicitAssociationConfigurationBuilder(string endsTag);  //按端标签查找隐式关联配置项建造器,未找到返回null
+public bool ExistSerializationEntityConfiguration(Type type);            //查找序列化实体型配置项是否存在
+public ModelBuilder HasDefaultStorageSymbol(StorageSymbol defaultStorageSymbol);  //设置未显式指定存储标记的类型所使用的默认存储标记
+```
+
 Entity方法会返回一个实体型配置,每次调用时返回的均**是同一个对象.**
 
 Association方法会返回一个显式关联型配置(此外还有隐式关联型配置,详见关联型配置部分),每次调用时返回的均是**同一个对象.**
@@ -63,7 +82,7 @@ public AttributeConfiguration<TStructural, TConfiguration> Attribute<TResult>(Ex
 public IAttributeConfigurator Attribute<TAttribute>(string name) where TAttribute : struct;
 ```
 
-这组属性配置方法都会返回一个属性配置(详见类型元素配置部分)每次调用时返回的均**是同一个对象.**
+这组属性配置方法(除返回IAttributeConfigurator的重载外)都会返回一个属性配置(详见类型元素配置部分)每次调用时返回的均**是同一个对象.**
 
 这些配置方法分别是(取值器,设值器,映射字段等详见类型元素配置部分):
 
@@ -96,7 +115,7 @@ public ParameterConfiguration<TStructural, TConfiguration> HasConstructor(Constr
 
 这组方法中,前两个方法会直接返回结构化配置本身,其余方法则返回的是构造函数参数配置,每次调用这些方法时,会**覆盖**之前的构造函数配置.
 
-与HasConstructor对应的还有一组HasNewInstanceConstructor方法,参数形式相同,用于配置创建新实例(即由Obase内部创建对象时)所使用的构造函数.
+与HasConstructor对应的还有一组HasNewInstanceConstructor方法,除了没有对应的ParameterConfiguration版本(即带1到4个参数的委托重载返回结构化配置本身,无法指定参数对应的元素),参数形式与用途相同,用于配置创建新实例(即由Obase内部创建对象时)所使用的构造函数.
 
 这些配置方法分别是:
 
@@ -176,7 +195,7 @@ public TConfiguration HasNotifyUpdate(bool notifyUpdate)
 
 这些方法分别是:
 
-1. 指示哪些属性和值要包含在通知中.
+1. 指示哪些属性和值要包含在通知中.传入的属性名称必须都是此类型上的属性,否则抛出异常.未配置时通知中包含的属性集合为空.
 
 2. 指示将所有属性及值包含在通知中,注意此方法会覆盖有参方法设值的属性.
 
@@ -423,7 +442,7 @@ public TConfiguration HasValueGetter<TProperty>();
 
 7. 传入成员名称和成员类型(MemberTypes),或者只传入成员类型,或者不传入任何参数,按名称和成员种类自动侦测取值器.
 
-以上重载都是覆盖式配置.建模管道内部还使用一组不覆盖的重载(带 `bool overrided` 参数,或只传 `MemberTypes`/`bool` 的 void 版本),仅在既有取值器为空时生效,它们由 `ITypeElementConfigurator` 接口提供给反射建模管道使用,一般不直接在业务代码中调用.
+以上重载都是覆盖式配置.建模管道内部还使用一组不覆盖的重载(带 `bool overrided` 参数,或只传 `MemberTypes`/`bool` 的 void 版本),仅在既有取值器为空时生效,它们由 `ITypeElementConfigurator` 接口提供给反射建模管道使用,一般不直接在业务代码中调用.此外属性配置(AttributeConfiguration)上还有一个单参数的 `HasValueSetter<TProperty>(Action<TStructural, TProperty> setValue)` 重载,等价于基类上的 `HasValueSetter(setValue, EValueSettingMode.Assignment)`,即固定使用赋值模式.
 
 
 ```
@@ -608,7 +627,7 @@ public AssociationEndConfiguration<TAssociation> HasMapping(string keyAttribute,
 
 此方法用于设置关联端在关联表内主键的映射.
 
-第一个参数固定为当前关联端的实体型主键中的一个,第二个参数为此主键在关联表内的字段名称.完整性检查要求实体型的每一个主键属性都应有且仅有一个映射,配置不合规会报"标识属性XXX应有且仅有1个映射".
+第一个参数为与主键对应的属性名称,第二个参数为此主键在关联表内的字段名称.此处只校验第一个参数对应的属性在端实体型上存在,不校验它是不是该实体型的主键;完整性检查会进一步要求实体型的每一个主键属性都应有且仅有一个映射,配置不合规会报"标识属性XXX应有且仅有1个映射".
 
 如果实体型存在多个主键,可以多次调用,每次调用会添加一个主键的映射.
 
