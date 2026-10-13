@@ -16,7 +16,7 @@ Obase使用配置提供器来为特定的上下文提供配置,某个特定的�
 
 ### 必须实现的方法和属性
 
--  protected override string ConnectionString { get; }
+-  protected internal override string ConnectionString { get; }
    此属性用于返回连接字符串.
 
 - protected override void CreateModel(ModelBuilder modelBuilder);
@@ -24,7 +24,7 @@ Obase使用配置提供器来为特定的上下文提供配置,某个特定的�
 
 ### 可选实现的方法和属性
 
-- protected override bool WhetherCreateSet { get;}
+- protected internal override bool WhetherCreateSet { get;}
   此属性指定是否在上下文中自动为ObjectSet<>类型的属性访问器赋值,目前大多使用CreateSet<>方法创建ObjectSet<>,此属性较少使用.此外需注意启用此属性会增大构造上下文时的性能开销.
 
 - protected override bool EnableStructMapping { get; }

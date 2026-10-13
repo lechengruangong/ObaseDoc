@@ -68,6 +68,8 @@ context.CreateSet<Domain>().RecoveryLogically(p => p.Id > 50);
 
 需要注意的是,逻辑删除只生效于查询基点,即在A类上配置类逻辑删除,使用CreateSet^A时会将逻辑删除的A对象过滤掉.但在B中引用了A,查询B时使用Include方法一并查询A时,B引用的A不会处理逻辑删除.
 
+另外,DeleteLogically和RecoveryLogically的过滤条件版本是直接生成更新语句将符合条件的对象的逻辑删除字段置位,它们返回受影响的行数(int),而不是先把对象查询出来再逐个标记.
+
 接下来我们以一个具体的场景为例来介绍这个功能.
 
 ## 具体示例
@@ -121,10 +123,10 @@ logicDeletionExtension.HasDeletionField("Deleted");
 
 ```
 //此处省略从ASP.NET的依赖注入中获取context的代码
-//如果有需要 可以在对象上下文的构造函数里调用EnableChangeNotice方法 这样所有构造出来的上下文就都是启用了逻辑删除的
+//如果有需要 可以在对象上下文的构造函数里调用EnableLogicDeletion方法 这样所有构造出来的上下文就都是启用了逻辑删除的
 
 //启用逻辑删除
-context.EnableChangeNotice();
+context.EnableLogicDeletion();
 //查询对象
 var record = _context.CreateSet<VisitRecord>().FirstOrDefault(p => p.OwnerId == 1 && p.VisitorId == 2);
 //逻辑删除此对象

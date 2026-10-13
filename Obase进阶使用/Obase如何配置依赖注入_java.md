@@ -19,16 +19,16 @@ builder.addSingleton(ServiceA.class);
 //注册一个多例的服务
 builder.addTransients(ServiceB.class);
 //建造依赖注入容器
-builder.Build();
+builder.build();
 ```
 
-需要注意的是这些代码应当只被调用一次,重复调用Build方法会抛出异常.
+需要注意的是这些代码应当只被调用一次,重复调用build方法会抛出异常.
 
 Obase的依赖注入还有一些其他方法,可以参考[Obase的依赖注入Api](../Obase基础知识/Obase的依赖注入建造器Api_java.md)这篇文档.
 
 ## 依赖注入的使用
 
-在io.obase.core.common命名空间下的Utils类提供了两个依赖注入相关的方法getDependencyInjectionService和getDependencyInjectionServiceOrNull,这两个方法的区别是getDependencyInjectionService在遇到无法找到服务时会抛出异常,getDependencyInjectionServiceOrNull则只会返回空.
+在io.obase.core.common包下的Utils类提供了两个依赖注入相关的方法getDependencyInjectionService和getDependencyInjectionServiceOrNull,这两个方法的区别是getDependencyInjectionService在遇到无法找到容器或者服务时会抛出异常,getDependencyInjectionServiceOrNull则只会返回空.
 
 ```
 //ServiceA ServiceB 已注册 但Program未注册 所以获取Program返回null
@@ -130,7 +130,7 @@ public class ServiceC {
 ObaseDependencyInjection.createBuilder(SampleContext.class)
         .addTransients(ServiceA.class).addTransients(ServiceB.class)
         .addTransients(p -> new ServiceC(LocalDateTime.now()))
-        .Build();
+        .build();
 ```
 
 此处需要注意的是ServiceC的注册代码,委托有一个参数是当前的服务容器,你可以通过此参数的getService方法获取已在当前容器注册的服务实例,不过此处没有使用到这个参数.

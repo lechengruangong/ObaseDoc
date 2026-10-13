@@ -53,3 +53,21 @@ public ServiceContainer build();
 ```
 
 此方法用于根据服务容器建造器重注册的服务建造特定于某种上下文的服务容器,注意此方法应在应用程序域中仅调用一次.
+
+## 其他说明
+
+服务容器在建造后由ServiceContainerInstance保管,可以按上下文类型获取:
+
+```
+public static ServiceContainerInstance getInstance();
+public ServiceContainer getServiceContainer(Class<?> contextType);
+```
+
+Obase内部需要在某个上下文上使用未注册的服务时,会通过common.Utils的静态方法获取:
+
+```
+public static <TService> TService getDependencyInjectionService(Class<?> contextType, Class<TService> serviceClass);
+public static <TService> TService getDependencyInjectionServiceOrNull(Class<?> contextType, Class<TService> serviceClass);
+```
+
+前者在获取不到容器或者服务时会抛出异常,后者在获取不到时返回null.

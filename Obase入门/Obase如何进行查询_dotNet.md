@@ -40,7 +40,7 @@ Average<TSource>(Expression<Func<TSource, decimal>> selector);
 
 可以支持字符串属性包含(如set.Where(p=>p.Name.Contains("123")))和集合包含某个属性(如set.Where(p=>list.Contains(p.Id)))
 
-此外字符串属性还支持StartWith和EndWith,如set.Where(p=>p.Name.StartWith("123"))
+此外字符串属性还支持StartsWith和EndsWith,如set.Where(p=>p.Name.StartsWith("123"))
 
 - Count方法,获取对象集中符合条件的对象个数.
 
@@ -85,14 +85,14 @@ FirstOrDefault<TSource>(Expression<Func<TSource, bool>> predicate);
 FirstOrDefault<TSource>();
 ```
 
-- Group方法,获取对象集中将对象分组投影后的结果.
+- GroupBy方法,获取对象集中将对象分组投影后的结果.
 
 映射为分组运算.
 
 ```
-GroupBy<TSource, TKey>(Expression<Func<TSource, TKey>> keySelector));
+GroupBy<TSource, TKey>(Expression<Func<TSource, TKey>> keySelector);
 GroupBy<TSource, TKey, TElement>(Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector);
-GroupBy<TSource, TKey, TElement>(Expression<Func<TSource, TKey>> keySelector, Expression<Func<TSource, TElement>> elementSelector, Expression<Func<TKey, TElement, TResult>> resultSelector));
+GroupBy<TSource, TKey, TResult>(Expression<Func<TSource, TKey>> keySelector, Expression<Func<TKey, IEnumerable<TSource>, TResult>> resultSelector);
 ```
 
 - Include方法,指示查询时要一并加载的关联对象.
@@ -169,7 +169,7 @@ ThenByDescending<TSource, TKey>(Expression<Func<TSource, TKey>> keySelector);
 
 - Reverse运算,指示查询结果是否逆序返回.
 
-映射为按照排序键倒序排序运算.
+映射为按照排序键倒序排序并使排序方向反转的运算.
 
 ```
 Reverse<TSource>();
@@ -189,7 +189,7 @@ Select<TSource, TResult>(Expression<Func<TSource, TResult>> selector);
 
 ```
 SelectMany<TSource, TResult>(Expression<Func<TSource, IEnumerable<TResult>>> selector);
-SelectMany<TSource, TResult>(IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector);
+SelectMany<TSource, TCollection, TResult>(Expression<Func<TSource, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector);
 ```
 
 - Single运算,获取对象集中符合条件的某个单一元素,如果不存在符合条件的元素会抛出异常.

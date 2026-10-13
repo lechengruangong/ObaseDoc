@@ -28,7 +28,7 @@ noticeEntityConfig.HasNotifyUpdate(true);
 Obase使用依赖注入来实现对具体通知逻辑的解耦,所以在配置了要通知的时机和内容后,还要向Obase注入IChangeNoticeSender更改通知发送器的具体实现.
 
 ```
-//为Obase注入消息发送器
+//为Obase注入消息发送器 注意更改通知需要的注入类型是IChangeNoticeSender 不能只将实现类的类型注入
 var oBuilder = ObaseDependencyInjection.CreateBuilder<DataContext>();
 oBuilder.AddSingleton<IChangeNoticeSender, ChangeNoticeSender>();
 oBuilder.Build();
@@ -47,9 +47,9 @@ context.EnableChangeNotice();
 
 如果需要某个上下文默认启用更改通知,可以在上下文的构造方法里调用此方法.
 
-启用更改通知后在配置对应的对象新建,修改或者删除并保存时,就会根据配置调用IChangeNoticeSender的具体实现发送修改通知,IChangeNoticeSender中方法Send的参数ChangeNotice就是具体的通知内容,根据不同的变更类型分别有两个具体的实现类ObjectChangeNotice和DirectlyChangingNotice.
+启用更改通知后在配置对应的对象新建,修改或者删除并保存时,就会根据配置调用IChangeNoticeSender的具体实现发送修改通知,IChangeNoticeSender中方法Send的参数ChangeNotice就是具体的通知内容,根据不同的变更类型分别有两个具体的实现类ObjectChangeNotice和DirectlyChangingNotice,可以用ChangeNotice的Type属性(EChangeNoticeType)区分:Type为ObjectChange时对应ObjectChangeNotice,为DirectlyChanging时对应DirectlyChangingNotice.
 
-通知对象内部包含了对象变更行为,对象的属性及其取值,对象标识等信息,根据具体的需要取值处理即可.
+通知对象内部包含了对象变更行为(ChangeAction,取值为Create、Update、Delete、Increase)、对象类型的命名空间(Namespace)、对象类型名称(ObjectType)等信息,ObjectChangeNotice还包含对象的属性及其取值(Attributes)和对象的标识(ObjectKeys),只有模型上配置了HasNoticeAttributes的属性才会出现在Attributes中;DirectlyChangingNotice则包含筛选条件表达式(Criteria)、就地修改类型(DirectlyChangeType)和修改的字段和值键值对(NewValues).根据具体的需要取值处理即可.
 
 接下来我们以一个具体的场景为例来介绍这个功能.
 
@@ -152,7 +152,7 @@ app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 app.Run();
 ```
 
-这里的第11行到第13行就是将IChangeNoticeSender注入Obase中的代码,注意创建依赖注入建造器时需要指定上下文的类型,且更改通知需要的注入类型是IChangeNoticeSender,不能只将实现类的类型注入.
+这里的这段代码就是将IChangeNoticeSender注入Obase中的代码,注意创建依赖注入建造器时需要指定上下文的类型,且更改通知需要的注入类型是IChangeNoticeSender,不能只将实现类的类型注入.
 
 如果IChangeNoticeSender的具体实现需要用到由ASP.Net管理的某些服务,比如需要用日志服务记录一下,那么需要修改一下ChangeNoticeSender,在构造函数中注入日志工厂:
 

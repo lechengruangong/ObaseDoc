@@ -21,8 +21,8 @@ MySql ConnectionPool / Pool: 5/5, Get wait: 0, GetAsync wait: 0
 
 - MySql ConnectionPool 连接池的名称.
 - Pool: 5/5 池内可用连接数/当前池大小.
-- Get wait: 0 同步获取等待队列长度.
-- GetAsync wait: 0 异步取等待队列长度.
+- Get wait: 0 同步获取的等待数.
+- GetAsync wait: 0 异步获取的等待数.
 
 典型的完整信息输出如下:
 ```

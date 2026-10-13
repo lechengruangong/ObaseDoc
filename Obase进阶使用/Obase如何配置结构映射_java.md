@@ -11,7 +11,7 @@ Obase的结构映射会根据当前配置的对象数据模型在数据源内建
 在模型中的属性配置上有以下几个方法用于配置结构映射,以下代码中的attrConfig就是属性配置项:
 ```
 //最大字符数 仅限字符串类型
-attrConfig.hasMaxcharNumber(500);
+attrConfig.hasMaxCharNumber(500);
 //精度 只支持为映射类型decimal设置精度
 attrConfig.hasPrecision(10);
 //设置是否可空 对主键不生效
@@ -31,15 +31,16 @@ attrConfig.hasNullable(true);
 | Obase基元类型       | MySql数据类型 | Sqlite数据类型 | SqlServer数据类型 | PostgreSQL数据类型   |
 |:----------------|:----------|:-----------|:--------------|:-----------------|
 | boolean/Boolean | tinyint   | INTEGER    | tinyint       | boolean          |
-| byte/Byte       | tinyint   | INTEGER    | tinyint       | smallint         |
-| char/Character  | char      | TEXT       | char          | char             |
+| byte/Byte       | tinyint   | INTEGER    | tinyint       | character        |
+| char/Character  | char      | INTEGER    | char          | character        |
 | LocalDateTime   | datetime  | TEXT       | datetime      | timestamp        |
+| LocalDate       | datetime  | TEXT       | datetime      | date             |
 | BigDecimal      | decimal   | REAL       | decimal       | decimal          |
 | double/Double   | double    | REAL       | real          | double precision |
 | Enum            | tinyint   | INTEGER    | tinyint       | smallint         |
 | float/Float     | float     | REAL       | float         | real             |
 | UUID            | varchar   | TEXT       | nvarchar      | varchar          |
-| int/Integer     | int       | INTEGER    | int           | integer,         |
+| int/Integer     | int       | INTEGER    | int           | int              |
 | long/Long       | bigint    | INTEGER    | bigint        | bigint           |
 | short/Short     | smallint  | INTEGER    | smallint      | smallint         |
 | String          | varchar   | TEXT       | nvarchar      | varchar          |
@@ -52,6 +53,8 @@ attrConfig.hasNullable(true);
 | MySql数据长度 | Sqlite数据长度 | SqlServer数据长度 | PostgreSQL数据长度 |
 |:----------|:-----------|:--------------|:---------------|
 | 40        | 不适用        | 40            | 40             |
+
+注意char/Character和byte/Byte类型在MySql,Sqlite和SqlServer上不指定长度,在PostgreSQL上会指定长度(默认为2).
 
 对于BigDecimal类型,使用hasPrecision可以指定字段的精度,设置的值对应字段中小数部分的位数,应当在0-28之间.
 

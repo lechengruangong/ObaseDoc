@@ -10,7 +10,7 @@ Obase提供了使用依赖注入配置接口实现的方式配置连接池.
 /// </summary>
 public class ConnectionPoolConfiguration : IObaseConnectionPoolConfiguration
 {
-    /// <summary>连接池的名称 如果为空或空字符串 则使用默认值Obase ConnectionPool</summary>
+    /// <summary>连接池的名称 如果为空或空字符串 则使用默认值Obase ConnectionPool-连接池序号</summary>
     public string Name => "WebApi ConnectionPool";
 
     /// <summary>连接池的最大大小 如果小于等于0 则使用默认值100</summary>
@@ -49,7 +49,7 @@ public class ConnectionPoolConfiguration : IObaseConnectionPoolConfiguration
         _configuration = configuration;
     }
 
-    /// <summary>连接池的名称 如果为空或空字符串 则使用默认值Obase ConnectionPool</summary>
+    /// <summary>连接池的名称 如果为空或空字符串 则使用默认值Obase ConnectionPool-连接池序号</summary>
     public string Name => _configuration.GetValue<string>("PoolName");
 
     /// <summary>连接池的最大大小 如果小于等于0 则使用默认值100</summary>

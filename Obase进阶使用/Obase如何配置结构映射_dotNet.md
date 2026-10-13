@@ -26,20 +26,20 @@ attrConfig.HasNullable(true);
 
 ## 结构映射的数据库字段
 
-以下为Obase进行结构映射时建立表的字段类型:
+以下为Obase进行结构映射时建立表的字段类型(默认的字段长度见后文):
 
 | Obase基元类型    | MySql数据类型 | Sqlite数据类型 | SqlServer数据类型 | PostgreSQL数据类型   |
 |:-------------|:----------|:-----------|:--------------|:-----------------|
 | bool         | tinyint   | INTEGER    | tinyint       | boolean          |
-| byte/sbyte   | tinyint   | INTEGER    | tinyint       | smallint         |
-| char         | char      | TEXT       | char          | char             |
+| byte/sbyte   | tinyint   | INTEGER    | tinyint       | character        |
+| char         | char      | INTEGER    | char          | character        |
 | DateTime     | datetime  | TEXT       | datetime      | timestamp        |
 | decimal      | decimal   | REAL       | decimal       | decimal          |
 | double       | double    | REAL       | real          | double precision |
 | Enum         | tinyint   | INTEGER    | tinyint       | smallint         |
 | float        | float     | REAL       | float         | real             |
 | guid         | varchar   | TEXT       | nvarchar      | varchar          |
-| int/uint     | int       | INTEGER    | int           | integer,         |
+| int/uint     | int       | INTEGER    | int           | int              |
 | long/ulong   | bigint    | INTEGER    | bigint        | bigint           |
 | short/ushort | smallint  | INTEGER    | smallint      | smallint         |
 | String       | varchar   | TEXT       | nvarchar      | varchar          |
@@ -52,6 +52,8 @@ attrConfig.HasNullable(true);
 | MySql数据长度 | Sqlite数据长度 | SqlServer数据长度 | PostgreSQL数据长度 |
 |:----------|:-----------|:--------------|:---------------|
 | 40        | 不适用        | 40            | 40             |
+
+注意char,byte/sbyte类型在MySql,Sqlite和SqlServer上不指定长度,在PostgreSQL上会指定长度(默认为2).
 
 对于decimal类型,使用HasPrecision可以指定字段的精度,设置的值对应字段中小数部分的位数,应当在0-28之间.
 

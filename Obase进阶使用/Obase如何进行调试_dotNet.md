@@ -8,6 +8,6 @@
 在启用了这些配置后可以从以下入口进入调试.
 
 - 保存时出现异常,可以在对象上下文的SaveChanges方法上打断点后使用单步模式进入方法内部进行调试.
-- 查询时出现异常,可以在对象上集合调用的Linq方法上打断点,单步模式进入方法内部后,找到类似于source.Provider.Execute的代码,如果Provider为Obase重写的QueryProvider即可进入Execute进行调试.
+- 查询时出现异常,可以在对象集合调用的Linq方法上打断点,单步模式进入方法内部后,找到类似于Provider.Execute的代码,如果Provider为Obase的QueryProvider(或其派生类,如HeterogQueryProvider)的实现即可进入Execute进行调试.
 
 更多的代码内容可以查看Obase的开源项目,在搜索引擎内搜索"使用Visual Studio调试 .NET源代码"这个标题查看更多的相关源链接调试的文章.

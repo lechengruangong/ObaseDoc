@@ -22,16 +22,16 @@
 ```
 在引用了多租户件之后,模型配置中增加了一种新的扩展配置MultiTenantExtensionConfiguration<TEntity>,使用hasExtension方法即可配置多租户,此方法可以由实体型配置对象或者关联型配置对象调用.
 
-hasExtension方法会返回MultiTenantExtensionConfiguration<TEntity>的实例,MultiTenantExtensionConfiguration有hasTenantIdMark和hasTenantIdField方法用于配置多租户的标记属性和数据源字段,以下代码中的multiTenant就是要在配置多的实体型或者关联型配置对象:
+hasExtension方法会返回MultiTenantExtensionConfiguration<TEntity>的实例,MultiTenantExtensionConfiguration有hasStringTenantIdMark(按多租户属性的类型还分为hasIntTenantIdMark、hasLongTenantIdMark和hasUUIDTenantIdMark)和hasTenantIdField方法用于配置多租户的标记属性和数据源字段,以下代码中的multiTenant就是要在配置多的实体型或者关联型配置对象(Java中需要把扩展配置类作为参数传入hasExtension,再自行声明返回值的类型):
 
 ```
 //此处的Domain就是要配置多租户的类型
 //创建多租户扩展
-var multiTenantExt = multiTenant.hasExtension<MultiTenantExtensionConfiguration<Domain>>();
+MultiTenantExtensionConfiguration<Domain> multiTenantExt = multiTenant.hasExtension(MultiTenantExtensionConfiguration.class);
 //当类中有定义多租户属性时 指定某个属性为多租户标记
-multiTenantExt.hasTenantIdMark(p => p.getTenantId());
-//当类中没有定义多租户属性时或者数据源的字段与属性名称不一致时 需要指定多租户映射字段
-multiTenantExt.hasTenantIdField("TenantId");
+multiTenantExt.hasStringTenantIdMark(p -> p.getTenantId());
+//当类中没有定义多租户属性时或者数据源的字段与属性名称不一致时 需要指定多租户映射字段和字段类型
+multiTenantExt.hasTenantIdField("TenantId", String.class);
 //设置全局的多租户ID 如果系统中需要一些属于全局的 可以被每个租户都查询的 需要配置此项
 multiTenantExt.hasGlobalTenantId("00000000");
 //在配置了全局多租户ID后 如果需要每个租户都查询到全局的 需要配置此项为true
@@ -41,11 +41,15 @@ multiTenantExt.hasLoadingGlobal(true);
 
 当然,对于Sql数据源,这两种情况都需要在映射表内存在多租户的字段.
 
-第5行就是类内有定义多租户属性的情况,此种情况需要指定哪个属性是多租户属性,如果数据源的字段与属性名称相同,则只需要配置hasTenantIdMark
+第5行就是类内有定义多租户属性的情况,此种情况需要指定哪个属性是多租户属性,如果数据源的字段与属性名称相同,则只需要配置hasStringTenantIdMark
 
-第7行是类内没有定义多租户字段或者数据源的字段与属性名称不一致的情况,此时需要配置数据源中哪个字段是多租户的字段.
+第7行是类内没有定义多租户字段或者数据源的字段与属性名称不一致的情况,此时需要配置数据源中哪个字段是多租户的字段和此字段的类型.
 
 此外还有全局租户相关的配置,用于系统中存在需要被所有租户获取的对象的情况.
+
+多租户属性只能是String,Integer,Long,UUID四种类型中的一种(hasTenantIdField的第二个参数还接受对应的int和long基本类型),hasTenantIdField的第二个参数和hasGlobalTenantId传入的值都必须与多租户属性的类型一致,否则会在配置时抛出异常.
+
+另外,hasGlobalTenantId在设置全局租户ID的同时会把包含全局租户ID查询也一并启用(即内部会把loadingGlobal置为true),所以只有需要关闭它时才需要再调用hasLoadingGlobal(false).
 
 ## 依赖注入租户ID读取器
 
@@ -169,15 +173,15 @@ public class RoutePageVisitRecord {
 //配置一个实体型
 EntityTypeConfiguration<RoutePageVisitRecord> routeRecord = modelBuilder.entity(RoutePageVisitRecord.class);
 routeRecord.hasKeyAttribute(p -> p.getRecordId()).hasKeyIsSelfIncreased(true);
-record.toTable("RoutePageVisitRecord");
+routeRecord.toTable("RoutePageVisitRecord");
 //配置多租户
 MultiTenantExtensionConfiguration<RoutePageVisitRecord> multiTenantExtension = routeRecord.hasExtension(MultiTenantExtensionConfiguration.class);
-//没在类内定义多租户字段 这里直接配置逻辑删除字段名称即可
+//没在类内定义多租户字段 这里直接配置多租户字段名称和类型即可
 multiTenantExtension.hasTenantIdField("TenantId", String.class);
 ```
-这里的逻辑不涉及全局的租户也没有在类内定义租户ID,所以只需要配置自己的多租户字段名.
+这里的逻辑不涉及全局的租户也没有在类内定义租户ID,所以只需要配置自己的多租户字段名和类型.
 
-再定义一个更改消息发送器TenantIdReader:
+再定义一个租户ID读取器TenantIdReader:
 
 ```
 /**
@@ -291,11 +295,11 @@ oBuilder.build();
 ```
 此处主要的修改为Obase依赖注入方法改为使用委托作为参数的注入方法,并在获取到ConfigurableApplicationContext后从SpringBoot的IOC容器中获取具体服务作为构造TenantIdReader的参数.
 
-最后只要和平常一样调用保存新对象和查询的逻辑即可,唯一需要注意的是为上下文启用对象通知:
+最后只要和平常一样调用保存新对象和查询的逻辑即可,唯一需要注意的是为上下文启用多租户:
 ```
 
 //此处省略从SpringBoot的依赖注入中获取context的代码
-//如果有需要 可以在对象上下文的构造函数里调用enableMultiTenant方法 这样所有构造出来的上下文就都是启用了对象通知的
+//如果有需要 可以在对象上下文的构造函数里调用enableMultiTenant方法 这样所有构造出来的上下文就都是启用了多租户的
 
 //启用多租户
 MultiTenantExtensions.enableMultiTenant(context);

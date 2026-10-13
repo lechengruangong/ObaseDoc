@@ -211,8 +211,9 @@ implicitMultiAssociation.ToTable("ProductCategory");
 
 //如果在概念建模阶段就注意到需要此种查询 域类已将此关联设置为显示关联时 类内会直接定义关联引用为List<ProductCategory> 则此处不需要做此转换
 //此下的配置为领域模型未将关联引用显式化时的配置方式
-//配置关联引用 注意此处使用的配置方法 指定的泛型参数为关联型类型
-productEntity.AssociationReference<ProductCategory>("Categories", true)
+//注意此处的关联引用是配置在隐式关联的关联端上的 泛型参数用于指定关联引用值的元组类型 而不是关联引用的关联型
+implicitMultiAssociation.AssociationEnd(p => p.Product)
+    .AssociationReference<ProductCategory>("Categories", true)
     //配置取值器 即从对象中取值的方法 此处即为从关联型转换为List<Category>
     .HasValueGetter(new DelegateValueGetter<Product, List<ProductCategory>>(p =>
     {
@@ -239,12 +240,12 @@ productEntity.AssociationReference<ProductCategory>("Categories", true)
                 && p.Categories.All(q => q != null && q.CategoryId != impValue.CategoryId))
                 p.Categories.Add(impValue.Category);
         }
-    }, eValueSettingMode.Appending)
-    //左端为自己 产品Product 右端分类Category
-    .HasLeftEnd("Product").HasRightEnd("Category");
+    }, EValueSettingMode.Appending);
+//关联引用会自动把左端名配置为本端名 两个端的右端名由Obase在补充配置时自动推断 不需要也不可以手动配置HasLeftEnd和HasRightEnd
 
-//配置关联引用 注意此处使用的配置方法 指定的泛型参数为关联型类型
-categoryEntity.AssociationReference<ProductCategory>("Products", true)
+//配置分类端的关联引用
+implicitMultiAssociation.AssociationEnd(p => p.Category)
+    .AssociationReference<ProductCategory>("Products", true)
     //配置取值器 即从对象中取值的方法 此处即为从关联型转换为List<Product>
     .HasValueGetter(new DelegateValueGetter<Category, List<ProductCategory>>(p =>
     {
@@ -271,9 +272,7 @@ categoryEntity.AssociationReference<ProductCategory>("Products", true)
                 && p.Products.All(q => q != null && q.Code != impValue.ProductCode))
                 p.Products.Add(impValue.Product);
         }
-    }, eValueSettingMode.Appending)
-    //左端为自己 分类Category 右端产品Product
-    .HasLeftEnd("Category").HasRightEnd("Product");
+    }, EValueSettingMode.Appending);
 ```
 
 以下为如何查询:

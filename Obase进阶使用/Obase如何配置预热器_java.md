@@ -13,7 +13,7 @@ public class ObasePreHeater extends SqlContextPreHeater {
 }
 ```
 
-只需要继承SqlContextPreHeater即可,之后在启动类里做如下配置:
+只需要继承SqlContextPreHeater即可,预热器会使用上下文所属的SqlContextConfigProvider中的数据库驱动类,连接字符串,登录名和密码构建出数据源并将其放入连接池,之后在启动类里做如下配置:
 
 ```
 //省略一些向SpringBoot依赖注入上下文工厂的的标注代码和类定义
@@ -29,4 +29,4 @@ preHeater.preHeat(dataContext);
 ```
 此处省略的向SpringBoot依赖注入上下文工厂的的标注代码和类定义是在[Obase如何定义和管理对象上下文(java版)](../Obase入门/Obase如何定义和管理对象上下文_java.md)中介绍的上下文工厂注入SpringBoot的代码.
 
-预热器会默认使用slf4j日志输出预热结果,在日志中可以观察到类似于"XXX Has Initialized"的输出.
+预热器会默认使用slf4j日志输出预热结果,在日志中可以观察到类似于"Obase Has Initialized"的输出.

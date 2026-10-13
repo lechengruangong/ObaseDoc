@@ -2,7 +2,7 @@
 
 以下所有内容中的,检查是否符合推断中的推断都指的是[Obase的对象数据模型默认值](../Obase基础知识/Obase的对象数据模型默认值_java.md)里的推断.
 
-1. **注册程序集**.在重写的配置方法中,将领域模型的Assembly调用modelBuilder.registerType方法注册.这样做可以将整个领域模型中符合推断的类型都注册为Obase的对象模型类型,之后碰到配置的类型如果符合推断就无需再次进行配置了.
+1. **注册类型**.在重写的配置方法中,将领域模型所在的包调用modelBuilder.registerType方法注册.这样做可以将整个领域模型中符合推断的类型都注册为Obase的对象模型类型,之后碰到配置的类型如果符合推断就无需再次进行配置了.
 
 2. **添加忽略类型**.领域模型内可能存在一些不需要Obase管理的类,如某些接口的默认实现类,不需要独立存储的类等,将这些类型调用modelBuilder.ignore方法忽略掉.
 
@@ -43,8 +43,8 @@ Obase的配置实质上只关心这些内容:
 所以只要配置这些基础的配置就可以构建对象数据模型了,那么就有如下的简明配置思路.
 
 1. 将要配置的对象系统中所有的由Obase管理存储的类型分类为实体型(表示一个实体,有主键的类型)和显式关联型(表示实体之间的关系,且有属于关系的属性)这两个类别.
-2. 将所有的实体型都调用modelBuilder的Entity<>()注册为实体型,并且配置主键和映射表,代码类似于以下三行```EntityTypeConfiguration<XXX> cfg = modelBuilder.entity(XXX.Class); cfg.hasKeyAttribute(p -> p.getXXX(); cfg.ToTable("XXX");```.
-3. 将所有的显式关联型都调用modelBuilder的Association<>()注册为显式关联型,并配置关联型的关联端及端映射和关联的映射表,代码类似于以下四行```AssociationEndConfigurationGeneric<XXX> cdg = modelBulder.association(XXX.class);cfg.associationEnd(p->p.getXXX().hasMapping("XXX","XXX");cfg.associationEnd(p->p.getYYY().hasMapping("YYY","YYY");cfg.toTable("XXX"); ```一个关联至少有两个实体型参与,所以此处至少需要两个关联端.
+2. 将所有的实体型都调用modelBuilder的entity()注册为实体型,并且配置主键和映射表,代码类似于以下三行```EntityTypeConfiguration<XXX> cfg = modelBuilder.entity(XXX.class); cfg.hasKeyAttribute(p -> p.getXXX()).hasKeyIsSelfIncreased(false); cfg.toTable("XXX");```.
+3. 将所有的显式关联型都调用modelBuilder的association()注册为显式关联型,并配置关联型的关联端及端映射和关联的映射表,代码类似于以下四行```AssociationTypeConfiguration<XXX> cfg = modelBuilder.association(XXX.class);cfg.associationEnd(p->p.getXXX()).hasMapping("XXX","XXX");cfg.associationEnd(p->p.getYYY()).hasMapping("YYY","YYY");cfg.toTable("XXX"); ```一个关联至少有两个实体型参与,所以此处至少需要两个关联端.
 4. 检查所有的实体型,这些实体型除了基元类型的属性以外,是否还引用了其他的实体型,如果有这些实体型的引用代表存在隐含的关联,需要将这些隐含的关联注册为隐式关联型,并配置关联型的关联端及端映射和关联的映射表,代码类似于以下四行```AssociationConfiguratorBuilder cfg = modelBuilder.association();cfg.associationEnd(XXX.class).hasMapping("XXX","XXX"); cfg.associationEnd(YYY.class).hasMapping("YYY","YYY");cfg.toTable("XXX");```一个关联至少有两个实体型参与,所以此处至少需要两个关联端.
 5. 反复使用以上的代码,将所有的实体型和关联型都注册,需要注意的是如果A和B有隐式关联,只需要注册一次即可除非A和B存在多个不同的关系.
 6. 检查所有的实体型和关联型上的普通属性和构造器,这些属性和构造器是否需要特殊的处理,如果需要为其配置相应的取值器设值器映射等配置.检查所有的实体型上的其他实体型或关联型的引用属性,这些属性是否需要特殊的处理,如果需要为其配置相应的取值器设值器等配置.
@@ -596,13 +596,13 @@ classStudent.toTable("Student");
 
 ```
 //配置任课关系
-AssociationEndConfigurationGeneric<Teaching> teaching = modelBuilder.association(Teaching.class);
+AssociationTypeConfiguration<Teaching> teaching = modelBuilder.association(Teaching.class);
 //班级关联端
-AssociationEndConfigurationGeneric<Class> classTeachingEnd = teaching.associationEnd(p ->p.getClazz());
+AssociationEndConfigurationGeneric<Teaching,Class> classTeachingEnd = teaching.associationEnd(p ->p.getClazz());
 //在Teaching这张表里班级的主键ID存储于ClassId这个数据库字段里
 classTeachingEnd.hasMapping("Id", "ClassId");
 //教师关联端
-AssociationEndConfigurationGeneric<Teacher> teacherTeachingEnd = teaching.AssociationEnd(p -> p.getTeacher());
+AssociationEndConfigurationGeneric<Teaching,Teacher> teacherTeachingEnd = teaching.associationEnd(p -> p.getTeacher());
 //在Teaching这张表里教师的主键ID存储于TeacherId这个数据库字段里
 teacherTeachingEnd.hasMapping("Id", "TeacherId");
 //任课关系存储在哪张表
@@ -648,13 +648,13 @@ studentEnd.hasMapping("Id", "Id");
 classStudent.toTable("Student");
 
 //配置任课关系
-AssociationEndConfigurationGeneric<Teaching> teaching = modelBuilder.association(Teaching.class);
+AssociationTypeConfiguration<Teaching> teaching = modelBuilder.association(Teaching.class);
 //班级关联端
-AssociationEndConfigurationGeneric<Class> classTeachingEnd = teaching.associationEnd(p ->p.getClazz());
+AssociationEndConfigurationGeneric<Teaching,Class> classTeachingEnd = teaching.associationEnd(p ->p.getClazz());
 //在Teaching这张表里班级的主键ID存储于ClassId这个数据库字段里
 classTeachingEnd.hasMapping("Id", "ClassId");
 //教师关联端
-AssociationEndConfigurationGeneric<Teacher> teacherTeachingEnd = teaching.AssociationEnd(p -> p.getTeacher());
+AssociationEndConfigurationGeneric<Teaching,Teacher> teacherTeachingEnd = teaching.associationEnd(p -> p.getTeacher());
 //在Teaching这张表里教师的主键ID存储于TeacherId这个数据库字段里
 teacherTeachingEnd.hasMapping("Id", "TeacherId");
 //任课关系存储在哪张表

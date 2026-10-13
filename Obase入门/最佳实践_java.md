@@ -172,10 +172,13 @@ public class Article {
 此外,我们还需要配置Article和Category之间的关系,关系配置是Obase引入的全新概念,引入了关系之后Obase可以更准确的追踪对象之间的关系变更,以实现更多的和关系相关的功能.
 
 ```
- /// <summary>使用指定的建模器创建对象数据模型。</summary>
- /// <param name="modelBuilder">对象数据模型建造器</param>
- protected override void CreateModel(ModelBuilder modelBuilder)
- {
+    /**
+     * 使用指定的建模器创建对象数据模型
+     *
+     * @param modelBuilder 建模器
+     */
+    @Override
+    protected void createModel(ModelBuilder modelBuilder) {
         //对Article数据模型类进行配置
         EntityTypeConfiguration<Article> articleEntity = modelBuilder.entity(Article.class);
         //配置主键映射 和 主键是否自增
@@ -198,7 +201,7 @@ public class Article {
         categoryAssArticle.associationEnd(Category.class).hasMapping("Id", "CategoryId");
         //Article和Category之间的关系存储于Article表
         categoryAssArticle.toTable("Article");
- }
+    }
 ```
 这里首先新增了Category的映射关系,首先将Category类注册为Entity,然后设置Category的主键和主键是否自增,最后配置Category在数据库所存储的表.
 
@@ -259,23 +262,23 @@ Obase会根据配置的实体型和关联型来侦测对象和对象间的关系
 由于我们在文章上定义了分类的ID,所以我们可以很轻易的写出根据分类ID查询文章的查询:
 ```
 //查询分类ID为1的所有文章
-List<Article> article = context.createSet(Article.class).filter(p -> p.getategoryId() == 1).toList();
+List<Article> article = context.createSet(Article.class).filter(p -> p.getCategoryId() == 1).toList();
 ```
 我们在Article数据模型类里有引用Category,那么当然也可以在查询文章时同时查询文章的分类信息:
 ```
 //查询Code为A0001的Article 并且 同时加载关联的Category
 Article article = context.createSet(Article.class).include(p -> p.getCategory()).findFirst(p -> p.getCode() == "A0001").orElse(null);
 ```
-这里使用了一个Obase的方法Include,此方法会在查询时同时加载Category对象.
+这里使用了一个Obase的方法include,此方法会在查询时同时加载Category对象.
 
 当然我们也可以在查询Category时同时查询Article,
 ```
 //查询分类ID为1的分类 并且 同时加载关联的Article
 List<Article> articles = context.createSet(Category.class).include(p -> p.getArticles()).filter(p -> p.getId() == 1).toList();
 ```
-Include的参数可以进行延展,比如再定义一个User对象并且在Article上定义Creator的关联引用,想要在查询分类时同时加载关联的Article和User,
+include的参数可以进行延展,比如再定义一个User对象并且在Article上定义Creator的关联引用,想要在查询分类时同时加载关联的Article和User,
 
-就可以写作Include("Articles.Creator");
+就可以写作include("Articles.Creator");
 
 Obase还可以对关联对象使用投影,分组等操作,比如查询某个文章所属的分类可以使用这样的查询:
 
