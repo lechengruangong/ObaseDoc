@@ -1,4 +1,4 @@
-通常情况下,使用Obase都是引用对应数据库的提供器,即Obase.Providers.MySql,Obase.Providers.Oracle,Obase.Providers.SqlServer,Obase.Providers.Sqlite,Obase.Providers.PostgreSql这四个软件包,并继承其中提供的上下文配置抽象类来实现自己需要的上下文配置.
+通常情况下,使用Obase都是引用对应数据库的提供器,即Obase.Providers.MySql,Obase.Providers.Oracle,Obase.Providers.SqlServer,Obase.Providers.Sqlite,Obase.Providers.PostgreSql这五个软件包,并继承其中提供的上下文配置抽象类来实现自己需要的上下文配置.
 
 这些提供器都引用了相应的官方驱动包来作为相应的连接提供程序,但有些时候我们会遇到需要使用非官方的驱动连接数据源或者连接的数据源是兼容某些数据源语法但要使用自己的连接提供程序的场景.
 

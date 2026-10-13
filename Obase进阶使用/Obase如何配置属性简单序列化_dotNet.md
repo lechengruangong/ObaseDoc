@@ -82,8 +82,8 @@ public class JsonSerializer : TextSerializer
 var goods = modelBuilder.Entity<Goods>();
 //主键
 goods.HasKeyAttribute(p => p.GoodsId).HasKeyIsSelfIncreased(true);
-//自定义GoodsPhotos属性
-goods.Attribute(p => p.GoodsPhotos)
+//自定义GoodsPhotos属性 注意此处必须显式指定属性的数据类型为string,与UseSerializer的类型参数一致
+goods.Attribute(p => p.GoodsPhotos, typeof(string))
     //使用Json序列化器
     .UseSerializer<string[]>(new JsonSerializer())
     //设置为255长 超过255会令数据库建表类型变为Text 方便存储
@@ -91,7 +91,7 @@ goods.Attribute(p => p.GoodsPhotos)
 //映射表
 goods.ToTable("Goods");
 ```
-注意UseSerializer的类型参数,是GoodsPhotos的原始类型,会在JsonSerializer的DoDeserialize第二个参数传入,用于辅助反序列化.
+注意UseSerializer的类型参数,是GoodsPhotos的原始类型,会在JsonSerializer的DoDeserialize第二个参数传入,用于辅助反序列化.如果此处不显式指定属性的数据类型为string,Obase会按属性自身的类型string[]去找对应的序列化模型,从而匹配不到按string类型注册的序列化器.
 
 此外UseSerializer方法还有两个使用ITextSerializer的重载,这两个重载当然也可以使用之前的JsonSerializer,但如果你想精细的控制序列化中流的行为,也可以直接实现ITextSerializer,以下是一个示例的逗号分隔的序列化器,可以参考其中的方法内注释来确定你的实现.
 

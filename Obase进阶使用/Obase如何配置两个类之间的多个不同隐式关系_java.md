@@ -234,7 +234,7 @@ AssociationConfiguratorBuilder manageAssociationTypeConfiguration = modelBuilder
 manageAssociationTypeConfiguration.associationEnd(Employee.class)
         //对于当两个类间有多种关系时 必须配置关联引用以保证不同的引用使用不同的隐式关联型
         .associationReference(p -> p.getManageRooms());
-//另外一个端
+//另外一个端 映射符合推断 从OfficeRoom的主键RoomCode映射到ManageRoom表的RoomCode字段
 manageAssociationTypeConfiguration.associationEnd(OfficeRoom.class);
 //映射表
 manageAssociationTypeConfiguration.toTable("ManageRoom");
@@ -245,7 +245,7 @@ AssociationConfiguratorBuilder workAssociationTypeConfiguration = modelBuilder.a
 workAssociationTypeConfiguration.associationEnd(Employee.class)
         //对于当两个类间有多种关系时 必须配置关联引用以保证不同的引用使用不同的隐式关联型
         .associationReference(p -> p.getWorkRoom());
-//另外一个端
+//另外一个端 映射符合推断 从OfficeRoom的主键RoomCode映射到Employee表的WorkRoomCode字段
 workAssociationTypeConfiguration.associationEnd(OfficeRoom.class)
         .hasMapping("RoomCode", "WorkRoomCode");
 //映射表

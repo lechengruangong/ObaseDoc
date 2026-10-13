@@ -20,7 +20,7 @@ Obase ConnectionPool / totalConnections:1, activeConnections:0, idleConnections:
 其中每个部分的含义是:
 
 - Obase ConnectionPool 连接池的名称.
-- totalConnections:1 池内可用连接数.
+- totalConnections:1 池内的连接总数.
 - activeConnections:0 激活的连接数.
 - idleConnections:1 空闲的连接数.
 - awaitingConnections:0 等待的连接数.

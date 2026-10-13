@@ -97,7 +97,7 @@ public class DisableDeleteModule : IMappingModule
 }
 ```
 
-这里注册了"保存"管道的执行Sql语句前PreExecuteCommand事件,在语句类型为删除时抛出异常.
+这里注册了"保存"管道的执行Sql语句前PreExecuteCommand事件,在语句类型为删除时抛出异常.需要注意的是,在保存管道上拦截删除语句是有意为之:PreExecuteCommand属于ISavingPipeline,而删除对象的语句是由"保存"管道统一下发的,因此删除语句同样会经过此事件,当ChangeType为EChangeType.Delete时即可拦截删除.
 
 然后在调用上下文的RegisterModule来注册这个模块的实例即可实现在某个上下文尝试删除时抛出异常.
 

@@ -20,7 +20,7 @@ public class ConnectionPoolConfiguration implements IObaseConnectionPoolConfigur
     }
 
     /**
-     * 连接池的最大大小 如果小于等于0 则使用默认值-1
+     * 连接池的最大大小 如果小于等于0 则使用默认值10
      *
      * @return 连接池的最大大小
      */
@@ -73,7 +73,7 @@ public class ConnectionPoolConfiguration implements IObaseConnectionPoolConfigur
     }
 
     /**
-     * 连接池的最大大小 如果小于等于0 则使用默认值-1
+     * 连接池的最大大小 如果小于等于0 则使用默认值10
      *
      * @return 连接池的最大大小
      */

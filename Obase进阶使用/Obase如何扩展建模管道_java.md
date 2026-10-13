@@ -65,7 +65,7 @@ public class PrefixComplementConfigurator implements IComplementConfigurator {
 }
 ```
 
-注意这个类的构造函数,考虑到管道中还有其他节点,此处应当接受Next参数作为下一个节点.
+注意这个类的构造函数,考虑到管道中还有其他节点,此处应当接受next参数作为下一个节点.
 
 接着在上下文配置提供器的createModel方法里加入下的代码即可:
 

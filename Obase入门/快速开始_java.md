@@ -143,9 +143,9 @@ public class SampleContextConfiguration extends MySqlContextConfigProvider {
 
 上下文的构造函数需要提供一个ContextConfigProvider类型的参数,此处使用的是继承MySqlContextConfigProvider的SampleContextConfiguration.
 
-在上下文配置提供者SampleContextConfiguration中,需要重写一个JDBC相关的三个方法和方法createModel(ModelBuilder modelBuilder).
+在上下文配置提供者SampleContextConfiguration中,需要重写一个JDBC相关的三个方法和一个createModel(ModelBuilder modelBuilder)方法.
 
-属性访问器ConnectionString只需要返回所使用的数据库连接字符串即可.
+方法getConnectionString只需要返回所使用的数据库连接字符串即可.
 
 方法createModel(ModelBuilder modelBuilder)则需要配置Article的映射关系,首先将Article类注册为Entity,然后设置Article的主键和主键是否自增,最后配置Article在数据库所存储的表.
 
@@ -170,21 +170,21 @@ context.attach(article);
 //保存更改至数据库
 context.saveChanges();
 ```
-在执行SaveChanges方法后,Article即保存至数据库内了.
+在执行saveChanges方法后,Article即保存至数据库内了.
 
 ### 查询对象
 
-查询对象需要使用上下文的CreateSet方法获取对象集,然后在对象集上使用Linq方法即可.
+查询对象需要使用上下文的createSet方法获取对象集,然后在对象集上使用查询方法即可.
 ```
 //查询Article表内第一条数据
-Article article = context.createSet(Article.class).findeFirst().orElse(null);
+Article article = context.createSet(Article.class).findFirst().orElse(null);
 ```
-如果要执行筛选之类的操作,只需要调用Where等方法即可.
+如果要执行筛选之类的操作,只需要调用filter等方法即可.
 ```
 //查询Article表内Code == "A0001" 跳过 0 个 提取 1 个的所有数据
 List<Article> articles = context.createSet(Article.class).filter(p -> p.getCode() == "A0001").skip(0).limit(1).toList();
 ```
-对象集可以看做数据源中某张表的代理,Linq操作会被映射为Sql查询.
+对象集可以看做数据源中某张表的代理,查询操作会被映射为Sql查询.
 
 更多的查询操作可以参考[Obase如何进行查询](Obase如何进行查询_java.md).
 
@@ -205,7 +205,7 @@ Obase会把侦测saveChanges调用之前未保存的改动持久化至数据源�
 
 ### 删除对象
 
-删除对象首先需要查询出对象,然后调用上下文的Remove方法,之后使用上下文saveChanges即可.
+删除对象首先需要查询出对象,然后调用上下文的remove方法,之后使用上下文saveChanges即可.
 
 ```
 //查询对象

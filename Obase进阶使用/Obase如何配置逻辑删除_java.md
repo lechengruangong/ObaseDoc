@@ -16,14 +16,14 @@
 </dependency>
 <dependency>
     <groupId>io.obase</groupId>
-    <artifactId>logical.Deletion</artifactId>
+    <artifactId>logical.deletion</artifactId>
     <version>x.x.x</version>
 </dependency>
 ```
 
 在引用了逻辑删除插件之后,模型配置中增加了一种新的扩展配置LogicDeletionExtensionConfiguration<TEntity>,使用hasExtension方法即可配置逻辑删除,此方法可以由实体型配置对象或者关联型配置对象调用.
 
-HasExtension方法会返回LogicDeletionExtensionConfiguration<TEntity>的实例,LogicDeletionExtensionConfiguration有hasDeletionMark和hasDeletionField方法用于配置逻辑删除的标记属性和数据源字段,以下代码中的logicDeletion就是要在配置逻辑删除的实体型或者关联型配置对象:
+hasExtension方法会返回LogicDeletionExtensionConfiguration<TEntity>的实例,LogicDeletionExtensionConfiguration有hasDeletionMark和hasDeletionField方法用于配置逻辑删除的标记属性和数据源字段,以下代码中的logicDeletion就是要在配置逻辑删除的实体型或者关联型配置对象:
 
 ```
 //此处的Domain就是要配置逻辑删除的类型
@@ -65,14 +65,16 @@ LogicDeletionExtensions.enableLogicDeletion(context);
 //逻辑标记移除对象
 LogicDeletionExtensions.removeLogically(context.createSet(Domain.class), entity);
 //逻辑标记恢复对象
-LogicDeletionExtensions.recoveryLogically(context.createSet(Domain.Class), entity));
+LogicDeletionExtensions.recoveryLogically(context.createSet(Domain.class), entity);
 //直接逻辑删除符合条件的对象
 LogicDeletionExtensions.deleteLogically(context.createSet(Domain.class), p -> p.getId() > 50, Domain.class);
 //直接逻辑恢复符合条件的对象
 LogicDeletionExtensions.recoveryLogically(context.createSet(Domain.class), p -> p.getId() > 50, Domain.class);
 ```
 
-需要注意的是,逻辑删除只生效于查询基点,即在A类上配置类逻辑删除,使用CreateSet^A时会将逻辑删除的A对象过滤掉.但在B中引用了A,查询B时使用Include方法一并查询A时,B引用的A不会处理逻辑删除.
+需要注意的是,逻辑删除只生效于查询基点,即在A类上配置类逻辑删除,使用createSet(A.class)时会将逻辑删除的A对象过滤掉.但在B中引用了A,查询B时使用Include方法一并查询A时,B引用的A不会处理逻辑删除.
+
+另外,deleteLogically和recoveryLogically的过滤条件版本需要额外传入类型(因为Java的lambda无法携带类型信息),它们直接生成更新语句将符合条件的对象的逻辑删除字段置位,返回受影响的行数(int),而不是先把对象查询出来再逐个标记.
 
 接下来我们以一个具体的场景为例来介绍这个功能.
 
@@ -90,7 +92,7 @@ LogicDeletionExtensions.recoveryLogically(context.createSet(Domain.class), p -> 
 </dependency>
 <dependency>
     <groupId>io.obase</groupId>
-    <artifactId>logical.Deletion</artifactId>
+    <artifactId>logical.deletion</artifactId>
     <version>x.x.x</version>
 </dependency>
 ```
@@ -172,7 +174,7 @@ public class VisitRecord {
 //配置一个实体型
 EntityTypeConfiguration<VisitRecord> visitRecord = modelBuilder.entity(VisitRecord.class);
 visitRecord.hasKeyAttribute(p -> p.getOwnerId()).hasKeyAttribute(p -> p.getVisitorId()).hasKeyIsSelfIncreased(false);
-record.toTable("visitRecord");
+visitRecord.toTable("visitRecord");
 //配置逻辑删除
 LogicDeletionExtensionConfiguration<VisitRecord> logicDeletionExtension = visitRecord.hasExtension(LogicDeletionExtensionConfiguration.class);
 //没在类内定义逻辑删除字段 这里直接配置逻辑删除字段名称即可

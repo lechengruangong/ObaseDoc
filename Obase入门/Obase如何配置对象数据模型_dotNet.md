@@ -44,7 +44,7 @@ Obase的配置实质上只关心这些内容:
 
 1. 将要配置的对象系统中所有的由Obase管理存储的类型分类为实体型(表示一个实体,有主键的类型)和显式关联型(表示实体之间的关系,且有属于关系的属性)这两个类别.
 2. 将所有的实体型都调用modelBuilder的Entity<>()注册为实体型,并且配置主键和映射表,代码类似于以下三行```var cfg = modelBuilder.Entity<XXX>(); cfg.HasKeyAttribute(p => p.XXX); cfg.ToTable("XXX");```.
-3. 将所有的显式关联型都调用modelBuilder的Association<>()注册为显式关联型,并配置关联型的关联端及端映射和关联的映射表,代码类似于以下四行```var cdg = modelBulder.Association<XXX>();cfg.AssociationEnd(p=>p.XXX).HasMapping("XXX","XXX");cfg.AssociationEnd(p=>p.YYY).HasMapping("YYY","YYY");cfg.ToTable("XXX"); ```一个关联至少有两个实体型参与,所以此处至少需要两个关联端.
+3. 将所有的显式关联型都调用modelBuilder的Association<>()注册为显式关联型,并配置关联型的关联端及端映射和关联的映射表,代码类似于以下四行```var cfg = modelBuilder.Association<XXX>();cfg.AssociationEnd(p=>p.XXX).HasMapping("XXX","XXX");cfg.AssociationEnd(p=>p.YYY).HasMapping("YYY","YYY");cfg.ToTable("XXX"); ```一个关联至少有两个实体型参与,所以此处至少需要两个关联端.
 4. 检查所有的实体型,这些实体型除了基元类型的属性以外,是否还引用了其他的实体型,如果有这些实体型的引用代表存在隐含的关联,需要将这些隐含的关联注册为隐式关联型,并配置关联型的关联端及端映射和关联的映射表,代码类似于以下四行```var cfg = modelBuilder.Association();cfg.AssociationEnd<XXX>().HasMapping("XXX","XXX"); cfg.AssociationEnd<YYY>().HasMapping("YYY","YYY");cfg.ToTable("XXX");```一个关联至少有两个实体型参与,所以此处至少需要两个关联端.
 5. 反复使用以上的代码,将所有的实体型和关联型都注册,需要注意的是如果A和B有隐式关联,只需要注册一次即可除非A和B存在多个不同的关系.
 6. 检查所有的实体型和关联型上的普通属性和构造器,这些属性和构造器是否需要特殊的处理,如果需要为其配置相应的取值器设值器映射等配置.检查所有的实体型上的其他实体型或关联型的引用属性,这些属性是否需要特殊的处理,如果需要为其配置相应的取值器设值器等配置.

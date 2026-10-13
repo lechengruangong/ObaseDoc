@@ -46,7 +46,7 @@ avgInt(final SerializedIntResult<T> intResult);
 
 可以支持字符串属性包含(如set.filter(p->p.getName().contains("123")))和集合包含某个属性(如set.filter(p->list.contains(p.getId()))
 
-此外字符串属性还支持startWith和endWith,如set.filter(p->p.getName().startWith("123"))
+此外字符串属性还支持startsWith和endsWith,如set.filter(p->p.getName().startsWith("123"))
 
 - Count方法,获取对象集中符合条件的对象个数.
 
@@ -126,11 +126,11 @@ include(final SerializedFunction<T, R> includeExpression);
 include(String includeExpression);
 ```
 
-第一个重载参数可以表示为set.Include(p=>p.B.Cs),即表示查询A时加载B,C集合.
+第一个重载参数可以表示为set.include(p->p.getB().getCs()),即表示查询A时加载B,C集合.
 
 请注意此方法只支持引用元素(关联引用或关联端)成员访问表达式,如果遇到需要加载一对多时,使用第二个重载方法.
 
-第二个重载参数可以表示为set.Include("B.Cs.D").
+第二个重载参数可以表示为set.include("B.Cs.D").
 
 - Limit运算,指示查询时提取多少个对象.
 
@@ -227,11 +227,11 @@ Obase提供了PredicateCombiner类用于拼接筛选条件.
 
 首先是一组新的and和or的重载,现在and和or都有三个重载,分别是
 
-- public PredicateCombiner<T> and(final SerializedPredicate<T> filterExpression) throws Exception 接受一个普通的谓词逻辑表达式
+- public PredicateCombiner<T> and(final SerializedPredicate<T> filterExpression) 接受一个普通的谓词逻辑表达式
 
-- public PredicateCombiner<T> and(LambdaExpression second) throws Exception 接受一个解析完成的Lambda表达式
+- public PredicateCombiner<T> and(LambdaExpression second) 接受一个解析完成的Lambda表达式
 
-- public <R> PredicateCombiner<T> and(final SerializedFunction<T, R> getExpression, ePredicateType predicateType, Object value) throws Exception  接受成员表达式,谓词运算符,参数值
+- public <R> PredicateCombiner<T> and(final SerializedFunction<T, R> getExpression, EPredicateType predicateType, Object value)  接受成员表达式,谓词运算符,参数值
 
 其中第一个重载即接受普通的p->p.getCode() == parameter 这种的表达式,其中parameter必须为本地变量.
 
@@ -241,9 +241,9 @@ Obase提供了PredicateCombiner类用于拼接筛选条件.
 
 然后还提供了一组equal,notEqual,lessThan等方法,这些方法均有两个重载
 
-- public <R> PredicateCombiner<T> equal(final SerializedFunction<T, R> getExpression, Object value) throws Exception 接受成员表达式和参数值
+- public <R> PredicateCombiner<T> equal(final SerializedFunction<T, R> getExpression, Object value) 接受成员表达式和参数值
 
-- public <R> PredicateCombiner<T> equal(final SerializedFunction<T, R> getExpression, Object value, eCombineType combineType) throws Exception 接受成员表达式,参数值和拼合类型
+- public <R> PredicateCombiner<T> equal(final SerializedFunction<T, R> getExpression, Object value, ECombineType combineType) 接受成员表达式,参数值和拼合类型
 
 第一个重载可以接受成员表达式p->p.getCode(),第二个参数为要运算的参数值并且以and的方式拼合条件
 
@@ -506,19 +506,19 @@ PredicateCombiner<Client> predicateCombiner = new PredicateCombiner<>();
 predicateCombiner.and(predicateCombiner.getWrapper().eq(Client::getSex, clientRequest.getSex()));
 //如果存在关键字
 if(clientRequest.getName() != null && !clientRequest.getName().isEmpty()){
-    //使用指定ePredicateType进行拼合 需要成员表达式和值
-    predicateCombiner.and(Client::getName, ePredicateType.Contains, clientRequest.getName());
+    //使用指定EPredicateType进行拼合 需要成员表达式和值
+    predicateCombiner.and(Client::getName, EPredicateType.Contains, clientRequest.getName());
 }
 //使用其他拼合方法 如equal lessThan greaterThanOrEqual 需要成员表达式和值 默认为与逻辑运算 也可以在第三个参数指定逻辑运算
 predicateCombiner.equal(Client::getPhoneNumber,clientRequest.getPhoneNumber())
         .lessThan(Client::getCreatedTime,clientRequest.getCreatedTime())
         .greaterThanOrEqual(Client::getAge,clientRequest.getAge());
 //查询总数
-long count = sampleObjectContext.CreateSet(Client.class).count(predicateCombiner.getLambdaExpression());
+long count = sampleObjectContext.createSet(Client.class).count(predicateCombiner.getLambdaExpression());
 if(count == 0)
     return ApiPagingResponse.success(clientRequest.getPageSize(),clientRequest.getPageIndex(),0);
 //查询对象
-List<Client> clients = sampleObjectContext.CreateSet(Client.class).filter(predicateCombiner.getLambdaExpression()).skip(clientRequest.skip()).limit(clientRequest.limit()).toList();
+List<Client> clients = sampleObjectContext.createSet(Client.class).filter(predicateCombiner.getLambdaExpression()).skip(clientRequest.skip()).limit(clientRequest.limit()).toList();
 //组装结果
 ClientDto[] result = clients.stream().map(p->new ClientDto(p.getAge(),p.getClientId(),
         p.getCreatedTime(),p.getName(),p.getPhoneNumber(),p.getSex())).toArray(ClientDto[]::new);
@@ -529,7 +529,7 @@ return ApiPagingResponse.success(result,clientRequest.getPageSize(),clientReques
 
 第6行使用的方法需要调用predicateCombiner.getWrapper()的方法进行拼合,predicateCombiner.getWrapper()提供了eq相等运算,ne不相等运算,lt小于运算,gt大于运算,le小于等于运算,ge大于等于运算,cs字符串包含运算,sw字符串以XX开头运算,ew字符串以XX结尾运算.
 
-第10行使用的方法需要自己指定运算符,ePredicateType包括的运算类型与predicateCombiner.getWrapper()提供的方法相同.
+第10行使用的方法需要自己指定运算符,EPredicateType包括的运算类型与predicateCombiner.getWrapper()提供的方法相同.
 
 第13行的方法是指定运算类型的方法,如equal表示相等运算,此方法的第三个参数如果不传默认为与逻辑运算.
 
@@ -547,7 +547,7 @@ sub1.or(combiner.getWrapper().eq(JavaBean::getIntNumber,1)).or(combiner.getWrapp
 PredicateCombiner<JavaBean> sub2 = new PredicateCombiner<>();
 sub2.or(combiner.getWrapper().eq(JavaBean::getString,"1号字符串")).or(combiner.getWrapper().eq(JavaBean::getString,"19号字符串"));
 
-List<JavaBean> list = context.CreateSet(JavaBean.class).filter(PredicateCombiner.and(sub1.getLambdaExpression(),sub2.getLambdaExpression())).toList();
+List<JavaBean> list = context.createSet(JavaBean.class).filter(PredicateCombiner.and(sub1.getLambdaExpression(),sub2.getLambdaExpression())).toList();
 ```
 
 这里我们使用了两个条件拼合器,sub1和sub2.

@@ -94,7 +94,7 @@ public class Article
 
 这里的关系是一个全新的概念,一个关系至少需要两个实体参与,所以这里配置了参与此关系的关联端,此外还要知道在这个关系中,端实体的主键存储于数据库的哪个字段.
 
-这个Article和Category之间关系是存储在Article表里的,所以Article的Mapping就是Article的主键Code在Article表里映射为Code字段,而Category的主键IdArticle表里映射为CategoryId字段.
+这个Article和Category之间关系是存储在Article表里的,所以Article的Mapping就是Article的主键Code在Article表里映射为Code字段,而Category的主键Id在Article表里映射为CategoryId字段.
 
 更多的Obase对象数据建模概念,请参考[深入理解](./深入理解_dotNet.md)这篇文档.
 
@@ -169,7 +169,7 @@ var articles = context.CreateSet<Category>().Include(p => p.Articles).Where(p =>
 ```
 Include的参数可以进行延展,比如再定义一个User对象并且在Article上定义Creator的关联引用,想要在查询分类时同时加载关联的Article和User,
 
-就可以写作Include(p=>p.Articles.Select(q => q.Creator);
+就可以写作Include(p=>p.Articles.Select(q => q.Creator));
 
 Obase还可以对关联对象使用投影,分组等操作,比如查询某个文章所属的分类可以使用这样的查询:
 

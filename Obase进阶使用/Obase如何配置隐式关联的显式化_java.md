@@ -300,16 +300,7 @@ EntityTypeConfiguration<Category> categoryEntity = modelBuilder.entity(Category.
 categoryEntity.hasKeyAttribute(p -> p.getCategoryId()).hasKeyIsSelfIncreased(true);
 categoryEntity.toTable("Category");
 
-//配置显式化的隐式多对多关联型 注意此处不需要设置HasVisible 这里就应该是显式的 因为只有显式的关联型才能增加属性用于查询优化
-var implicitMultiAssociation = modelBuilder.Association<ProductCategory>();
-//配置产品关联端 在关联表中映射为主键Code->字段ProductCode
-implicitMultiAssociation.AssociationEnd(p => p.Product).HasMapping("Code", "ProductCode");
-//配置分类关联端 在关联表中映射为主键CategoryId->字段CategoryId
-implicitMultiAssociation.AssociationEnd(p => p.Category).HasMapping("CategoryId", "CategoryId");
-//多对多 独立关联表
-implicitMultiAssociation.ToTable("ProductCategory");
-
-//配置显式化的隐式多对多关联型
+//配置显式化的隐式多对多关联型 注意此处不需要设置hasVisible 这里就应该是显式的 因为只有显式的关联型才能增加属性用于查询优化
 AssociationTypeConfiguration<ProductCategory> implicitMultiAssociation = modelBuilder.association(ProductCategory.class);
 //配置产品关联端 在关联表中映射为主键Code->字段ProductCode 映射符合推断
 AssociationEndConfigurationGeneric<ProductCategory,Product> productEnd = implicitMultiAssociation.associationEnd(p -> p.getProduct());

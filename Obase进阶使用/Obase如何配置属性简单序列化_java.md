@@ -8,7 +8,7 @@
 
 ## 属性序列化配置方法
 
-序列化器的配置方法为属性配置上的useSerializer方法,有四个重载,其中两个参数为TextSerializer,两个参数为ITextSerializer,对于使用Json存储这种通常的场景,我们使用TextSerializer参数的配置方法即可.
+序列化器的配置方法为属性配置上的useSerializer方法,有两个重载,其中一个参数为TextSerializer,一个参数为ITextSerializer,对于使用Json存储这种通常的场景,我们使用TextSerializer参数的配置方法即可.
 
 ```
 //比较常用的配置序列器方法
@@ -18,7 +18,7 @@ attrConfig.useSerializer(new CommaSplitSerializer(), String[].class)
 
 ## 实现序列化器
 
-通常实现抽象类TextSerializer即可,在DoDeserialize方法中进行反序列化,在DoSerialize方法中进行序列化.
+通常实现抽象类TextSerializer即可,在doDeserialize方法中进行反序列化,在doSerialize方法中进行序列化.
 
 如果有特定的需求,也可以实现ITextSerializer接口,此接口相较TextSerializer多了两个针对流的处理方法需要实现.
 
@@ -117,18 +117,18 @@ public class JsonSerializer extends TextSerializer {
 EntityTypeConfiguration<Goods> goods = modelBuilder.entity(Goods.class);
 //主键
 goods.hasKeyAttribute(p -> p.getGoodsId()).hasKeyIsSelfIncreased(true);
-//自定义GoodsPhotos属性
-goods.attribute(p -> p.getGoodsPhotos(), String.class)
+//自定义GoodsPhotos属性 注意此处必须显式指定属性的数据类型为String[],与useSerializer的第二个参数一致
+goods.attribute(p -> p.getGoodsPhotos(), String[].class)
     //使用Json序列化器
     .useSerializer(new JsonSerializer(), String[].class)
     //设置为255长 超过255会令数据库建表类型变为Text 方便存储
-    .hasMaxCharNumber(255)
+    .hasMaxCharNumber(255);
 //映射表
 goods.toTable("Goods");
 ```
-注意UseSerializer的类型参数,是GoodsPhotos的原始类型,会在JsonSerializer的doDeserialize第二个参数传入,用于辅助反序列化.
+注意useSerializer的第二个参数,是GoodsPhotos的原始类型,会在JsonSerializer的doDeserialize第二个参数传入,用于辅助反序列化.如果此处不显式指定属性的数据类型为String[],Obase会按属性自身的类型String[]去找对应的序列化模型,从而匹配不到按String类型注册的序列化器.
 
-此外UseSerializer方法还有两个使用ITextSerializer的重载,这两个重载当然也可以使用之前的JsonSerializer,但如果你想精细的控制序列化中流的行为,也可以直接实现ITextSerializer,以下是一个示例的逗号分隔的序列化器,可以参考其中的方法内注释来确定你的实现.
+此外useSerializer方法还有一个使用ITextSerializer的重载,这个重载当然也可以使用之前的JsonSerializer,但如果你想精细的控制序列化中流的行为,也可以直接实现ITextSerializer,以下是一个示例的逗号分隔的序列化器,可以参考其中的方法内注释来确定你的实现.
 
 ```
 /**

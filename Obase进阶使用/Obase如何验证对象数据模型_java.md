@@ -1,6 +1,6 @@
-配置对象数据模型时,如果配置有误,一般需要等到构造上下文时才会通过完整性检查发现,而构造上下文需要配置数据源和连接字符串等与数据源相关的内容.有些场景下,我们希望在不进行任何数据源操作的前提下直接验证注册的模型,例如在单元测试中验证模型配置,或者在应用启动时提前发现模型配置的错误.
+配置对象数据模型时,如果配置有误,一般需要等到建造对象数据模型时才会通过完整性检查发现,而建造对象数据模型需要配置数据源和连接字符串等与数据源相关的内容.有些场景下,我们希望在不进行任何数据源操作的前提下直接验证注册的模型,例如在单元测试中验证模型配置,或者在应用启动时提前发现模型配置的错误.
 
-为此,Obase提供了一个抽象类OdmValidator,继承此抽象类并实现createModel方法注册模型之后,调用validate方法即可直接建造一次对象数据模型并对其进行完整性检查,整个过程不会构造上下文,也不会连接或者访问数据源.
+为此,Obase提供了一个抽象类OdmValidator,继承此抽象类并实现createModel方法注册模型之后,调用validate方法即可直接建造一次对象数据模型并对其进行完整性检查,整个过程不需要构造对象上下文,也不会连接或者访问数据源.
 
 验证器自6.5.4可用.
 
@@ -46,7 +46,7 @@ public class ClassOdmValidator extends OdmValidator {
         classStudent.toTable("Student");
 
         //配置任课关系
-        AssociationEndConfigurationGeneric<Teaching> teaching = modelBuilder.association(Teaching.class);
+        AssociationTypeConfiguration<Teaching> teaching = modelBuilder.association(Teaching.class);
         teaching.associationEnd(p -> p.getClazz()).hasMapping("Id", "ClassId");
         teaching.associationEnd(p -> p.getTeacher()).hasMapping("Id", "TeacherId");
         teaching.toTable("Teaching");

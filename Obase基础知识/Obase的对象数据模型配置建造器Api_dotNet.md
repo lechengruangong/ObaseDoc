@@ -17,13 +17,19 @@ Obase使用对象数据模型用于解释领域模型,并根据对象数据模�
 
 ```
 public void RegisterType(Assembly assembly);
+public void RegisterType(string assemblyString);
 public void RegisterType(params Type[] types);
+public void RegisterType(IAssemblyAnalyzer analyzer, params Type[] types);
+public void RegisterType(Assembly assembly, IAssemblyAnalyzer analyzer);
+public void RegisterType(string assemblyString, IAssemblyAnalyzer analyzer);
 public ModelBuilder Ignore<T>();
 ```
 
-RegisterType将某个程序集注册的方法,将某个程序集传入后会将所有符合推断的类按照推断注册至对象数据模型.
+RegisterType将某个程序集注册的方法,将某个程序集传入后会将所有符合推断的类按照推断注册至对象数据模型.传入程序集名称字符串的重载会按名称加载程序集后再注册.
 
 RegisterType的另外一个重载可以将指定的类型按照推断注册至对象数据模型.
+
+带IAssemblyAnalyzer的重载可以使用自定义的程序集解析器来决定程序集中哪些类型参与注册,不传入时使用Obase默认的程序集解析器.
 
 Ignore是将某个类型添加在至忽略列表中,被忽略的类型不会参与RegisterType的注册,并且如果调用此方法时类型已注册,也会从已注册类型中删除.
 
@@ -33,8 +39,8 @@ Ignore是将某个类型添加在至忽略列表中,被忽略的类型不会参�
 
 
 ```
-public EntityTypeConfiguration<TEntity> Entity<TEntity>();
-public AssociationTypeConfiguration<TAssociation> Association<TAssociation>();
+public EntityTypeConfiguration<TEntity> Entity<TEntity>() where TEntity : class;
+public AssociationTypeConfiguration<TAssociation> Association<TAssociation>() where TAssociation : class;
 public ComplexTypeConfiguration<TComplex> Complex<TComplex>();
 ```
 
@@ -54,6 +60,7 @@ public AttributeConfiguration<TStructural, TConfiguration> Attribute(string name
 public AttributeConfiguration<TStructural, TConfiguration> Attribute(string name);
 public AttributeConfiguration<TStructural, TConfiguration> Attribute<TResult>(Expression<Func<TStructural, TResult>> expression);
 public AttributeConfiguration<TStructural, TConfiguration> Attribute<TResult>(Expression<Func<TStructural, TResult>> expression,Type dataType);
+public IAttributeConfigurator Attribute<TAttribute>(string name) where TAttribute : struct;
 ```
 
 这组属性配置方法都会返回一个属性配置(详见类型元素配置部分)每次调用时返回的均**是同一个对象.**
@@ -70,6 +77,8 @@ public AttributeConfiguration<TStructural, TConfiguration> Attribute<TResult>(Ex
 
 这里的映射类型指的是Obase基元类型,详见[Obase基元类型](./Obase的基元类型与默认数据库类型映射_dotNet.md)
 
+此外还有一个带类型参数的Attribute<TAttribute>(string name)重载,此重载要求TAttribute为结构体,返回的是IAttributeConfigurator接口.
+
 *一般情况下使用较多的是后两个配置方法,因为大多数的属性都可以会被反射建模自动侦测并配置,只有在需要自定义取值器设值器映射属性的时候才会使用这些配置方法.*
 
 - **构造函数配置方法**
@@ -78,10 +87,16 @@ public AttributeConfiguration<TStructural, TConfiguration> Attribute<TResult>(Ex
 ```
 public TConfiguration HasConstructor(Func<TStructural> construct);
 public StructuralTypeConfiguration HasConstructor(IInstanceConstructor constructor);
+public ParameterConfiguration<TStructural, TConfiguration> HasConstructor<T>(Func<T, TStructural> construct);
+public ParameterConfiguration<TStructural, TConfiguration> HasConstructor<T1, T2>(Func<T1, T2, TStructural> construct);
+public ParameterConfiguration<TStructural, TConfiguration> HasConstructor<T1, T2, T3>(Func<T1, T2, T3, TStructural> construct);
+public ParameterConfiguration<TStructural, TConfiguration> HasConstructor<T1, T2, T3, T4>(Func<T1, T2, T3, T4, TStructural> construct);
 public ParameterConfiguration<TStructural, TConfiguration> HasConstructor(ConstructorInfo constructorInfo);
 ```
 
-这组方法中,前两个方法会直接返回结构化配置本身,第三个则返回的是构造函数参数配置,每次调用这些方法时,会**覆盖**之前的构造函数配置.
+这组方法中,前两个方法会直接返回结构化配置本身,其余方法则返回的是构造函数参数配置,每次调用这些方法时,会**覆盖**之前的构造函数配置.
+
+与HasConstructor对应的还有一组HasNewInstanceConstructor方法,参数形式相同,用于配置创建新实例(即由Obase内部创建对象时)所使用的构造函数.
 
 这些配置方法分别是:
 
@@ -89,9 +104,11 @@ public ParameterConfiguration<TStructural, TConfiguration> HasConstructor(Constr
 
 2. 使用IInstanceConstructor接口的实例作为当前结构化配置的构造方法的配制方法.
 
-3. 使用反射获取的构造函数信息作为当前结构化配置的构造方法的配制方法.
+3. 使用带1个到4个参数的委托配置构造方法,委托的参数即构造函数的参数,配置完成后需要在返回的ParameterConfiguration上指定每个参数对应哪个元素.
 
-*第一个方法适用于无参的构造情形,第二个则是由配置方实现构造逻辑的情形,实现IInstanceConstructor接口自行处理诸如参数等构造逻辑.第三种是使用已经在被配置的类内定义的反持久化构造函数来作为构造方法,需要在返回的ParameterConfiguration上调用Map函数指定每个参数都是对应哪个属性,最后再调用End函数结束配置.*
+4. 使用反射获取的构造函数信息作为当前结构化配置的构造方法的配制方法.
+
+*第一个方法适用于无参的构造情形,第二个则是由配置方实现构造逻辑的情形,实现IInstanceConstructor接口自行处理诸如参数等构造逻辑.第三种是使用带参数的委托配置构造方法,第四种是使用已经在被配置的类内定义的反持久化构造函数来作为构造方法,这两种都需要在返回的ParameterConfiguration上调用Map函数指定每个参数都是对应哪个属性,最后再调用End函数结束配置.*
 
 *一般情况下,如果类内有定义无参的构造函数,反射建模时会自动进行配置.如果没有无参的构造函数或要使用特定的构造函数进行反持久化,则需要配置此项*.
 
@@ -155,6 +172,8 @@ public TConfiguration HasNotifyUpdate(bool notifyUpdate)
 
 这组方法用来配置对象通知,对象通知会在对象被创建,修改,删除时通过依赖注入的IChangeNoticeSender实例发送消息.
 
+其中HasNotifyCreation,HasNotifyDeletion,HasNotifyUpdate三个开关的默认值均为false,即默认不发送通知.
+
 这些方法分别是:
 
 1. 指示哪些属性和值要包含在通知中.
@@ -193,6 +212,8 @@ Obase将并发冲突分为三种:重复创建,版本冲突,更新幻影.
 3. EConcurrentConflictHandlingStrategy.Overwrite:强制覆盖策略 当发生并发时 用当前对象覆盖原有对象
 
 4. EConcurrentConflictHandlingStrategy.Combine:版本合并策略 当发生异常时 将当前对象与旧对象的属性进行合并.如何进行合并详见类型元素配置中的属性配置.
+
+5. EConcurrentConflictHandlingStrategy.Reconstruct:重建对象策略 当发生更新幻影冲突时 将对象作为新对象重新写入数据源以重建此对象.注意此策略不能用于重复创建和版本冲突,遇到这两种冲突时会抛出异常.
 
 
 ```
@@ -234,7 +255,9 @@ public StructuralTypeConfiguration HasConcreteTypeSign(object value);
 
 此方法用于设置此类型的判别字段和判别字段的值.
 
-第一个参数为此类型的判别字段的值,与类型一一对应.如果此类型是抽象的,此值可以配置一个不会被使用的值.
+参数为此类型的判别字段的值,与类型一一对应.如果此类型是抽象的,此值可以配置一个不会被使用的值.
+
+此值不能为空,且类型必须是string,short,int,long四种类型中的一种,否则会在配置时抛出异常.此外基类上必须已经使用HasConcreteTypeDiscriminator配置过判别字段,否则也会抛出异常.此方法配置的判别字段名称会沿用基类上配置的名称,不需要重复指定.
 
 ### 实体型配置
 
@@ -244,10 +267,13 @@ public StructuralTypeConfiguration HasConcreteTypeSign(object value);
 
 
 ```
+public EntityTypeConfiguration<TEntity> HasKeyAttribute(string attrName);
 public EntityTypeConfiguration<TEntity> HasKeyAttribute<TAttribute>(Expression<Func<TEntity, TAttribute>> expression);
 ```
 
 此方法用于配置实体型的主键,主键是区分对象唯一性的标识,可以配置多个.
+
+每调用一次本方法会追加一个标识属性,重复配置同一属性只保留一次.按名称配置时,如果类型上找不到该属性会抛出异常;按表达式配置时,表达式必须是属性访问表达式,否则会抛出异常.
 
 
 ```
@@ -255,6 +281,16 @@ public EntityTypeConfiguration<TEntity> HasKeyIsSelfIncreased(bool keyIsSelfIncr
 ```
 
 此方法用于配置实体型的主键是否自增,当主键由数据库生成时,需要将此项配置为true.
+
+自增有以下硬性约束,违反时会在完整性检查时报错:
+
+1. 联合主键不能配置为自增(实体型的主键多于一个时配置自增会报"主键是联合主键,不能配置为自增.").
+
+2. 自增主键的类型必须是short,int,long,ushort,uint,ulong之一.
+
+3. 主键必须有取值器;如果没有设值器,则必须出现在构造函数的参数中.
+
+此外,如果只配置了一个主键且没有显式调用过HasKeyIsSelfIncreased,当主键类型为int或long时,Obase会自动将其推断为自增.
 
 ### 关联型配置
 
@@ -312,6 +348,16 @@ public AssociationEndConfiguration AssociationEnd(Type endType);
 
 隐式关联型会根据注册的关联端动态创建类型,至少需要两个关联端才可以创建,所以每个隐式关联建造器需要调用两次AssociationEnd方法来注册关联端.
 
+隐式关联型还有以下限制:
+
+1. 关联端标签由各关联端实体型的完全限定名排序后串联生成,因此同一组类型(顺序无关)只能建立一条隐式关联,第二个指向同一组类型的关联引用不会再自动建立关联型.
+
+2. 只有两个关联端的隐式关联会被置为不可见(Visible为false),即不作为独立的关联型参与查询,其所有关联端的延迟加载也会被强制关闭.
+
+3. 如果配置了伴随端,且根据伴随端推断出的映射表与ToTable配置的表不一致,会在建模时抛出异常.
+
+需要注意的是,隐式关联型不能定义属性.如果概念上的关联存在独属于关系的属性,应当改为使用显式关联型(即定义关联类并用Association<TAssociation>()注册),或参考[Obase如何配置隐式关联的显式化](../Obase进阶使用/Obase如何配置隐式关联的显式化_dotNet.md).
+
 
 ```
 public AssociationConfiguratorBuilder ToTable(string table);
@@ -350,9 +396,13 @@ public TExtensionConfiguration HasExtension<TExtensionConfiguration>() where TEx
 ```
 public TConfiguration HasValueGetter(IValueGetter valueGetter);
 public TConfiguration HasValueGetter<TProperty>(Func<TStructural, TProperty> getValue);
+public TConfiguration HasValueGetter<TProperty>(Func<TStructural, IEnumerable<TProperty>> getValue);
 public TConfiguration HasValueGetter(MethodInfo method);
 public TConfiguration HasValueGetter(PropertyInfo property);
 public TConfiguration HasValueGetter(FieldInfo field);
+public TConfiguration HasValueGetter(string memberName, MemberTypes memberType);
+public TConfiguration HasValueGetter<TProperty>(MemberTypes memberType);
+public TConfiguration HasValueGetter<TProperty>();
 ```
 
 这是一组设置类型元素取值器的方法,取值器的**取值指的是从对象中获取值**,在探测对象是否修改,关联是否建立等场景中,Obase会调用取值器来获取元素的值.
@@ -369,13 +419,25 @@ public TConfiguration HasValueGetter(FieldInfo field);
 
 5. 将调用传入字段反射取值方法作为取值方法的取值器设置为取值器.
 
+6. 将集合取值委托(Func<TStructural, IEnumerable<TProperty>>)作为取值方法的取值器设置为取值器,用于显式声明取到的是集合.
+
+7. 传入成员名称和成员类型(MemberTypes),或者只传入成员类型,或者不传入任何参数,按名称和成员种类自动侦测取值器.
+
+以上重载都是覆盖式配置.建模管道内部还使用一组不覆盖的重载(带 `bool overrided` 参数,或只传 `MemberTypes`/`bool` 的 void 版本),仅在既有取值器为空时生效,它们由 `ITypeElementConfigurator` 接口提供给反射建模管道使用,一般不直接在业务代码中调用.
+
 
 ```
 public TConfiguration HasValueSetter(IValueSetter valueSetter);
+public TConfiguration HasValueSetter<TProperty>(Expression<Func<TStructural, TProperty>> expression);
+public TConfiguration HasValueSetter<TProperty, TElement>(Expression<Func<TStructural, TProperty>> propertyExp, Func<IEnumerable<TElement>, TProperty> valueCreator);
 public TConfiguration HasValueSetter<TValue>(Action<TStructural, TValue> setValue, EValueSettingMode mode);
+public TConfiguration HasValueSetter<TValue, TElement>(Action<TStructural, TValue> setValue, Func<IEnumerable<TElement>, TValue> valueCreator) where TValue : IEnumerable<TElement>;
 public TConfiguration HasValueSetter(MethodInfo method, EValueSettingMode mode);
 public TConfiguration HasValueSetter(PropertyInfo property);
 public TConfiguration HasValueSetter(FieldInfo field);
+public TConfiguration HasValueSetter(string memberName, MemberTypes memberType);
+public TConfiguration HasValueSetter<TProperty>(MemberTypes memberType);
+public TConfiguration HasValueSetter<TProperty>();
 ```
 
 这是一组设置类型元素设值器的方法,取值器的**设**值**指的是向对象中设置值**,在构造对象等场景中,Obase会调用设值器来为元素设置值.
@@ -391,6 +453,12 @@ public TConfiguration HasValueSetter(FieldInfo field);
 4. 将调用传入属性访问器的Set方法作为设值方法和赋值设值模式的设值器设置为设值器.
 
 5. 将调用传入字段反射设值方作为设值方法和赋值设值模式的设值器设置为设值器.
+
+6. 传入属性访问表达式,或者传入属性访问表达式与"由值序列项构造属性值"的委托,用于集合属性的设值.
+
+7. 传入成员名称和成员类型(MemberTypes),或者只传入成员类型,或者不传入任何参数,按名称和成员种类自动侦测设值器.
+
+以上重载都是覆盖式配置.建模管道内部还使用一组不覆盖的重载(带 `bool overrided` 参数,或只传 `MemberTypes`/`bool` 的 void 版本,以及 `HasValueSetter(MethodInfo appendingMethod, MethodInfo removingMethod, bool overrided)`),仅在既有设值器为空时生效,它们由 `ITypeElementConfigurator` 接口提供给反射建模管道使用,一般不直接在业务代码中调用.
 
 ### 属性配置
 
@@ -423,7 +491,7 @@ public AttributeConfiguration<TStructural> HasMappingConnectionChar(char value);
 public AttributeConfiguration<TStructural> HasMaxcharNumber(ushort maxcharNumber);
 ```
 
-此方法用于配置属性的最大字符数,仅对映射类型为字符串类型的有效.会影响结构映射自动建表,如果设置为0,字段长度会被设置为255.如果超过255,会被设置为Text字段.
+此方法用于配置属性的最大字符数,仅对映射类型为字符串和Guid类型的有效.会影响结构映射自动建表,如果设置为0,字段长度会被设置为40.如果长度超过255,会被设置为Text字段(SqlServer的阈值是500,Sqlite则忽略长度直接映射为TEXT).
 
 默认值为0;
 
@@ -453,6 +521,12 @@ public AttributeConfiguration<TStructural> ToField(string field);
 此方法用于设置映射字段.
 
 ```
+public AttributeConfiguration<TStructural> HasValueSetter<TProperty>(Action<TStructural, TProperty> setValue);
+```
+
+这是属性配置特有的设值器重载,等价于基类上的HasValueSetter(setValue, EValueSettingMode.Assignment),即固定使用赋值模式,只传入设值委托.
+
+```
 public AttributeConfiguration<TStructural> UseSerializer(ITextSerializer serializer, Type valueType);
 public AttributeConfiguration<TStructural> UseSerializer<TValue>(ITextSerializer serializer);
 public AttributeConfiguration<TStructural> UseSerializer(TextSerializer serializer, Type valueType)
@@ -471,6 +545,8 @@ public AttributeConfiguration<TStructural> UseSerializationModel(bool use);
 
 此方法用于设置是否使用序列化模型来处理此属性的序列化,具体的序列化逻辑由序列化实体型配置决定.
 
+启用后,属性的取值器与设值器会被包装为序列化模型的取值器/设值器,因此启用前必须已经配置了取值器(或设值器)与序列化器,否则在取值/设值时会抛出异常.
+
 详细内容参见下面的序列化元素配置部分.
 
 ### 关联端配置
@@ -481,7 +557,7 @@ public AttributeConfiguration<TStructural> UseSerializationModel(bool use);
 
 
 ```
-public AssociationEndConfiguration AsCompanion(bool value);
+public AssociationEndConfiguration<TAssociation> AsCompanion(bool value);
 ```
 
 设置此端是否为伴随端,设置当前端为伴随端会将之前设置的伴随端改设不作为伴随端.
@@ -492,16 +568,16 @@ public AssociationEndConfiguration AsCompanion(bool value);
 
 
 ```
-public AssociationEndConfiguration HasEnableLazyLoading(bool enableLazyLoading);
+public AssociationEndConfiguration<TAssociation> HasEnableLazyLoading(bool enableLazyLoading);
 ```
 
-是否启用延迟加载,要想启用延迟加载,此关联端的定义必须是virtual的.在启用了延迟加载后,访问此端的属性访问器就会触发延迟加载,尝试从数据源加载对象.
+是否启用延迟加载,要想启用延迟加载,要延迟加载的引用元素(属性或关联引用)的定义必须是virtual的.在启用了延迟加载后,访问此端的属性访问器就会触发延迟加载,尝试从数据源加载对象.
 
 默认为false,不启用延迟加载.
 
 
 ```
-public AssociationEndConfiguration HasDefaultAsNew(bool defaultAsNew);
+public AssociationEndConfiguration<TAssociation> HasDefaultAsNew(bool defaultAsNew);
 ```
 
 设置此关联端是否默认作为新对象附加至上下文.
@@ -516,7 +592,7 @@ public AssociationEndConfiguration HasDefaultAsNew(bool defaultAsNew);
 
 
 ```
-public AssociationEndConfiguration IsAggregated(bool isAggregated);
+public AssociationEndConfiguration<TAssociation> IsAggregated(bool isAggregated);
 ```
 
 设置此关联端是否为聚合的.
@@ -527,12 +603,12 @@ public AssociationEndConfiguration IsAggregated(bool isAggregated);
 
 
 ```
-public AssociationEndConfiguration HasMapping(string keyAttribute, string targetField);
+public AssociationEndConfiguration<TAssociation> HasMapping(string keyAttribute, string targetField);
 ```
 
 此方法用于设置关联端在关联表内主键的映射.
 
-第一个参数固定为当前关联端的实体型主键中的一个,第二个参数为此主键在关联表内的字段名称.
+第一个参数固定为当前关联端的实体型主键中的一个,第二个参数为此主键在关联表内的字段名称.完整性检查要求实体型的每一个主键属性都应有且仅有一个映射,配置不合规会报"标识属性XXX应有且仅有1个映射".
 
 如果实体型存在多个主键,可以多次调用,每次调用会添加一个主键的映射.
 
@@ -542,6 +618,12 @@ public AssociationReferenceConfiguration<TEntity> AssociationReference<TReferred
 public AssociationReferenceConfiguration<TEntity> AssociationReference<TAssociation>(Expression<Func<TEntity, TAssociation>> expression) where TAssociation : class;
 ```
 
+这组方法只在关联端上提供,实体型配置上没有AssociationReference方法.由于带TReferred的重载只存在于隐式关联端配置上,实际可用的重载取决于关联端是显式关联端还是隐式关联端:
+
+1. 显式关联端(AssociationEndConfiguration<TAssociation,TEntity>)上可用的重载为:按名称和多重性配置的AssociationReference(string name, bool isMultiple),以及两个按表达式配置的重载AssociationReference(Expression<Func<TEntity, TAssociation>>)与AssociationReference(Expression<Func<TEntity, IEnumerable<TAssociation>>>).其中按名称配置的重载不带泛型参数,无法指定关联引用指向的关联型.
+
+2. 隐式关联端(ImplicitAssociationConfigor下的AssociationEndConfiguration<TEntity>)上额外提供了带TReferred的重载AssociationReference<TReferred>(string name, bool isMultiple),可显式指定关联引用指向的关联型,这也是隐式关联显式化时要用到的写法.
+
 这组方法用于配置此端实体型的关联引用,每次调用得到的都**是同一个对象.**
 
 这组方法分别为:
@@ -549,6 +631,8 @@ public AssociationReferenceConfiguration<TEntity> AssociationReference<TAssociat
 1. 使用指定名称和多重性(一对一为false,一对多为true)来配置关联引用,会配置取值器和设置器.
 
 2. 使用表达式来配置关联引用,此方法会创建配置,且会配置取值器和设置器.
+
+需要注意的是,关联引用的左端与右端会在配置过程中自动推断:调用AssociationReference时会把左端名自动设为本关联端名,右端名在补充配置阶段根据关联端推断,一般不需要手工调用HasLeftEnd/HasRightEnd(这两个方法在AssociationReferenceConfiguration上是internal的,仅由构建器内部调用).
 
 ### 关联引用配置
 
@@ -558,10 +642,10 @@ public AssociationReferenceConfiguration<TEntity> AssociationReference<TAssociat
 
 
 ```
-public AssociationEndConfiguration HasEnableLazyLoading(bool enableLazyLoading);
+public AssociationReferenceConfiguration<TEntity> HasEnableLazyLoading(bool enableLazyLoading);
 ```
 
-是否启用延迟加载,要想启用延迟加载,此关联引用的定义必须是virtual的.在启用了延迟加载后,访问此引用的属性访问器就会触发延迟加载,尝试从数据源加载对象.
+是否启用延迟加载,要想启用延迟加载,要延迟加载的引用元素(属性或关联引用)的定义必须是virtual的.在启用了延迟加载后,访问此引用的属性访问器就会触发延迟加载,尝试从数据源加载对象.
 
 需要注意的是,关联引用的延迟加载可能会导致性能损失,对一个由多个对象组成的集合,每次访问集合中的对象上配置了延迟加载的属性都会触发延迟加载,即进行了集合大小次的延迟加载.
 
@@ -593,7 +677,7 @@ public SerializationAttributeConfiguration<T> Attribute<TResult>(Expression<Func
 
 这些方法分别是:
 
-1. 手动配置序列化属性方法,指定序列化属性的名称和类型配置属性,此方法仅会创建配置而不会配置取值器,设值器.
+1. 手动配置序列化属性方法,指定序列化属性的名称和类型配置属性,此方法仅会创建配置而不会配置取值器,设值器.此方法会校验传入的类型必须是Obase基元类型,否则抛出异常.
 2. 指定名称配制方法,指定属性的名称配置属性.会自动侦测属性的类型配置取值器,设值器.
 3. 使用表达式配置方法,会根据表达式所指向的属性访问器配置名称,属性的类型,配置取值器,设值器.
 
@@ -619,6 +703,8 @@ public SerializationReferenceConfiguration<T> Reference<TResult>(Expression<Func
 1. 手动配置序列化引用方法,指定序列化引用的名称和是否为多值的,此方法仅会创建配置而不会配置取值器,设值器.
 2. 指定名称配制方法,指定引用的名称配置引用.会自动侦测引用的类型配置取值器,设值器.
 3. 使用表达式配置方法,会根据表达式所指向的属性访问器配置名称,引用的否为多值,配置取值器,设值器.
+
+注意取值器与设值器是序列化属性配置和序列化引用配置共有的配置(它们都继承自序列化类型元素配置),所以序列化引用上也可以使用HasValueGetter和HasValueSetter,下面序列化引用配置方法部分列出的即为此类共有方法.
 
 ```
 public SerializationEntityConfiguration<T> Ignore(string name);
@@ -656,9 +742,9 @@ public SerializationTypeElementConfiguration<TStructural> HasValueSetter(IValueS
 ### 序列化构造函数配置方法
 
 ```
-public SerializationConstructorConfiguration<TStructural> HasParameter(FieldInfo field, Type valueType,bool needStorage);
-public SerializationConstructorConfiguration<TStructural> HasParameter<TProperty>(Func<TStructural, TProperty> getValue, Type valueType, bool needStorage);
-public SerializationConstructorConfiguration<TStructural> HasParameter(IValueGetter valueGetter, Type valueType,bool needStorage);
+public SerializationConstructorConfiguration<TStructural> HasParameter(FieldInfo field, Type valueType,bool needStorage, Func<object, object> valueConvert = null);
+public SerializationConstructorConfiguration<TStructural> HasParameter<TProperty>(Func<TStructural, TProperty> getValue, Type valueType, bool needStorage, Func<object, object> valueConvert = null);
+public SerializationConstructorConfiguration<TStructural> HasParameter(IValueGetter valueGetter, Type valueType,bool needStorage, Func<object, object> valueConvert = null);
 ```
 这组方法用于配置序列化构造函数的参数,每次调用会配置一个参数,调用时要与使用的构造函数参数一一对应.
 
@@ -668,7 +754,9 @@ public SerializationConstructorConfiguration<TStructural> HasParameter(IValueGet
 2. 使用参数的取值委托,存储的类型,是否需要存储来配置序列化构造器参数方法.
 3. 使用取值器的实现,存储的类型,是否需要存储来配置序列化构造器参数方法.
 
-这些方法的参数中,第二个参数为取得的值类型,如果设置needStorage为true,则在序列化时会检查取值器取得的值是否是此类型的.第三个参数是是否需要存储,如果是true,则取值器会在序列化时被调用将取得的值进行存储,此时传入的取值器的参数为当前要序列化的对象;如果是false 则取值器会在反序列化被调用,取得的值用于构造函数,此时传入的取值器的参数为null.
+这些方法的参数中,第二个参数为取得的值类型,如果设置needStorage为true,则在序列化时会检查取值器取得的值是否是此类型的,同时会校验此类型必须是Obase的基元类型,否则抛出异常.第三个参数是是否需要存储,如果是true,则取值器会在序列化时被调用将取得的值进行存储,此时传入的取值器的参数为当前要序列化的对象;如果是false 则取值器会在反序列化被调用,取得的值用于构造函数,此时传入的取值器的参数为null.第四个参数valueConvert为值转换委托,用于在存储前把取值器取得的值转换为其他类型,不需要转换时可以不传.
+
+配置参数时必须与构造函数参数一一对应,配置的参数个数超过构造函数的真实参数个数会抛出异常;如果当前配置的值类型与构造函数对应位置的参数类型不匹配且没有提供valueConvert,同样会抛出异常.
 
 ### 序列化引用配置方法
 
@@ -678,7 +766,7 @@ public SerializationTypeElementConfiguration<TStructural> HasValueGetter<TProper
 public SerializationTypeElementConfiguration<TStructural> HasValueGetter(IValueGetter getter);
 ```
 
-这组方法用于配置序列化属性的取值器,分别为:
+这组方法用于配置序列化引用的取值器,分别为:
 
 1. 使用字段配置的取值器方法.
 2. 使用委托配置的取值器方法.
@@ -690,7 +778,7 @@ public SerializationTypeElementConfiguration<TStructural> HasValueSetter<TValue>
 public SerializationTypeElementConfiguration<TStructural> HasValueSetter(IValueSetter valueSetter);
 ```
 
-这组方法用于配置序列化属性的设值器,分别为:
+这组方法用于配置序列化引用的设值器,分别为:
 
 1. 使用字段配置的设值器方法.
 2. 使用委托和设值模式配置的设值器方法.

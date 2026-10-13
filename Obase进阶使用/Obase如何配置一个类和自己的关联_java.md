@@ -292,7 +292,7 @@ AssociationReferenceConfiguration<Area> subRef = areaEnd1.associationReference(p
 subRef.hasEnableLazyLoading(true);
 //配置第二个Area端
 AssociationEndConfigurationGeneric<Area> areaEnd2 = areaArea.associationEnd(Area.class);
-//配置映射
+//配置映射 子区域通过Area表的ParentCode字段找到父级区域
 areaEnd2.hasMapping("Code", "ParentCode");
 //配置是否启用延迟加载
 areaEnd2.hasEnableLazyLoading(true);

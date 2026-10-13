@@ -2,10 +2,10 @@
 
 这四条管道分别是:
 
-- “保存”管道,提供了如开始保存getIBeginSaving()事件,开始保存映射单元getIBeginSavingUnit()事件,执行Sql语句前getIPreExecuteCommand()事件,执行Sql语句后getIPostExecuteCommand()事件等保存相关的事件.
-- "删除"管道,提供了如开始删除getIBeginDeleting()事件,开始一组BeginDeletingGroup()删除事件,执行Sql语句前PreExecuteCommand()事件,执行Sql语句后PostExecuteCommand()事件等删除相关的事件.
-- "查询"管道,提供了如开始查询getIBeginQuery()事件,结束查询getIEndQuery事件,执行Sql语句前getIPreExecuteCommand()事件,执行Sql语句后getIPostExecuteCommand()事件等查询相关的事件.
-- "就地修改"管道,提供了如开始就地修改getIBeginDirectlyChanging()事件,结束就地修改getIEndDirectlyChanging()事件,执行Sql语句前getIPreExecuteCommand()事件,执行Sql语句后getIPostExecuteCommand()事件等就地修改相关的事件.
+- “保存”管道,提供了如开始保存getBeginSaving()事件,开始保存映射单元getBeginSavingUnit()事件,执行Sql语句前getSavingPreExecuteCommand()事件,执行Sql语句后getSavingPostExecuteCommand()事件等保存相关的事件.
+- "删除"管道,提供了如开始删除getBeginDeleting()事件,开始一组getBeginDeletingGroup()删除事件,执行Sql语句前getDeletingPreExecuteCommand()事件,执行Sql语句后getDeletingPostExecuteCommand()事件等删除相关的事件.
+- "查询"管道,提供了如开始查询getBeginQuery()事件,结束查询getEndQuery()事件,执行Sql语句前getIQueryPipelinePreExecuteCommand()事件,执行Sql语句后getIQueryPipelinePostExecuteCommand()事件等查询相关的事件.
+- "就地修改"管道,提供了如开始就地修改getBeginDirectlyChanging()事件,结束就地修改getEndDirectlyChanging()事件,执行Sql语句前getDirectlyChangingPreExecuteCommand()事件,执行Sql语句后getDirectlyChangingPostExecuteCommand()事件等就地修改相关的事件.
 
 这些事件方法返回的对象都可以用addListener方法为其订阅事件并在订阅事件的代码中对事件数据对象进行处理,addListener方法为接受EventListener类型的参数,可以使用Lambda表达式来进行匿名实现.
 
@@ -32,7 +32,7 @@ public class QueryTestModule implements IMappingModule{
      * 构造用于显示Sql语句的模块
      * @param dataSource 当前的数据源
      */
-    private QueryTestModule(EDataSource dataSource){
+    public QueryTestModule(EDataSource dataSource){
 
         this.dataSource = dataSource;
     }
@@ -50,15 +50,15 @@ public class QueryTestModule implements IMappingModule{
     public void init(ISavingPipeline savingPipeline, IDeletingPipeline deletingPipeline, IQueryPipeline queryPipeline, IDirectlyChangingPipeline directlyChangingPipeline, ObjectContext objectContext) {
         //查询sql执行前
         queryPipeline.getIQueryPipelinePreExecuteCommand().addListener(eventObject -> {
-            //用QuerySqlParameteredView进行处理
-            var view = SqlParameterizedView.getSqlParameterizedView((QuerySql) obj, this.dataSource);
-            //自行处理SimpleViewString
+            //用SqlParameterizedView进行处理
+            var view = SqlParameterizedView.getSqlParameterizedView((QuerySql) eventObject.getContext().getCommand(), this.dataSource);
+            //自行处理getSimpleSqlString()
             System.out.println(view.getSimpleSqlString());
         });
     }
 }
 ```
-这里注册了"查询"管道的执行Sql语句前getIPreExecuteCommand()事件,并且在处理程序中用SqlParameterizedView的静态方法来获取SqlParameterizedView对象,此对象上有方法getSqlString()和getSimpleViewString()来分别获取Sql语句和非参数化的Sql语句.
+这里注册了"查询"管道的执行Sql语句前getIQueryPipelinePreExecuteCommand()事件,并且在处理程序中用SqlParameterizedView类的静态方法来获取SqlParameterizedView对象,此对象上有方法getSqlString()和getSimpleSqlString()来分别获取Sql语句和非参数化的Sql语句.
 
 然后在调用上下文的registerModule来注册这个模块的实例即可实现在某个上下文查询时显示查询的Sql语句.
 
@@ -92,13 +92,13 @@ public class DisableDeleteModule implements IMappingModule{
         savingPipeline.getSavingPreExecuteCommand().addListener(eventObject -> {
             ChangeSql changeSql = (ChangeSql)eventObject.getCommand();
             if(changeSql.getChangeType().equals(EChangeType.Delete))
-                throw new RuntimeException("删除操作已被禁用")
+                throw new RuntimeException("删除操作已被禁用");
         });
     }
 }
 ```
 
-这里注册了"保存"管道的执行Sql语句前getIPreExecuteCommand()事件,在语句类型为删除时抛出异常.
+这里注册了"保存"管道的执行Sql语句前getSavingPreExecuteCommand()事件,在语句类型为删除时抛出异常.需要注意的是,在保存管道上针对删除类型的语句拦截是有意为之:OnSaving的"保存"管道覆盖Update/Insert/Delete三种语句类型(getSavingPreExecuteCommand()位于ISavingPipeline上),因此删除语句同样会经过此事件,当getChangeType()为EChangeType.Delete时即可拦截删除.
 
 然后在调用上下文的registerModule来注册这个模块的实例即可实现在某个上下文尝试删除时抛出异常.
 

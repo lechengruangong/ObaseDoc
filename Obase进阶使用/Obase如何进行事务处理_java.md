@@ -133,8 +133,9 @@ Obase的事务由上下文负责管理,提供了以下几个方法:
        * 使用指定的Sql执行器初始化SqlContextConfigurator的新实例
        *
        * @param sqlExecutor         Sql语句执行器
+       * @param enableStructMapping 指示是否启用存储架构映射
        */
-       public MySqlExistingConnectionContextConfig(ISqlExecutor sqlExecutor) {
+       public MySqlExistingConnectionContextConfig(ISqlExecutor sqlExecutor, boolean enableStructMapping) {
           super(sqlExecutor, enableStructMapping);
        }
 
@@ -160,14 +161,15 @@ Obase的事务由上下文负责管理,提供了以下几个方法:
          * 初始化使用已存在的MySql连接上下文
          *
          * @param connection 数据库连接
+         */
          public MySqlExistingConnectionContext(Connection connection) {
-            super(new MySqlExistingConnectionContextConfig(new ExistingConnectionSqlExecutor(connection, EDataSource.MySql)));
+            super(new MySqlExistingConnectionContextConfig(new ExistingConnectionSqlExecutor(connection, EDataSource.MySql), false));
          }
       }
       ```
       ExistingConnectionSqlExecutor执行器需要这样几个参数:数据源连接和数据源类型.
 
-      使用这些参数构造的ExistingConnectionSqlExecutor会将已有的连接和事务作为Obase的Sql执行者使用,这样就可以复用原有的事务处理了.
+      使用这些参数构造的ExistingConnectionSqlExecutor会将已有的连接作为Obase的Sql执行者使用(连接的生命周期由调用方管理),这样就可以复用原有的事务处理了.
 
       接下来只要修改旧逻辑即可:
       ```

@@ -2,8 +2,9 @@
 
 Obase的软件包发布于Maven,包含以下软件包:
 
+- io.obase:common,Obase的通用模块,提供了元组,带参数的委托接口等功能性接口.
 - io.obase:core,Obase的核心,提供了对象存储的核心抽象.
-- io.obase:logic.deletion,Obase的逻辑删除扩展,提供了逻辑删除功能.
+- io.obase:logical.deletion,Obase的逻辑删除扩展,提供了逻辑删除功能.
 - io.obase:multi.tenant,Obase的多租户扩展,提供了多租户功能.
 - io.obase:odm.annotation,Obase的标注建模扩展,提供了标注建模功能.
 - io.obase:providers.sql,Obase的Sql数据源抽象,提供了多个Sql语法的兼容.

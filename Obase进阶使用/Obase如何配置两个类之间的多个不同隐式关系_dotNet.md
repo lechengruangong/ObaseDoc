@@ -161,8 +161,8 @@ var manageEndConfig = manageAssociationTypeConfiguration.AssociationEnd<Employee
 manageEndConfig.HasMapping("EmployeeCode", "EmployeeCode");
 //对于当两个类间有多种关系时 必须配置关联引用以保证不同的引用使用不同的隐式关联型
 manageEndConfig.AssociationReference(p => p.ManageRooms);
-//另外一个端
-manageAssociationTypeConfiguration.AssociationEnd<OfficeRoom>().HasMapping("RoomCode", "WorkRoomCode");
+//另外一个端 映射符合推断 从OfficeRoom的主键RoomCode映射到ManageRoom表的RoomCode字段
+manageAssociationTypeConfiguration.AssociationEnd<OfficeRoom>();
 //映射表
 manageAssociationTypeConfiguration.ToTable("ManageRoom");
 
@@ -174,8 +174,8 @@ var workEndConfig = workAssociationTypeConfiguration.AssociationEnd<Employee>();
 workEndConfig.HasMapping("EmployeeCode", "EmployeeCode");
 //对于当两个类间有多种关系时 必须配置关联引用以保证不同的引用使用不同的隐式关联型
 workEndConfig.AssociationReference(p => p.WorkRoom);
-//另外一个端
+//另外一个端 映射符合推断 从OfficeRoom的主键RoomCode映射到Employee表的WorkRoomCode字段
 workAssociationTypeConfiguration.AssociationEnd<OfficeRoom>().HasMapping("RoomCode", "WorkRoomCode");
-//映射表
+//映射表 工作房间关系是一对一的 与员工存储在员工表内
 workAssociationTypeConfiguration.ToTable("Employee");
 ```

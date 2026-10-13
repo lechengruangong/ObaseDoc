@@ -190,7 +190,7 @@ areaEnd1.HasMapping("Code", "Code");
 areaEnd1.AssociationReference(p => p.ParentArea);
 //配置第二个Area端
 var areaEnd2 = areaArea.AssociationEnd<Area>();
-//配置映射
+//配置映射 子区域通过Area表的ParentCode字段找到父级区域
 areaEnd2.HasMapping("Code", "ParentCode");
 //配置关联引用和关联引用的延迟加载
 areaEnd2.AssociationReference(p => p.SubAreas);

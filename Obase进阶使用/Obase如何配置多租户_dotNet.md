@@ -22,8 +22,8 @@ HasExtension方法会返回MultiTenantExtensionConfiguration<TEntity>的实例,M
 var multiTenantExt = multiTenant.HasExtension<MultiTenantExtensionConfiguration<Domain>>();
 //当类中有定义多租户属性时 指定某个属性为多租户标记
 multiTenantExt.HasTenantIdMark(p => p.TenantId);
-//当类中没有定义多租户字段时或者数据源的字段与属性名称不一致时 需要指定多租户映射字段
-multiTenantExt.HasTenantIdField("TenantId");
+//当类中没有定义多租户字段时或者数据源的字段与属性名称不一致时 需要指定多租户映射字段和字段类型
+multiTenantExt.HasTenantIdField("TenantId", typeof(string));
 //设置全局的多租户ID 如果系统中需要一些属于全局的 可以被每个租户都查询的 需要配置此项
 multiTenantExt.HasGlobalTenantId("00000000");
 //在配置了全局多租户ID后 如果需要每个租户都查询到全局的 需要配置此项为true
@@ -36,9 +36,13 @@ multiTenantExt.HasLoadingGlobal(true);
 
 第5行就是类内有定义多租户属性的情况,此种情况需要指定哪个属性是多租户属性,如果数据源的字段与属性名称相同,则只需要配置HasTenantIdMark
 
-第7行是类内没有定义多租户字段或者数据源的字段与属性名称不一致的情况,此时需要配置数据源中哪个字段是多租户的字段.
+第7行是类内没有定义多租户字段或者数据源的字段与属性名称不一致的情况,此时需要配置数据源中哪个字段是多租户的字段和此字段的类型.
 
 此外还有全局租户相关的配置,用于系统中存在需要被所有租户获取的对象的情况.
+
+多租户属性只能是string,int,long,Guid四种类型中的一种,HasTenantIdField的第二个参数和HasGlobalTenantId传入的值都必须是这四种类型中的一种,如果HasGlobalTenantId传入的值类型与多租户属性的类型不一致会在配置时抛出异常.
+
+另外,HasGlobalTenantId在设置全局租户ID的同时会把包含全局租户ID查询也一并启用(即内部会把HasLoadingGlobal置为true),所以只有需要关闭它时才需要再调用HasLoadingGlobal(false).
 
 ## 依赖注入租户ID读取器
 
@@ -111,12 +115,12 @@ routeRecord.HasKeyAttribute(p => p.RecordId).HasKeyIsSelfIncreased(true);
 routeRecord.ToTable(nameof(RoutePageVisitRecord));
 //配置多租户
 var multiTenantExtension = routeRecord.HasExtension<MultiTenantExtensionConfiguration<RoutePageVisitRecord>>();
-//没在类内定义租户字段 这里直接配置租户字段名称即可
+//没在类内定义租户字段 这里直接配置租户字段名称和类型即可
 multiTenantExtension.HasTenantIdField("TenantId", typeof(string));
 ```
-这里的逻辑不涉及全局的租户也没有在类内定义租户ID,所以只需要配置自己的多租户字段名.
+这里的逻辑不涉及全局的租户也没有在类内定义租户ID,所以只需要配置自己的多租户字段名和类型.
 
-再定义一个更改消息发送器TenantIdReader:
+再定义一个租户ID读取器TenantIdReader:
 
 ```
 /// <summary>
@@ -211,7 +215,7 @@ builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
-//为Obase注入消息发送器
+//为Obase注入租户ID读取器
 var oBuilder = ObaseDependencyInjection.CreateBuilder<DataContext>();
 oBuilder.AddSingleton<ITenantIdReader, TenantIdReader>(_ => new TenantIdReader(app.Services.GetService<IHttpContextAccessor>()));
 oBuilder.Build();
@@ -223,7 +227,7 @@ app.Run();
 ```
 此处主要的修改为Obase依赖注入方法改为使用委托作为参数的注入方法,并在获取到WebApplication后从app.Services中获取具体服务作为构造TenantIdReader的参数.
 
-最后只要和平常一样调用保存新对象和查询的逻辑即可,唯一需要注意的是为上下文启用对象通知:
+最后只要和平常一样调用保存新对象和查询的逻辑即可,唯一需要注意的是为上下文启用多租户:
 ```
 
 //此处省略从ASP.NET的依赖注入中获取context的代码
