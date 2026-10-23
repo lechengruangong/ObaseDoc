@@ -4,6 +4,8 @@
 
 验证器自6.5.4可用.
 
+在6.5.5中,验证通过时返回的完整映射关系视图增加了显式关联型属性的输出,建模过程中的部分配置错误也改为抛出带有明确说明的异常,这些变化在下文相应的位置说明.
+
 ## 定义验证器
 
 OdmValidator位于io.obase.core.odm包,其中包含validate方法和抽象方法createModel(ModelBuilder modelBuilder),validate方法的返回值为ValidationResult,此返回值的内容见后文.
@@ -115,8 +117,20 @@ validate方法的返回值ValidationResult包含getIsValid和getMessage两个方
 主键Id映射为Id
 关联端valdemo.domain.Class的映射为:
 主键Id映射为ClassId
+2. 关联引用Teachings,对应关联型为valdemo.domain.Teaching,映射表为Teaching
+关联型valdemo.domain.Teaching共有3个属性.
+1. 简单属性ClassId,映射类型int,映射字段ClassId.
+2. 简单属性Course,映射类型class java.lang.String,映射字段Course.
+3. 简单属性TeacherId,映射类型int,映射字段TeacherId.
+在映射表Teaching中,共有关联端2个.
+关联端valdemo.domain.Teacher的映射为:
+主键Id映射为TeacherId
+关联端valdemo.domain.Class的映射为:
+主键Id映射为ClassId
 ...
 ```
+
+从6.5.5起,如果关联引用对应的是显式关联型(例如上文中手动配置的任课关系Teaching),信息中还会输出此关联型上的属性,形如上文中的"关联型valdemo.domain.Teaching共有3个属性."及其后的属性列表,便于检查显式关联型自身的属性配置;隐式关联型没有属性,不会有这部分输出.
 
 ### 验证未通过
 
@@ -165,4 +179,6 @@ public class InvalidClassValidator extends OdmValidator {
 
 - 验证器建造模型时不会执行结构映射,所以不会在数据源中建表,需要在数据源中建表时请参考[Obase如何配置结构映射](./Obase如何配置结构映射_java.md).
 - validate方法只会捕获完整性检查未通过的异常IntegrityCheckFailException,如果注册代码中存在其他问题(例如配置的类型无法反射构造等),这些异常会直接抛出.
+- 从6.5.5起,上述这些不属于完整性检查的问题多数会抛出附带说明的IllegalArgumentException,便于直接看出是哪一项配置有误,例如把构造函数参数误绑到关联引用等引用元素上时,异常信息会指出该构造函数参数不能绑定到该元素,该属性的类型是已注册的结构化类型(实体型或关联型),属于导航或关联,不是可落库的简单属性,关系应改用AssociationEnd加HasMapping加AssociationReference配置;派生类型没有配置具体类型判别值时,则会抛出说明需要先调用hasConcreteTypeDiscriminator再调用hasConcreteTypeSign的异常.
 - 验证器会在执行完createModel方法之后再强制开启完整性检查,所以即使注册代码中(例如与上下文配置提供器共用的注册代码)调用了hasIntegrityCheck(false)关闭了完整性检查,验证时依然会执行完整性检查.
+- 验证器不考虑序列化对象数据模型之外的类型过滤配置,所以验证器中不能使用ignore方法排除类型,被ignore排除的类型在配置提供器中不参与建模,在验证器中则会作为普通类型参与建模,导致验证的模型与实际使用的模型不一致.此时应对照配置提供器的排除规则,把ignore方法以及被排除类型上仅用于配置而不会被Obase使用的属性(例如访问器直接抛出异常的属性)一并去掉,使注册代码在验证器和配置提供器中都能通过.
