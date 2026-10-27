@@ -62,6 +62,31 @@ public ServiceContainerBuilder AddTransient<TService, TServiceImplement>(Func<Se
 - 添加一个多例的服务定义,此服务的创建方式为根据的委托构造.此服务的注册类型为第一个参数的类型和构造类型为第二个参数类型.
 
 ```
+public ServiceContainerBuilder AddScoped(Type serviceType);
+public ServiceContainerBuilder AddScoped(Type serviceType, Type implementType);
+public ServiceContainerBuilder AddScoped<TService>();
+public ServiceContainerBuilder AddScoped<TService, TServiceImplement>() where TServiceImplement : TService;
+public ServiceContainerBuilder AddScoped<TService>(Func<ServiceContainer, object> factory);
+public ServiceContainerBuilder AddScoped<TService, TServiceImplement>(Func<ServiceContainer, object> factory);
+```
+
+这些方法分别为:
+
+- 添加一个作用域内单例的服务定义,此服务的创建方式为根据反射获取到的第一个公开或非公开构造函数创建.此服务的注册类型和构造类型均为参数类型.
+
+- 添加一个作用域内单例的服务定义,此服务的创建方式为根据反射获取到的第一个公开或非公开构造函数创建.此服务的注册类型为第一个参数的类型和构造类型为第二个参数类型.
+
+- 添加一个作用域内单例的服务定义,此服务的创建方式为根据反射获取到的第一个公开或非公开构造函数创建.此服务的注册类型和构造类型均为泛型参数类型.
+
+- 添加一个作用域内单例的服务定义,此服务的创建方式为根据反射获取到的第一个公开或非公开构造函数创建.此服务的注册类型第一个泛型参数的类型和构造类型为第二个泛型参数类型.
+
+- 添加一个作用域内单例的服务定义,此服务的创建方式为根据的委托构造.此服务的注册类型和构造类型均为泛型参数类型.
+
+- 添加一个作用域内单例的服务定义,此服务的创建方式为根据的委托构造.此服务的注册类型为第一个参数的类型和构造类型为第二个参数类型.
+
+作用域内单例在同一个服务作用域内只创建一次,随作用域释放;从容器获取时归容器所有,随容器释放.单例不能依赖作用域内单例.详见[Obase如何配置依赖注入的作用域](../Obase进阶使用/Obase如何配置依赖注入的作用域_dotNet.md).
+
+```
 public ServiceContainer Build();
 ```
 

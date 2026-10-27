@@ -32,10 +32,10 @@ public <TService, TServiceImplement extends TService> ServiceContainerBuilder ad
 
 
 ```
-public <TService> ServiceContainerBuilder addTransients(Class<TService> serviceType)
-public <TService, TServiceImplement extends TService> ServiceContainerBuilder addTransients(Class<TService> serviceType, Class<TServiceImplement> implementType)
-public <TService> ServiceContainerBuilder addTransients(Class<TService> serviceType, ServiceFactory<TService> factory)
-public <TService, TServiceImplement extends TService> ServiceContainerBuilder addTransients(Class<TService> serviceType, Class<TServiceImplement> implementType, ServiceFactory<TService> factory)
+public <TService> ServiceContainerBuilder addTransient(Class<TService> serviceType)
+public <TService, TServiceImplement extends TService> ServiceContainerBuilder addTransient(Class<TService> serviceType, Class<TServiceImplement> implementType)
+public <TService> ServiceContainerBuilder addTransient(Class<TService> serviceType, ServiceFactory<TService> factory)
+public <TService, TServiceImplement extends TService> ServiceContainerBuilder addTransient(Class<TService> serviceType, Class<TServiceImplement> implementType, ServiceFactory<TService> factory)
 ```
 
 这些方法分别为:
@@ -47,6 +47,25 @@ public <TService, TServiceImplement extends TService> ServiceContainerBuilder ad
 - 添加一个多例的服务定义,此服务的创建方式为根据的委托构造.此服务的注册类型和构造类型均为第一个参数类型.
 
 - 添加一个多例的服务定义,此服务的创建方式为根据的委托构造.此服务的注册类型为第一个参数的类型和构造类型为第二个参数类型.
+
+```
+public <TService> ServiceContainerBuilder addScoped(Class<TService> serviceType)
+public <TService, TServiceImplement extends TService> ServiceContainerBuilder addScoped(Class<TService> serviceType, Class<TServiceImplement> implementType)
+public <TService> ServiceContainerBuilder addScoped(Class<TService> serviceType, ServiceFactory<TService> factory)
+public <TService, TServiceImplement extends TService> ServiceContainerBuilder addScoped(Class<TService> serviceType, Class<TServiceImplement> implementType, ServiceFactory<TService> factory)
+```
+
+这些方法分别为:
+
+- 添加一个作用域内单例的服务定义,此服务的创建方式为根据反射获取到的第一个公开或非公开构造函数创建.此服务的注册类型和构造类型均为参数类型.
+
+- 添加一个作用域内单例的服务定义,此服务的创建方式为根据反射获取到的第一个公开或非公开构造函数创建.此服务的注册类型为第一个参数的类型和构造类型为第二个参数类型.
+
+- 添加一个作用域内单例的服务定义,此服务的创建方式为根据的委托构造.此服务的注册类型和构造类型均为第一个参数类型.
+
+- 添加一个作用域内单例的服务定义,此服务的创建方式为根据的委托构造.此服务的注册类型为第一个参数的类型和构造类型为第二个参数类型.
+
+作用域内单例在同一个服务作用域内只创建一次,随作用域关闭;从容器获取时归容器所有,随容器关闭.单例不能依赖作用域内单例.详见[Obase如何配置依赖注入的作用域](../Obase进阶使用/Obase如何配置依赖注入的作用域_java.md).
 
 ```
 public ServiceContainer build();

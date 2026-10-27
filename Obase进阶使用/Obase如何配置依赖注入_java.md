@@ -2,7 +2,9 @@ Obase提供了一个小型的依赖注入框架,用于对某些需要用户提�
 
 虽然大部分情况下,引用Obase的应用层都往往已经引用了其他的依赖注入框架,使用Obase的依赖注入也只是要实现Obase某些功能要求的,但如果应用层没有引用依赖注入框架当然也可以使用Obase的依赖注入.
 
-Obase的依赖注入管理的服务分为两种,一种是单例,一种是多例.单例的服务只会在首次被获取时创建,此后获取到的都是首次创建的同一个对象;多例的服务则在每次获取时创建,每次获取到的都是新对象.
+Obase的依赖注入管理的服务分为三种,一种是单例,一种是多例,一种是作用域内单例.单例的服务只会在首次被获取时创建,此后获取到的都是首次创建的同一个对象;多例的服务则在每次获取时创建,每次获取到的都是新对象;作用域内单例在同一个服务作用域内只在首次获取时创建,不同的作用域各自持有自己的对象.
+
+多例的实例会一直由容器持有到容器关闭为止.如果服务的生命周期短于容器(例如每次请求一份的仓储、工作单元),可以使用作用域为一组多例实例指定统一的释放时机,参见[Obase如何配置依赖注入的作用域](./Obase如何配置依赖注入的作用域_java.md).
 
 由于Obase的依赖注入一开始就是设计来为上下文服务的,所以注册服务时需要先根据上下文的类型创建配置建造器,再调用配置建造器的方法来注册服务,获取服务时也需要提供上下文类型才能获取服务.
 
@@ -17,12 +19,16 @@ ServiceContainerBuilder builder = ObaseDependencyInjection.createBuilder(SampleC
 //注册一个单例的服务
 builder.addSingleton(ServiceA.class);
 //注册一个多例的服务
-builder.addTransients(ServiceB.class);
+builder.addTransient(ServiceB.class);
+//注册一个作用域内单例的服务
+builder.addScoped(ServiceC.class);
 //建造依赖注入容器
 builder.build();
 ```
 
 需要注意的是这些代码应当只被调用一次,重复调用build方法会抛出异常.
+
+> 6.5.6起,为与.NET版命名一致,以下名称有破坏性变更(行为不变):`addTransients`更名为`addTransient`,`EServiceLifetime.Transients`更名为`EServiceLifetime.Transient`,`ServiceDefinition.singleton`/`transients`更名为`singletonService`/`transientService`(Java的`transient`是保留字,不能作为方法名),`ServiceDefinition.GetImplementType()`更名为`getImplementType()`.
 
 Obase的依赖注入还有一些其他方法,可以参考[Obase的依赖注入Api](../Obase基础知识/Obase的依赖注入建造器Api_java.md)这篇文档.
 
@@ -128,8 +134,8 @@ public class ServiceC {
 ```
 //注册Obase的服务 这里假设已经定义了一个SampleContext上下文
 ObaseDependencyInjection.createBuilder(SampleContext.class)
-        .addTransients(ServiceA.class).addTransients(ServiceB.class)
-        .addTransients(p -> new ServiceC(LocalDateTime.now()))
+        .addTransient(ServiceA.class).addTransient(ServiceB.class)
+        .addTransient(ServiceC.class, p -> new ServiceC(LocalDateTime.now()))
         .build();
 ```
 
