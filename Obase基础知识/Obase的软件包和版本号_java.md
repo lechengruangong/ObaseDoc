@@ -50,3 +50,6 @@ Obase的版本号分为两种:正式版与预览版
 - 6.4->6.5版本:主要为继承配置的改动,在6.5中配置具体类型判别器的方法进行了优化,加入了没有配置具体类型判别器时使用默认的具体类型判别器的逻辑,导致与6.4的配置不兼容.
 
   具体的配置区别可以查看[Obase如何配置继承关系](../Obase进阶使用/Obase如何配置继承关系_java.md)中的详细内容.
+- 6.5->6.6版本:主要为依赖注入的命名调整,在6.6中为与.NET版命名一致,`EServiceLifetime.Transients`更名为`Transient`,`addTransients`更名为`addTransient`,`ServiceDefinition.singleton`/`transients`更名为`singletonService`/`transientService`,`ServiceDefinition.GetImplementType()`更名为`getImplementType()`,`ServiceDefinition.getFactory()`更名为`getImplementationFactory()`,导致使用旧名称的代码不兼容(仅涉及命名,行为不变).
+
+  具体的命名区别可以查看[Obase如何配置依赖注入](../Obase进阶使用/Obase如何配置依赖注入_java.md)中的详细内容.

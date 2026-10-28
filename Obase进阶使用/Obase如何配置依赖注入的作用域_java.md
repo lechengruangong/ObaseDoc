@@ -45,7 +45,7 @@ try (ServiceScope scope = container.createScope()) {
 | 单例依赖作用域内单例 | 抛出`IllegalStateException`,异常信息含解析链 |
 | 关闭时单个实例释放失败 | 不影响其余实例的释放 |
 
-> `EServiceLifetime.Transients`在6.5.6改名为`Transient`,`addTransients`改名为`addTransient`;`ServiceDefinition.singleton`/`transients`改名为`singletonService`/`transientService`(Java的`transient`是保留字,不能作为方法名).
+> `EServiceLifetime.Transients`在6.6.0改名为`Transient`,`addTransients`改名为`addTransient`;`ServiceDefinition.singleton`/`transients`改名为`singletonService`/`transientService`(Java的`transient`是保留字,不能作为方法名).
 
 ## 三种生命周期在作用域中的行为
 

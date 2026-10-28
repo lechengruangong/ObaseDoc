@@ -28,7 +28,7 @@ builder.build();
 
 需要注意的是这些代码应当只被调用一次,重复调用build方法会抛出异常.
 
-> 6.5.6起,为与.NET版命名一致,以下名称有破坏性变更(行为不变):`addTransients`更名为`addTransient`,`EServiceLifetime.Transients`更名为`EServiceLifetime.Transient`,`ServiceDefinition.singleton`/`transients`更名为`singletonService`/`transientService`(Java的`transient`是保留字,不能作为方法名),`ServiceDefinition.GetImplementType()`更名为`getImplementType()`.
+> 6.6.0起,为与.NET版命名一致,以下名称有破坏性变更(行为不变):`addTransients`更名为`addTransient`,`EServiceLifetime.Transients`更名为`EServiceLifetime.Transient`,`ServiceDefinition.singleton`/`transients`更名为`singletonService`/`transientService`(Java的`transient`是保留字,不能作为方法名),`ServiceDefinition.GetImplementType()`更名为`getImplementType()`.
 
 Obase的依赖注入还有一些其他方法,可以参考[Obase的依赖注入Api](../Obase基础知识/Obase的依赖注入建造器Api_java.md)这篇文档.
 
